@@ -1,0 +1,22 @@
+# Docker
+.env
+backend/.env
+frontend/node_modules
+backend/vendor
+backend/storage/*.key
+backend/public/storage
+backend/public/hot
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+backend/auth.json
+frontend/dist

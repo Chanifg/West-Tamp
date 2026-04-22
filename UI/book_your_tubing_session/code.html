@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Westtamp Wellness - Booking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "secondary-fixed-dim": "#69d4f4",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "tertiary-container": "#5f2f00",
+                        "surface-container-low": "#f3f4f5",
+                        "outline-variant": "#c1c8c2",
+                        "inverse-primary": "#a5d0b9",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "surface": "#f8f9fa",
+                        "on-secondary-fixed-variant": "#004e5f",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "tertiary": "#3f1d00",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#3f6653",
+                        "secondary": "#00677d",
+                        "surface-variant": "#e1e3e4",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-primary-container": "#86af99",
+                        "primary-fixed": "#c1ecd4",
+                        "on-tertiary-container": "#ea9147",
+                        "on-primary-fixed": "#002114",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-secondary-container": "#006075",
+                        "outline": "#717973",
+                        "on-secondary-fixed": "#001f27",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#414844",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#72ddfd",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdcc4",
+                        "primary-container": "#1b4332",
+                        "inverse-surface": "#2e3132",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "on-tertiary-fixed": "#2f1400",
+                        "primary": "#012d1d",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#b2ebff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "48px",
+                        "stack-xs": "4px",
+                        "stack-sm": "12px",
+                        "stack-xl": "80px",
+                        "margin": "32px",
+                        "gutter": "24px",
+                        "stack-md": "24px",
+                        "container-max": "1280px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Be Vietnam Pro"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.1", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 w-full z-50 border-b border-slate-100 dark:border-slate-800 shadow-sm font-['Plus_Jakarta_Sans'] font-medium text-sm">
+<div class="flex justify-between items-center h-20 px-6 md:px-12 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#1B4332] dark:text-white">
+                Westtamp Wellness
+            </div>
+<div class="hidden md:flex gap-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#">Destinations</a>
+<a class="text-[#1B4332] dark:text-white font-bold border-b-2 border-[#1B4332] pb-1 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#">Wellness Packages</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#">River Tubing</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#">Facilities</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#">About Us</a>
+</div>
+<button class="bg-[#1B4332] text-white px-6 py-2 rounded-full font-bold hover:bg-[#2D6A4F] transition-colors active:scale-95">
+                Book Your Escape
+            </button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-6 md:px-12 py-stack-lg">
+<div class="mb-stack-md">
+<h1 class="font-headline-xl text-headline-xl text-primary mb-stack-xs">Booking &amp; Schedule</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Select your ideal package and lock in your adventure.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Packages & Schedule -->
+<div class="lg:col-span-8 flex flex-col gap-stack-md">
+<!-- Package Selection -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_rgba(27,67,50,0.08)]">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">local_activity</span>
+                        Choose Your Package
+                    </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-sm">
+<!-- Paket Fun -->
+<div class="border-2 border-outline-variant hover:border-primary-container rounded-lg p-6 cursor-pointer transition-all bg-surface-bright relative">
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-outline-variant">radio_button_unchecked</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-primary mb-1">Paket Fun</h3>
+<div class="font-headline-md text-headline-md text-tertiary-container mb-stack-sm">Rp150.000 <span class="font-body-md text-body-md text-on-surface-variant font-normal">/pax</span></div>
+<ul class="flex flex-col gap-2 font-body-md text-body-md text-on-surface">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Safety gear</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Professional guide</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Welcome drink</li>
+</ul>
+</div>
+<!-- Paket Adventure (Selected) -->
+<div class="border-2 border-primary-container bg-primary-fixed/20 rounded-lg p-6 cursor-pointer transition-all relative">
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">radio_button_checked</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-primary mb-1">Paket Adventure</h3>
+<div class="font-headline-md text-headline-md text-tertiary-container mb-stack-sm">Rp275.000 <span class="font-body-md text-body-md text-on-surface-variant font-normal">/pax</span></div>
+<ul class="flex flex-col gap-2 font-body-md text-body-md text-on-surface">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Everything in Fun</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Healthy lunch</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Photo documentation</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">check_circle</span> Locker &amp; changing room</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Schedule Selection -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_rgba(27,67,50,0.08)]">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+                        Select Date &amp; Session
+                    </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<!-- Date Picker Mockup -->
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-2">Adventure Date</label>
+<div class="border border-outline-variant rounded-lg p-4 bg-surface-bright flex items-center justify-between cursor-pointer">
+<span class="font-body-md text-body-md text-on-surface">15 October 2024</span>
+<span class="material-symbols-outlined text-on-surface-variant">arrow_drop_down</span>
+</div>
+</div>
+<!-- Session Picker -->
+<div>
+<label class="font-label-md text-label-md text-on-surface block mb-2">Session</label>
+<div class="flex gap-4">
+<button class="flex-1 py-3 px-4 rounded-lg border-2 border-primary-container bg-primary-fixed/20 font-label-md text-label-md text-primary-container text-center flex flex-col items-center justify-center gap-1 transition-all">
+<span class="material-symbols-outlined">wb_sunny</span>
+                                    Pagi (08:00 - 11:00)
+                                </button>
+<button class="flex-1 py-3 px-4 rounded-lg border border-outline-variant bg-surface-bright font-label-md text-label-md text-on-surface-variant text-center flex flex-col items-center justify-center gap-1 hover:border-outline transition-all">
+<span class="material-symbols-outlined">partly_cloudy_day</span>
+                                    Siang (13:00 - 16:00)
+                                </button>
+</div>
+</div>
+</div>
+<!-- Slot Counter -->
+<div class="mt-stack-sm p-4 bg-secondary-fixed/30 rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<p class="font-label-md text-label-md text-secondary">Real-time Availability</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Maksimal 100 ban per sesi. Currently <strong>82</strong> slots available for Pagi session.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Summary & CTA -->
+<div class="lg:col-span-4">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_24px_rgba(27,67,50,0.08)] sticky top-24">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-md border-b border-outline-variant pb-4">Booking Summary</h2>
+<div class="flex flex-col gap-4 mb-stack-md">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Package</p>
+<p class="font-body-lg text-body-lg text-on-surface font-medium">Paket Adventure</p>
+</div>
+<button class="text-primary-container font-label-sm text-label-sm hover:underline">Edit</button>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Date &amp; Time</p>
+<p class="font-body-md text-body-md text-on-surface">15 Oct 2024</p>
+<p class="font-body-md text-body-md text-on-surface">Pagi Session</p>
+</div>
+</div>
+<div class="flex justify-between items-center mt-2">
+<label class="font-label-md text-label-md text-on-surface">Guests</label>
+<div class="flex items-center border border-outline-variant rounded-lg overflow-hidden">
+<button class="px-3 py-1 bg-surface-bright hover:bg-surface-container transition-colors">-</button>
+<span class="px-4 font-body-md text-body-md">2</span>
+<button class="px-3 py-1 bg-surface-bright hover:bg-surface-container transition-colors">+</button>
+</div>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-4 mb-stack-md">
+<div class="flex justify-between items-center mb-2">
+<p class="font-body-md text-body-md text-on-surface-variant">Rp275.000 x 2</p>
+<p class="font-body-md text-body-md text-on-surface">Rp550.000</p>
+</div>
+<div class="flex justify-between items-center font-headline-lg text-headline-lg text-primary mt-2">
+<p>Total</p>
+<p>Rp550.000</p>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary py-4 rounded-lg font-label-md text-label-md shadow-md hover:bg-primary transition-colors flex justify-center items-center gap-2 active:scale-95">
+                        Continue to Payment
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="font-label-sm text-label-sm text-center text-on-surface-variant mt-3">You won't be charged yet.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 font-['Plus_Jakarta_Sans'] text-xs uppercase tracking-widest w-full py-16 px-6 md:px-12 mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+<div>
+<div class="text-xl font-extrabold text-[#1B4332] dark:text-white mb-4">
+                    Westtamp Wellness
+                </div>
+<p class="text-slate-500 dark:text-slate-400 normal-case tracking-normal">© 2024 Desa Tampirkulon Tourism. All rights reserved.</p>
+</div>
+<div class="flex flex-col gap-3">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#">Facebook</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#">Instagram</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#">WhatsApp</a>
+</div>
+<div class="flex flex-col gap-3">
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#">Sustainability Report</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#">Emergency Guide</a>
+</div>
+</div>
+</footer>
+</body></html>

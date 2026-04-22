@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Package Manager - Tampirkulon Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#012d1d",
+                      "on-primary-fixed": "#002114",
+                      "on-primary-fixed-variant": "#274e3d",
+                      "primary-fixed": "#c1ecd4",
+                      "on-surface": "#191c1d",
+                      "surface-container-low": "#f3f4f5",
+                      "surface": "#f8f9fa",
+                      "surface-container": "#edeeef",
+                      "inverse-on-surface": "#f0f1f2",
+                      "on-error-container": "#93000a",
+                      "primary-container": "#1b4332",
+                      "on-tertiary": "#ffffff",
+                      "surface-variant": "#e1e3e4",
+                      "outline-variant": "#c1c8c2",
+                      "on-tertiary-fixed-variant": "#6f3800",
+                      "surface-tint": "#3f6653",
+                      "on-secondary-fixed-variant": "#004e5f",
+                      "secondary-fixed-dim": "#69d4f4",
+                      "primary-fixed-dim": "#a5d0b9",
+                      "on-surface-variant": "#414844",
+                      "surface-dim": "#d9dadb",
+                      "surface-container-high": "#e7e8e9",
+                      "surface-bright": "#f8f9fa",
+                      "secondary-fixed": "#b2ebff",
+                      "on-tertiary-fixed": "#2f1400",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#ea9147",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#001f27",
+                      "on-primary-container": "#86af99",
+                      "inverse-primary": "#a5d0b9",
+                      "on-background": "#191c1d",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb781",
+                      "tertiary-container": "#5f2f00",
+                      "tertiary-fixed": "#ffdcc4",
+                      "outline": "#717973",
+                      "secondary-container": "#72ddfd",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#2e3132",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#006075",
+                      "tertiary": "#3f1d00",
+                      "surface-container-highest": "#e1e3e4",
+                      "secondary": "#00677d",
+                      "background": "#f8f9fa"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "stack-sm": "12px",
+                      "gutter": "24px",
+                      "stack-xl": "80px",
+                      "container-max": "1280px",
+                      "stack-xs": "4px",
+                      "stack-lg": "48px",
+                      "margin": "32px",
+                      "stack-md": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "Be Vietnam Pro"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Be Vietnam Pro"
+                      ],
+                      "headline-xl": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-emerald-900 dark:bg-slate-950 text-emerald-50 font-plus-jakarta-sans text-sm h-screen w-64 fixed left-0 top-0 z-50 border-r border-emerald-800 dark:border-slate-800 shadow-xl flex flex-col h-full py-6">
+<div class="px-6 mb-8">
+<h1 class="text-xl font-extrabold tracking-tight text-white mb-1">Grounded Vitality</h1>
+<p class="text-emerald-200 text-xs font-medium uppercase tracking-wider">Package Manager</p>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary-fixed hover:bg-primary-fixed-dim text-primary-container font-label-md text-label-md py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors shadow-sm font-semibold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                Create New Package
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="bg-emerald-800 dark:bg-emerald-900 text-white rounded-lg mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all focus:ring-2 focus:ring-emerald-400 font-semibold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+                        Package Management
+                    </a>
+</li>
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+                        Bookings
+                    </a>
+</li>
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">payments</span>
+                        Revenue
+                    </a>
+</li>
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">water</span>
+                        River Status
+                    </a>
+</li>
+</ul>
+</div>
+<div class="mt-auto pt-6 border-t border-emerald-800 mx-4">
+<ul class="space-y-1">
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">help</span>
+                        Support
+                    </a>
+</li>
+<li>
+<a class="text-emerald-200/70 hover:text-white mx-2 my-1 px-4 py-3 flex items-center gap-3 hover:bg-emerald-800/50 dark:hover:bg-slate-900 transition-all rounded-lg focus:ring-2 focus:ring-emerald-400" href="#">
+<span class="material-symbols-outlined">logout</span>
+                        Logout
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-white/80 dark:bg-emerald-950/80 backdrop-blur-md text-emerald-900 dark:text-emerald-50 font-plus-jakarta-sans w-full sticky top-0 z-40 border-b border-emerald-100 dark:border-emerald-800 shadow-sm flex justify-between items-center px-6 py-3">
+<div class="flex items-center gap-4">
+<span class="text-lg font-bold text-emerald-900 dark:text-emerald-100">Tampirkulon Admin</span>
+</div>
+<div class="flex-1 max-w-md mx-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md text-on-surface focus:ring-2 focus:ring-primary-container outline-none transition-shadow" placeholder="Search packages, bookings..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 transition-colors rounded-full active:scale-95 duration-150 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 transition-colors rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary-fixed ml-2">
+<img alt="Administrator Profile" data-alt="professional portrait of an administrative user in a natural light setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuSTgduFLmET31AYoWZsPYfLormDPuPoBQ-f0_is38mF_JJQfcWrk3VHeEfCcrSB2uMgibJ5mV-fqF9cSj3992LMA6vDNK5bGlym-ELnxAbbpMLymZ9qD-VgyfUzRTlT9T81lizRPri4yLvsIUjnk1cq984vZ4Fz-BoT2gWtMew8Zw0EX3Vaxcdum0OZC042ajEs3WLY3LzeCCNaocJRAuwdlLytlKML18m13cYHso6BZySBk5SYqSBRr9Ohiif7CDeg5MGfQ7LoWc"/>
+</div>
+</div>
+</header>
+<div class="p-gutter flex-1 flex flex-col gap-stack-lg">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Package Management</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your river tubing experiences, pricing, and inclusions.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface border border-outline-variant text-primary font-label-md text-label-md py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-surface-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<!-- Packages Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Package Card 1 -->
+<div class="bg-surface rounded-xl border border-surface-container-high shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+<div class="h-48 relative overflow-hidden">
+<img alt="Paket Fun" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="group of people laughing and enjoying river tubing on calm green waters surrounded by lush tropical forest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiqlfSWQWvCdYwp5TP2wwmzioi_Jyrm6ded0yqx-kMYLV2Mpo3Gh5fGEeAtcfUXppeStM58PtOeAnX2CjGnKhmgXr2JQeUhElOzMY3gx4S9C8VvEv_OsgbM6E0vv9CMLCPwxU53N0nxjly7QPJZgS6ssCkEN114hR4NPFBIeIxwbyhvpLVsYMT7ihBdeZ3XE8aDETs_XUSVyp4FAcmlCUvZx_fsUE6lCJeiZ6IkoGfCUctHJu3r6H88l77MuPIyx5P_JV-UJEf4mTd"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">Active</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 text-white">
+<h3 class="font-headline-md text-headline-md mb-1 text-white shadow-sm">Paket Fun</h3>
+<p class="font-body-md text-body-md opacity-90">Short track • 1.5 Hours</p>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-stack-md">
+<div class="flex justify-between items-center border-b border-surface-container pb-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Base Price</p>
+<p class="font-headline-md text-headline-md text-primary">Rp 150.000<span class="font-body-md text-body-md text-on-surface-variant">/pax</span></p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-fixed rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+<span class="ml-3 font-label-md text-label-md text-on-surface">Active</span>
+</label>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Inclusions</p>
+<ul class="space-y-2">
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Standard Safety Gear (Helmet, Lifevest)
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    1x Local Snack &amp; Tea
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Basic Photo Documentation
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Local Guide (1:5 ratio)
+                                </li>
+</ul>
+</div>
+<div class="mt-auto pt-4 flex gap-3">
+<button class="flex-1 bg-surface border border-outline-variant text-primary font-label-md text-label-md py-2.5 px-4 rounded-lg hover:bg-surface-container transition-colors shadow-sm flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit</span>
+                                Edit Details
+                            </button>
+<button class="p-2.5 border border-outline-variant text-outline rounded-lg hover:bg-error-container hover:text-error hover:border-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Package Card 2 -->
+<div class="bg-surface rounded-xl border border-surface-container-high shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+<div class="h-48 relative overflow-hidden">
+<img alt="Paket Adventure" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="exciting river tubing action shot navigating through mild rapids with lush green forest background in bright daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs3JKz5uI6_LwcPSmy75MGAPrA7ZvZ_azsPNtWLvLrVFpuTdnFEvQiMLUSqk2Pci85N94B6icLNjGdExzp_RYROA5HRi0zc68Xtnvw-HfqOZD1230IOIjiASuuBsCAlht8w5fJ0z-1uL_EhQ4D1vU0sntcE2IL9E9sRmjL1-owEppbYv7MRM9oUTzbaG62T9EqXgkT3Hn-zhMzRH7u2VIQDI54ffRzzxMe8xAu7N8bZk5b7yPCpbG55bwd1oaIe0q3tFiFEHS1Eh_A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+<div class="absolute top-4 right-4 flex gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">Active</span>
+<span class="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">Popular</span>
+</div>
+<div class="absolute bottom-4 left-4 right-4 text-white">
+<h3 class="font-headline-md text-headline-md mb-1 text-white shadow-sm">Paket Adventure</h3>
+<p class="font-body-md text-body-md opacity-90">Long track • 3 Hours • Medium Rapids</p>
+</div>
+</div>
+<div class="p-6 flex-1 flex flex-col gap-stack-md">
+<div class="flex justify-between items-center border-b border-surface-container pb-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Base Price</p>
+<p class="font-headline-md text-headline-md text-primary">Rp 275.000<span class="font-body-md text-body-md text-on-surface-variant">/pax</span></p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-fixed rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+<span class="ml-3 font-label-md text-label-md text-on-surface">Active</span>
+</label>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-3">Inclusions</p>
+<ul class="space-y-2">
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Premium Safety Gear (Pro Helmet, Vest, Kneepads)
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Full Lunch Meal &amp; Drinks
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Drone &amp; GoPro Documentation
+                                </li>
+<li class="flex items-center gap-3 font-body-md text-body-md text-on-surface">
+<span class="material-symbols-outlined text-primary-container text-sm bg-primary-fixed/50 p-1 rounded-full">check</span>
+                                    Expert River Guide (1:3 ratio) + Rescue Team
+                                </li>
+</ul>
+</div>
+<div class="mt-auto pt-4 flex gap-3">
+<button class="flex-1 bg-surface border border-outline-variant text-primary font-label-md text-label-md py-2.5 px-4 rounded-lg hover:bg-surface-container transition-colors shadow-sm flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit</span>
+                                Edit Details
+                            </button>
+<button class="p-2.5 border border-outline-variant text-outline rounded-lg hover:bg-error-container hover:text-error hover:border-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Add New Package Placeholder Card -->
+<div class="bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant flex flex-col justify-center items-center p-12 text-center hover:bg-surface-container hover:border-primary-container transition-colors cursor-pointer min-h-[500px]">
+<div class="w-16 h-16 bg-primary-fixed rounded-full flex items-center justify-center text-primary-container mb-4 shadow-sm">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">add</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Create New Package</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm">Design a new wellness or adventure experience for your guests.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>
