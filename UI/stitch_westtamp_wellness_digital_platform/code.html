@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Westtamp Wellness - Petualangan Seru &amp; Karya Lokal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "secondary-fixed-dim": "#69d4f4",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-bright": "#f8f9fa",
+                        "tertiary-container": "#5f2f00",
+                        "surface-container-low": "#f3f4f5",
+                        "outline-variant": "#c1c8c2",
+                        "inverse-primary": "#a5d0b9",
+                        "on-background": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "surface": "#f8f9fa",
+                        "on-secondary-fixed-variant": "#004e5f",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "tertiary": "#3f1d00",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#3f6653",
+                        "secondary": "#00677d",
+                        "surface-variant": "#e1e3e4",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-primary-container": "#86af99",
+                        "primary-fixed": "#c1ecd4",
+                        "on-tertiary-container": "#ea9147",
+                        "on-primary-fixed": "#002114",
+                        "on-primary": "#ffffff",
+                        "background": "#f8f9fa",
+                        "on-secondary-container": "#006075",
+                        "outline": "#717973",
+                        "on-secondary-fixed": "#001f27",
+                        "on-surface": "#191c1d",
+                        "on-surface-variant": "#414844",
+                        "surface-container": "#edeeef",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#72ddfd",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdcc4",
+                        "primary-container": "#1b4332",
+                        "inverse-surface": "#2e3132",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "on-tertiary-fixed": "#2f1400",
+                        "primary": "#012d1d",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#b2ebff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "48px",
+                        "stack-xs": "4px",
+                        "stack-sm": "12px",
+                        "stack-xl": "80px",
+                        "margin": "32px",
+                        "gutter": "24px",
+                        "stack-md": "24px",
+                        "container-max": "1280px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Be Vietnam Pro"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="sticky top-0 w-full z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-center h-20 px-6 md:px-12 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#1B4332] dark:text-white" style="">
+                Westtamp Wellness
+            </div>
+<div class="hidden md:flex gap-8">
+<a class="text-[#1B4332] dark:text-white font-bold border-b-2 border-[#1B4332] pb-1 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#" style="">Home</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#" style="">Wellness Packages</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#" style="">Facilities</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#" style="">About Us</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-colors duration-200 active:scale-95 transition-transform" href="#" style="">Blog</a>
+</div>
+<button class="hidden md:block bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-label-md font-bold hover:bg-primary transition-colors active:scale-95" style="">
+                Book Your Escape
+            </button>
+<button class="md:hidden text-[#1B4332]" style="">
+<span class="material-symbols-outlined" data-icon="menu" style="">menu</span>
+</button>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="River tubing scenery" class="w-full h-full object-cover" data-alt="lush green river valley with clear flowing water surrounded by dense tropical forest under bright sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOV8Fkil5gWn5WomVc0jKUkQHDc8RObXooZsrAws6uo_eHX0YyP3JeaLcQ1IkJbNUys7DUp-QhUW80UyOFzM0GkoH4QwaDK4Ez8k7fB1WMxnzO46WfgkDLhHz0o__H0hYRpcg3RSrvDntGoHkL4Z-wZh7sgvg0L8dje628nV-qlqkGv0b-TJwyItSFHUE993Wg31-Jn6i1lZ0s0a71VRNjznmn6QHkjQDZd31p7JoGc4AVTRxzpbGjTGqDXg15KeCd530DS7_7KXnr" style="">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20"></div>
+</div>
+<div class="relative z-10 max-w-container-max mx-auto px-6 md:px-12 w-full text-center mt-20">
+<span class="inline-block px-4 py-2 bg-primary-container/90 backdrop-blur-sm text-on-primary-container rounded-full font-label-sm font-bold tracking-wider uppercase mb-6 shadow-lg" style="">
+                    Wellness-tourism di Desa Tampirkulon
+                </span>
+<h1 class="font-headline-xl text-headline-xl text-on-primary drop-shadow-xl mb-6 max-w-4xl mx-auto leading-tight" style="">
+                    Westtamp Wellness: <br> Petualangan Seru &amp; Karya Lokal
+                </h1>
+<div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+<button class="bg-primary-container text-on-primary-container px-8 py-4 rounded-full font-label-md font-bold shadow-xl hover:bg-primary hover:text-white transition-all active:scale-95" style="">
+                        Book Your Escape
+                    </button>
+<button class="bg-white/20 backdrop-blur-md border border-white/40 text-white px-8 py-4 rounded-full font-label-md font-bold hover:bg-white/30 transition-all active:scale-95 flex items-center justify-center gap-2" style="">
+<span class="material-symbols-outlined text-[20px]" data-icon="play_circle" style="">play_circle</span>
+                        Watch Video
+                    </button>
+</div>
+<!-- Stats Bento Box -->
+<div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+<div class="bg-surface/80 backdrop-blur-xl p-6 rounded-2xl border border-surface-variant shadow-[0_8px_30px_rgb(27,67,50,0.12)]">
+<div class="flex items-center justify-center w-12 h-12 bg-primary-container/10 rounded-full mx-auto mb-4 text-primary-container">
+<span class="material-symbols-outlined" data-icon="group" style="">group</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-primary mb-1" style="">1000+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant" style="">Happy Visitors</div>
+</div>
+<div class="bg-surface/80 backdrop-blur-xl p-6 rounded-2xl border border-surface-variant shadow-[0_8px_30px_rgb(27,67,50,0.12)]">
+<div class="flex items-center justify-center w-12 h-12 bg-primary-container/10 rounded-full mx-auto mb-4 text-primary-container">
+<span class="material-symbols-outlined" data-icon="star" style="">star</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-primary mb-1" style="">4.9</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant" style="">Average Rating</div>
+</div>
+<div class="bg-surface/80 backdrop-blur-xl p-6 rounded-2xl border border-surface-variant shadow-[0_8px_30px_rgb(27,67,50,0.12)]">
+<div class="flex items-center justify-center w-12 h-12 bg-primary-container/10 rounded-full mx-auto mb-4 text-primary-container">
+<span class="material-symbols-outlined" data-icon="verified_user" style="">verified_user</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-primary mb-1" style="">100%</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant" style="">Safety Record</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Fasilitas Section -->
+<section class="py-24 px-6 md:px-12 max-w-container-max mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline-xl text-headline-lg text-primary mb-4" style="">Pilar Fasilitas Kami</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto" style="">Kami mengutamakan keselamatan, kesehatan, dan kenyamanan Anda selama menikmati wisata alam di Desa Tampirkulon.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Pillar 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+<div class="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary-container mb-6 group-hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="water_drop" style="">water_drop</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3" style="">Keamanan Tubing</h3>
+<p class="font-body-md text-body-md text-on-surface-variant" style="">Perlengkapan safety gear standar internasional dan pemandu tersertifikasi untuk setiap petualangan.</p>
+</div>
+<!-- Pillar 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+<div class="w-14 h-14 bg-error-container rounded-xl flex items-center justify-center text-on-error-container mb-6 group-hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="monitor_heart" style="">monitor_heart</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3" style="">Fasilitas Kesehatan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant" style="">Layanan free checkup sebelum memulai aktivitas untuk memastikan kondisi fisik prima.</p>
+</div>
+<!-- Pillar 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+<div class="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center text-on-tertiary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="restaurant" style="">restaurant</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3" style="">Konsumsi Sehat</h3>
+<p class="font-body-md text-body-md text-on-surface-variant" style="">Sajian lokal bergizi tinggi seperti olahan lele segar dan minuman hangat jahe telang.</p>
+</div>
+<!-- Pillar 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+<div class="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center text-on-primary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="deck" style="">deck</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3" style="">Kenyamanan Publik</h3>
+<p class="font-body-md text-body-md text-on-surface-variant" style="">Area bilas bersih, loker aman, dan ruang istirahat yang menyatu dengan alam pedesaan.</p>
+</div>
+</div>
+</section>
+<!-- Blog & Kabar Lokal Section -->
+<section class="py-24 px-6 md:px-12 max-w-container-max mx-auto bg-surface">
+<div class="text-center mb-16">
+<h2 class="font-headline-xl text-headline-lg text-primary mb-4" style="">Kabar dari Aliran Sungai &amp; Desa</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto" style="">Temukan inspirasi kesejahteraan, cerita petualangan seru, dan 
+perkembangan terbaru dari komunitas lokal Tampirkulon. Merawat bumi, 
+merawat diri.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Blog Post 1 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-surface-variant overflow-hidden shadow-[0_4px_20px_rgb(27,67,50,0.05)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.12)] transition-all duration-300 flex flex-col">
+<div class="h-48 overflow-hidden">
+<img alt="Tips Sehat Pasca River Tubing" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" data-alt="A person drinking a hot beverage after a river tubing adventure, looking relaxed and happy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCawRULgKZh_aRVmZxk2aPWuywURLCUgJ1sLXWZGsnTlGIXc2WFjaqy2UjOTuV3rYIiqTbeKFBUAutD8NU14HXzSMiu9k9WAJg6seGD_QJU-EOdT8OF_Emjm-YAJkP1bC514i-mwn8juiOjoOoZzIHfHXTnuMMNkAybuGTQd08s28Vdmbx4c3lbB7oQIG55lnB-WZFIB23N3TgS2iBVb-GaveFf45HfifUpPYijeY-2BRCqkcwPFy8RlgtUYvXS3KS0ptNKzCLve8LH" style="">
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="font-label-sm text-label-sm text-primary mb-3" style="">12 Oktober 2024</div>
+<h3 class="font-headline-md text-xl text-on-surface mb-3" style="">Tips Sehat Pasca River Tubing</h3>
+<p class="font-body-md text-sm text-on-surface-variant mb-6 flex-grow" style="">Pemulihan tubuh yang tepat sangat penting setelah aktivitas fisik di air dingin. Temukan cara terbaik untuk kembali bugar.</p>
+<a class="font-label-md text-primary font-bold hover:text-primary-container transition-colors inline-flex items-center gap-1 mt-auto" href="#" style="">
+                            Baca Selengkapnya
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward" style="">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Blog Post 2 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-surface-variant overflow-hidden shadow-[0_4px_20px_rgb(27,67,50,0.05)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.12)] transition-all duration-300 flex flex-col">
+<div class="h-48 overflow-hidden">
+<img alt="Mengenal Bakso Lele" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" data-alt="A close up shot of a bowl of delicious looking fishballs, likely Bakso Lele, garnished with herbs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvyiQYrfZQ4YHLcGMOKHL4eVBigtHeBxJNVWhwc9bVJ-HB-oTLJ5NYjX8Ic1WorLlpJSec0Ao3PPurZptvbr8ZFHLeRnpf262c1-goroXlKDH25o9O0Q9JTZ34zQQ5rB0aAk-yQVGgWamY5mEUubowLC4PflriAlOzYZemBiRZCRk2yaHEPVJ04-7mb8kju8Wzg7qUbUDFFOsRyI4QNcVrY-FlWr_d61HTOe52GjeSeol09qzWAk3ZRWWWWCmJu42DZ1UL_wQulsmC" style="">
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="font-label-sm text-label-sm text-primary mb-3" style="">05 Oktober 2024</div>
+<h3 class="font-headline-md text-xl text-on-surface mb-3" style="">Mengenal Bakso Lele: Inovasi Kuliner Tampirkulon</h3>
+<p class="font-body-md text-sm text-on-surface-variant mb-6 flex-grow" style="">Menjelajahi keunikan rasa dan manfaat gizi dari inovasi kuliner lokal yang sedang digemari para pengunjung.</p>
+<a class="font-label-md text-primary font-bold hover:text-primary-container transition-colors inline-flex items-center gap-1 mt-auto" href="#" style="">
+                            Baca Selengkapnya
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward" style="">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- Blog Post 3 -->
+<article class="bg-surface-container-lowest rounded-2xl border border-surface-variant overflow-hidden shadow-[0_4px_20px_rgb(27,67,50,0.05)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.12)] transition-all duration-300 flex flex-col">
+<div class="h-48 overflow-hidden">
+<img alt="Jadwal Bersih Sungai" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" data-alt="A group of volunteers cleaning up a riverbank, demonstrating community eco-action" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfrxqUWpAU9DN-cyFtuONDMxZrDPJsEJuSHFIpLqOC5OiJDe4NKQu4BPWOe6EsFbrPCnruc8jM9qX4qAbKy8gZf0REp7eoVFNObEcQ3EpWfh0pHofagfntODIKFKOHeMOwR-rLz_eI4c1QPnWx78MdhBi0dm1Qo2_OLjThqA1_WGpjInG_YCtwJDBt9_d38yQYClc5rBv1Cw220Ibx3i7ByRO7XU0irzKrhVNiLHp2pxdnFmYXROa5j5E85tdhimiVuU4-mUl4--HY" style="">
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="font-label-sm text-label-sm text-primary mb-3" style="">28 September 2024</div>
+<h3 class="font-headline-md text-xl text-on-surface mb-3" style="">Jadwal Bersih Sungai Bulan Ini</h3>
+<p class="font-body-md text-sm text-on-surface-variant mb-6 flex-grow" style="">Mari bergabung dalam aksi nyata menjaga kelestarian ekosistem sungai kita bersama warga dan relawan.</p>
+<a class="font-label-md text-primary font-bold hover:text-primary-container transition-colors inline-flex items-center gap-1 mt-auto" href="#" style="">
+                            Baca Selengkapnya
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward" style="">arrow_forward</span>
+</a>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 px-6 md:px-12 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+<div>
+<div class="text-xl font-extrabold text-[#1B4332] dark:text-white mb-4" style="">Westtamp Wellness</div>
+<p class="font-['Plus_Jakarta_Sans'] text-xs text-slate-500 dark:text-slate-400" style="">© 2024 Desa Tampirkulon Tourism. All rights reserved.</p>
+</div>
+<div>
+<h4 class="font-['Plus_Jakarta_Sans'] text-xs uppercase tracking-widest text-[#1B4332] dark:text-[#74C69D] mb-4" style="">Connect</h4>
+<ul class="space-y-2">
+<li class="" style=""><a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#" style="">Facebook</a></li>
+<li class="" style=""><a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#" style="">Instagram</a></li>
+<li class="" style=""><a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#" style="">WhatsApp</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-['Plus_Jakarta_Sans'] text-xs uppercase tracking-widest text-[#1B4332] dark:text-[#74C69D] mb-4" style="">Information</h4>
+<ul class="space-y-2">
+<li class="" style=""><a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#" style="">Sustainability Report</a></li>
+<li class="" style=""><a class="text-slate-500 dark:text-slate-400 hover:text-[#1B4332] dark:hover:text-white transition-opacity ease-in-out duration-300" href="#" style="">Emergency Guide</a></li>
+</ul>
+</div>
+</div>
+</footer>
+</body></html>

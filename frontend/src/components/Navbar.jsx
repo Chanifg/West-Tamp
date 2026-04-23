@@ -22,9 +22,9 @@ export default function Navbar() {
         <div className="hidden lg:flex gap-8 items-center">
           <Link className={getLinkClass('/')} to="/">Destinations</Link>
           <Link className={getLinkClass('/packages')} to="/packages">Wellness Packages</Link>
-          <Link className={getLinkClass('/blog')} to="/blog">Blog</Link>
           <Link className={getLinkClass('/gallery')} to="/gallery">Gallery</Link>
           <Link className={getLinkClass('/facilities')} to="/facilities">Facilities</Link>
+          <Link className={getLinkClass('/blog')} to="/blog">Blog</Link>
           <Link className={getLinkClass('/about')} to="/about">About Us</Link>
         </div>
         <div className="flex gap-4 items-center">

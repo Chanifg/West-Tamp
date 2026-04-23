@@ -14,10 +14,14 @@ export default function AdminDashboard() {
 
   // Blog State
   const [blogs, setBlogs] = useState([]);
+  const [adminBlogSearch, setAdminBlogSearch] = useState("");
   const [showBlogForm, setShowBlogForm] = useState(false);
+  const [editingBlog, setEditingBlog] = useState(null);
   const [blogForm, setBlogForm] = useState({
     title: '', category: '', author: '', excerpt: '', content: '', is_featured: false, image_file: null
   });
+  const [contentImageLoading, setContentImageLoading] = useState(false);
+  const [lastUploadedMarkdown, setLastUploadedMarkdown] = useState("");
 
   useEffect(() => {
     if (activeTab === 'dashboard') {
@@ -67,6 +71,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleEditBlog = (blog) => {
+    setEditingBlog(blog);
+    setBlogForm({
+      title: blog.title,
+      category: blog.category,
+      author: blog.author || '',
+      excerpt: blog.excerpt || '',
+      content: blog.content,
+      is_featured: blog.is_featured,
+      image_file: null
+    });
+    setShowBlogForm(true);
+  };
+
   const handleBlogSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
@@ -81,17 +99,51 @@ export default function AdminDashboard() {
       formData.append('image_file', blogForm.image_file);
     }
 
-    axios.post('http://localhost:8000/api/admin/blogs', formData, {
+    const url = editingBlog 
+      ? `http://localhost:8000/api/admin/blogs/${editingBlog.id}` 
+      : 'http://localhost:8000/api/admin/blogs';
+    
+    // For multipart/form-data update, we use POST with _method=PUT header or param
+    if (editingBlog) {
+      formData.append('_method', 'POST'); 
+    }
+
+    axios.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
-      alert("Blog created!");
+      alert(editingBlog ? "Blog updated!" : "Blog created!");
       setShowBlogForm(false);
+      setEditingBlog(null);
       setBlogForm({ title: '', category: '', author: '', excerpt: '', content: '', is_featured: false, image_file: null });
+      setLastUploadedMarkdown("");
       fetchBlogs();
     })
     .catch(err => alert("Error: " + (err.response?.data?.message || err.message)))
     .finally(() => setLoading(false));
+  };
+
+  const handleContentImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setContentImageLoading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    axios.post('http://localhost:8000/api/admin/upload-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(res => {
+      setLastUploadedMarkdown(res.data.markdown);
+      // Optional: auto-append to content
+      setBlogForm(prev => ({
+        ...prev,
+        content: prev.content + "\n\n" + res.data.markdown + "\n"
+      }));
+    })
+    .catch(err => alert("Upload failed: " + err.message))
+    .finally(() => setContentImageLoading(false));
   };
 
   const handleDeleteBlog = (id) => {
@@ -100,6 +152,15 @@ export default function AdminDashboard() {
         .then(() => fetchBlogs())
         .catch(err => alert("Error deleting: " + err.message));
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   };
 
   return (
@@ -249,9 +310,18 @@ export default function AdminDashboard() {
           <div className="w-full">
             {!showBlogForm ? (
               <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Daftar Artikel</h2>
-                  <button onClick={() => setShowBlogForm(true)} className="bg-primary text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                  <div className="relative w-full md:w-96">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                    <input 
+                      type="text" 
+                      placeholder="Cari artikel..." 
+                      value={adminBlogSearch}
+                      onChange={(e) => setAdminBlogSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 bg-surface-container rounded-lg border border-surface-variant focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                  <button onClick={() => { setEditingBlog(null); setBlogForm({ title: '', category: '', author: '', excerpt: '', content: '', is_featured: false, image_file: null }); setShowBlogForm(true); }} className="bg-primary text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 shrink-0">
                     <span className="material-symbols-outlined">add</span> Buat Baru
                   </button>
                 </div>
@@ -261,12 +331,17 @@ export default function AdminDashboard() {
                       <tr className="border-b border-surface-variant text-on-surface-variant uppercase text-sm">
                         <th className="py-3 px-4">Info Artikel</th>
                         <th className="py-3 px-4">Kategori</th>
+                        <th className="py-3 px-4">Tanggal</th>
                         <th className="py-3 px-4 text-center">Featured?</th>
                         <th className="py-3 px-4 text-right">Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {blogs.map(blog => (
+                      {blogs.filter(b => 
+                        b.title.toLowerCase().includes(adminBlogSearch.toLowerCase()) || 
+                        (b.author && b.author.toLowerCase().includes(adminBlogSearch.toLowerCase())) ||
+                        b.category.toLowerCase().includes(adminBlogSearch.toLowerCase())
+                      ).map(blog => (
                         <tr key={blog.id} className="border-b border-surface-variant/50 hover:bg-surface/50">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
@@ -286,15 +361,23 @@ export default function AdminDashboard() {
                           <td className="py-3 px-4 text-sm font-medium">
                             <span className="bg-surface-container px-2 py-1 rounded text-primary border border-surface-variant">{blog.category}</span>
                           </td>
+                          <td className="py-3 px-4 text-sm text-on-surface-variant">
+                            {formatDate(blog.created_at)}
+                          </td>
                           <td className="py-3 px-4 text-center">
                             {blog.is_featured ? (
                               <span className="material-symbols-outlined text-green-600">check_circle</span>
                             ) : '-'}
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <button onClick={() => handleDeleteBlog(blog.id)} className="text-error hover:bg-error-container p-2 rounded-full transition-colors">
-                              <span className="material-symbols-outlined">delete</span>
-                            </button>
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => handleEditBlog(blog)} className="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors">
+                                <span className="material-symbols-outlined">edit</span>
+                              </button>
+                              <button onClick={() => handleDeleteBlog(blog.id)} className="text-error hover:bg-error-container p-2 rounded-full transition-colors">
+                                <span className="material-symbols-outlined">delete</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -310,8 +393,8 @@ export default function AdminDashboard() {
             ) : (
               <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant max-w-4xl">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold">Buat Artikel Baru</h2>
-                  <button onClick={() => setShowBlogForm(false)} className="text-on-surface-variant hover:text-on-surface px-4 py-2 rounded-lg font-bold">
+                  <h2 className="text-xl font-bold">{editingBlog ? 'Edit Artikel' : 'Buat Artikel Baru'}</h2>
+                  <button onClick={() => { setShowBlogForm(false); setEditingBlog(null); }} className="text-on-surface-variant hover:text-on-surface px-4 py-2 rounded-lg font-bold">
                     Kembali
                   </button>
                 </div>
@@ -322,8 +405,25 @@ export default function AdminDashboard() {
                       <input required type="text" value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Masukkan judul..." />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-on-surface mb-2">Kategori (Bebas) *</label>
-                      <input required type="text" value={blogForm.category} onChange={e => setBlogForm({...blogForm, category: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Contoh: Tips Wellness, Warta Desa" />
+                      <label className="block text-sm font-bold text-on-surface mb-2">Kategori Artikel *</label>
+                      <input 
+                        required 
+                        type="text" 
+                        list="category-suggestions"
+                        value={blogForm.category} 
+                        onChange={e => setBlogForm({...blogForm, category: e.target.value})} 
+                        className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" 
+                        placeholder="Pilih atau ketik kategori baru..." 
+                      />
+                      <datalist id="category-suggestions">
+                        <option value="Tips Wellness" />
+                        <option value="Cerita Petualangan" />
+                        <option value="Warta Desa" />
+                        <option value="UMKM Lokal" />
+                        {[...new Set(blogs.map(b => b.category))].filter(c => !["Tips Wellness", "Cerita Petualangan", "Warta Desa", "UMKM Lokal"].includes(c)).map(cat => (
+                          <option key={cat} value={cat} />
+                        ))}
+                      </datalist>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-on-surface mb-2">Penulis</label>
@@ -349,14 +449,81 @@ export default function AdminDashboard() {
                     <p className="text-xs text-on-surface-variant mt-1">Format didukung: JPG, PNG, GIF. Ukuran maksimum: 5MB.</p>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-bold text-on-surface mb-2">Isi Konten *</label>
-                    <textarea required value={blogForm.content} onChange={e => setBlogForm({...blogForm, content: e.target.value})} rows="10" className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Tuliskan isi blog lengkap di sini..."></textarea>
+                  <div className="md:col-span-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-sm font-bold text-on-surface">Isi Artikel (Markdown Support) *</label>
+                      <div className="bg-primary-container/10 px-3 py-1 rounded border border-primary/20 flex items-center gap-2">
+                          <span className="text-xs font-medium text-primary">TIPS: Gunakan ## untuk Judul, **tebal** untuk Bold</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                      <div className="lg:col-span-3">
+                        <textarea 
+                          required 
+                          rows="15" 
+                          value={blogForm.content} 
+                          onChange={e => setBlogForm({...blogForm, content: e.target.value})} 
+                          className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary font-mono text-sm resize-y" 
+                          placeholder="Tulis artikel Anda di sini... Gunakan Markdown untuk format yang lebih cantik."
+                        ></textarea>
+                      </div>
+                      
+                      <div className="lg:col-span-1 space-y-4">
+                        <div className="p-4 bg-surface-container rounded-xl border border-surface-variant">
+                          <h4 className="text-sm font-bold mb-3 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm">image</span> Sisipkan Gambar
+                          </h4>
+                          <p className="text-xs text-on-surface-variant mb-4 font-normal leading-relaxed">Ingin tambah gambar di tengah teks? Unggah di sini dan kodenya akan otomatis muncul.</p>
+                          
+                          <label className="block w-full cursor-pointer">
+                              <div className="border-2 border-dashed border-outline-variant rounded-lg p-4 text-center hover:bg-white transition-colors">
+                                  {contentImageLoading ? (
+                                      <span className="material-symbols-outlined animate-spin text-primary">autorenew</span>
+                                  ) : (
+                                      <>
+                                          <span className="material-symbols-outlined text-primary mb-1">add_a_photo</span>
+                                          <span className="block text-[10px] font-bold text-on-surface-variant">Klik untuk Unggah</span>
+                                      </>
+                                  )}
+                              </div>
+                              <input type="file" className="hidden" accept="image/*" onChange={handleContentImageUpload} disabled={contentImageLoading} />
+                          </label>
+
+                          {lastUploadedMarkdown && (
+                              <div className="mt-4">
+                                  <p className="text-[10px] font-bold text-green-600 mb-1">Berhasil Diunggah!</p>
+                                  <div className="bg-white p-2 rounded border border-outline-variant flex items-center justify-between">
+                                      <code className="text-[10px] truncate max-w-[120px]">{lastUploadedMarkdown}</code>
+                                      <button 
+                                          type="button"
+                                          onClick={() => {navigator.clipboard.writeText(lastUploadedMarkdown); alert("Copied!");}}
+                                          className="text-primary hover:bg-primary/10 p-1 rounded"
+                                      >
+                                          <span className="material-symbols-outlined text-sm">content_copy</span>
+                                      </button>
+                                  </div>
+                              </div>
+                          )}
+                        </div>
+
+                        <div className="p-4 bg-primary-container/10 rounded-xl border border-primary/20">
+                           <h4 className="text-xs font-bold text-primary mb-2 uppercase tracking-wider">Bantuan Format</h4>
+                           <ul className="text-[11px] space-y-2 text-on-surface-variant font-medium">
+                              <li><code className="bg-white px-1 border border-primary/10 rounded">## Judul</code> → Header</li>
+                              <li><code className="bg-white px-1 border border-primary/10 rounded">**Tebal**</code> → Bold</li>
+                              <li><code className="bg-white px-1 border border-primary/10 rounded">*Miring*</code> → Italic</li>
+                              <li><code className="bg-white px-1 border border-primary/10 rounded">- List</code> → Bullet point</li>
+                              <li><code className="bg-white px-1 border border-primary/10 rounded">[Teks](Link)</code> → Link</li>
+                           </ul>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex justify-end pt-4 border-t border-surface-variant">
                     <button type="submit" disabled={loading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50">
-                      {loading ? 'Menyimpan...' : 'Simpan & Publikasikan'}
+                      {loading ? 'Menyimpan...' : (editingBlog ? 'Simpan Perubahan' : 'Simpan & Publikasikan')}
                     </button>
                   </div>
                 </form>

@@ -29,8 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);
+    Route::post('/admin/blogs/{id}', [BlogController::class, 'update']);
     Route::delete('/admin/blogs/{id}', [BlogController::class, 'destroy']);
+    Route::post('/admin/upload-image', [BlogController::class, 'uploadImage']);
 });
 
 // Blog Public Routes
 Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show']);
