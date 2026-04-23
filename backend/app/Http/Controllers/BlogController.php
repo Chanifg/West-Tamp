@@ -35,14 +35,47 @@ class BlogController extends Controller
 
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
-            $filename = uniqid() . '.webp';
             
-            $manager = new ImageManager(new Driver());
-            $image = $manager->read($file->getRealPath());
-            $encoded = $image->toWebp(80);
+            $filenameWebp = uniqid() . '.webp';
+            $pathWebp = storage_path('app/public/blogs/' . $filenameWebp);
             
-            Storage::disk('public')->put('blogs/' . $filename, $encoded->toString());
-            $data['image_url'] = '/storage/blogs/' . $filename;
+            if (!file_exists(storage_path('app/public/blogs'))) {
+                mkdir(storage_path('app/public/blogs'), 0755, true);
+            }
+
+            $successWebp = false;
+
+            if (function_exists('imagewebp')) {
+                try {
+                    $manager = new ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $image = $manager->decodePath($file->getRealPath());
+                    $encoded = $image->encode(new \Intervention\Image\Encoders\WebpEncoder(quality: 80));
+                    file_put_contents($pathWebp, $encoded->toString());
+                    $successWebp = true;
+                } catch (\Exception $e) {
+                    $successWebp = false;
+                }
+            }
+            
+            if (!$successWebp) {
+                // Try using cwebp CLI utility
+                $sourcePath = escapeshellarg($file->getRealPath());
+                $destPath = escapeshellarg($pathWebp);
+                exec("cwebp -q 80 $sourcePath -o $destPath", $output, $returnVar);
+                if ($returnVar === 0 && file_exists($pathWebp)) {
+                    $successWebp = true;
+                }
+            }
+
+            if ($successWebp) {
+                $data['image_url'] = '/storage/blogs/' . $filenameWebp;
+            } else {
+                // Fallback to original format
+                $extension = $file->getClientOriginalExtension();
+                $filename = uniqid() . '.' . $extension;
+                $file->storeAs('public/blogs', $filename);
+                $data['image_url'] = '/storage/blogs/' . $filename;
+            }
         }
 
         $blog = Blog::create($data);
