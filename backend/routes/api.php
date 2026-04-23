@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BlogController;
 
 use App\Http\Controllers\AuthController;
 
@@ -25,4 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboardStats']);
     Route::post('/admin/verify-qr', [AdminController::class, 'verifyQr']);
     Route::post('/admin/weather-emergency', [AdminController::class, 'weatherEmergency']);
+    
+    // Blog Admin Routes
+    Route::post('/admin/blogs', [BlogController::class, 'store']);
+    Route::delete('/admin/blogs/{id}', [BlogController::class, 'destroy']);
 });
+
+// Blog Public Routes
+Route::get('/blogs', [BlogController::class, 'index']);

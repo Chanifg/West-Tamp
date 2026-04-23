@@ -1,28 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function LandingPage() {
   return (
     <div className="bg-background text-on-background min-h-screen">
       {/* TopNavBar */}
-      <nav className="sticky top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-surface-variant shadow-sm">
-        <div className="flex justify-between items-center h-20 px-6 md:px-12 max-w-[1280px] mx-auto">
-          <div className="text-2xl font-black tracking-tighter text-primary-container">
-            Westtamp Wellness
-          </div>
-          <div className="hidden md:flex gap-8">
-            <a className="text-primary-container font-bold border-b-2 border-primary-container pb-1 hover:text-primary-container transition-colors duration-200 active:scale-95 transition-transform" href="#">Destinations</a>
-            <a className="text-on-surface-variant hover:text-primary-container transition-colors duration-200 active:scale-95 transition-transform" href="#">Wellness Packages</a>
-            <a className="text-on-surface-variant hover:text-primary-container transition-colors duration-200 active:scale-95 transition-transform" href="#">River Tubing</a>
-            <a className="text-on-surface-variant hover:text-primary-container transition-colors duration-200 active:scale-95 transition-transform" href="#">Facilities</a>
-          </div>
-          <Link to="/booking">
-            <button className="hidden md:block bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-label-md font-bold hover:bg-primary transition-colors active:scale-95 cursor-pointer">
-              Book Your Escape
-            </button>
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main>
         {/* Hero Section */}
@@ -101,12 +86,8 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="w-full py-16 px-6 md:px-12 bg-white border-t border-surface-variant">
-        <div className="text-center">
-            <div className="text-xl font-extrabold text-primary-container mb-4">Westtamp Wellness</div>
-            <p className="text-xs text-on-surface-variant">© 2024 Desa Tampirkulon Tourism. All rights reserved.</p>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Blog &amp; Kabar Lokal - Westtamp Wellness</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#5f2f00",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#414844",
+                        "surface": "#f8f9fa",
+                        "surface-variant": "#e1e3e4",
+                        "primary-container": "#1b4332",
+                        "surface-container": "#edeeef",
+                        "on-tertiary-fixed": "#2f1400",
+                        "on-primary-container": "#86af99",
+                        "primary": "#012d1d",
+                        "surface-tint": "#3f6653",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#004e5f",
+                        "surface-bright": "#f8f9fa",
+                        "secondary-fixed-dim": "#69d4f4",
+                        "on-surface": "#191c1d",
+                        "on-background": "#191c1d",
+                        "background": "#f8f9fa",
+                        "tertiary-fixed": "#ffdcc4",
+                        "outline-variant": "#c1c8c2",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dadb",
+                        "on-secondary-fixed": "#001f27",
+                        "inverse-surface": "#2e3132",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#b2ebff",
+                        "outline": "#717973",
+                        "secondary": "#00677d",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-tertiary-container": "#ea9147",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "surface-container-low": "#f3f4f5",
+                        "primary-fixed": "#c1ecd4",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#3f1d00",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "on-primary-fixed": "#002114",
+                        "surface-container-high": "#e7e8e9",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#006075",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "secondary-container": "#72ddfd",
+                        "inverse-primary": "#a5d0b9",
+                        "inverse-on-surface": "#f0f1f2"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "stack-xs": "4px",
+                        "unit": "8px",
+                        "container-max": "1280px",
+                        "stack-xl": "80px",
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "stack-sm": "12px",
+                        "margin": "32px",
+                        "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Be Vietnam Pro"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "label-sm": ["12px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-md": ["24px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "label-md": ["14px", { lineHeight: "1.4", letterSpacing: "0.02em", fontWeight: "600" }],
+                        "headline-xl": ["48px", { lineHeight: "1.1", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar Shared Component -->
+<nav class="bg-white/95 dark:bg-emerald-950/95 text-emerald-900 dark:text-emerald-50 font-['Plus_Jakarta_Sans'] tracking-tight docked full-width top-0 sticky z-50 border-b border-emerald-100 dark:border-emerald-900 shadow-sm backdrop-blur-md">
+<div class="flex justify-between items-center h-20 px-6 lg:px-12 max-w-screen-2xl mx-auto">
+<!-- Brand -->
+<div class="text-xl font-extrabold text-emerald-900 dark:text-emerald-50">
+                Westtamp Wellness
+            </div>
+<!-- Navigation Links -->
+<ul class="hidden md:flex items-center gap-8">
+<li><a class="text-emerald-900/60 dark:text-emerald-100/60 hover:text-emerald-900 dark:hover:text-emerald-50 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-300 px-3 py-2 rounded-md focus:opacity-80 focus:scale-95 transition-transform" href="#">Adventures</a></li>
+<li><a class="text-emerald-900/60 dark:text-emerald-100/60 hover:text-emerald-900 dark:hover:text-emerald-50 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-300 px-3 py-2 rounded-md focus:opacity-80 focus:scale-95 transition-transform" href="#">Wellness</a></li>
+<li><a class="text-emerald-700 dark:text-emerald-400 font-bold border-b-2 border-emerald-700 pb-1 px-3 py-2 focus:opacity-80 focus:scale-95 transition-transform" href="#">Blog</a></li>
+<li><a class="text-emerald-900/60 dark:text-emerald-100/60 hover:text-emerald-900 dark:hover:text-emerald-50 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all duration-300 px-3 py-2 rounded-md focus:opacity-80 focus:scale-95 transition-transform" href="#">Community</a></li>
+</ul>
+<!-- Search & Action -->
+<div class="flex items-center gap-4">
+<button aria-label="Search" class="p-2 text-emerald-900/60 hover:text-emerald-900 transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<a class="hidden md:inline-flex bg-emerald-900 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-emerald-800 transition-colors shadow-sm focus:ring-2 focus:ring-emerald-400 outline-none" href="#">Book Now</a>
+<button aria-label="Menu" class="md:hidden p-2 text-emerald-900">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-margin py-stack-xl">
+<!-- Hero Section -->
+<section class="text-center max-w-3xl mx-auto mb-stack-xl">
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-stack-sm tracking-tight">Kabar dari Aliran Sungai &amp; Desa</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Temukan inspirasi kesejahteraan, cerita petualangan seru, dan perkembangan terbaru dari komunitas lokal Tampirkulon. Merawat bumi, merawat diri.</p>
+</section>
+<!-- Featured Post (Bento Style) -->
+<section class="mb-stack-xl">
+<article class="group relative grid grid-cols-1 lg:grid-cols-2 gap-0 bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(27,67,50,0.08)] border border-surface-variant hover:shadow-[0_8px_32px_rgba(27,67,50,0.12)] transition-shadow duration-300">
+<div class="relative h-64 lg:h-auto overflow-hidden">
+<img alt="Featured article image" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Person meditating on a wooden deck overlooking a calm, winding river surrounded by lush tropical green forest during soft morning light, conveying deep relaxation and connection with nature" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeodPvk7ZVRaCZ8Dzxa2CaNkefcVlz_6v_sCkCS4GCcoBWuz3FtQOi2WSzW_JeKkQLVCj8H3-7RTCZfvpnhvZYVybTkfa9A4ZZIYy7Su9PW721JgF98MDNRDstC-jAim0TMjEtdfwUw2uW5q7LL4UJIIYj7FkWS-A03cK7Rdvs6QzZtNFXWNmbxPO3Kxswmkn5eczCw1G2O6TjFMRBZIri4crxrFFpV7vQSB6kIhTOmtHTFlM2We42VjZs6xepk14IttpeyC4R4Jsd"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+<span class="absolute top-4 left-4 bg-primary text-on-primary font-label-sm text-label-sm px-3 py-1 rounded-full backdrop-blur-md bg-opacity-90">Sorotan Utama</span>
+</div>
+<div class="p-stack-md lg:p-stack-lg flex flex-col justify-center">
+<div class="flex items-center gap-2 mb-stack-sm text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>12 Oktober 2024</span>
+<span class="mx-2">•</span>
+<span>Tips Wellness</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-stack-sm leading-tight group-hover:text-primary transition-colors">Menyelaraskan Ritme Tubuh dengan Suara Aliran Sungai</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-md line-clamp-3">Terapi suara alam bukan sekadar tren. Di Tampirkulon, gemericik air sungai terbukti menurunkan tingkat stres secara signifikan. Pelajari bagaimana Anda bisa mempraktikkan mindfulness sederhana di tepi air.</p>
+<div class="flex items-center justify-between mt-auto pt-stack-sm border-t border-surface-variant">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary font-bold">DA</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Dr. Ayu Larasati</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Pakar Kesejahteraan</p>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 font-label-md text-label-md text-primary hover:text-on-surface transition-colors" href="#">
+                            Baca Selengkapnya <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</article>
+</section>
+<!-- Category Filter -->
+<section class="mb-stack-lg flex overflow-x-auto pb-4 hide-scrollbar gap-3 snap-x">
+<button class="snap-start whitespace-nowrap px-5 py-2.5 rounded-full font-label-md text-label-md bg-primary text-on-primary shadow-sm">Semua Kabar</button>
+<button class="snap-start whitespace-nowrap px-5 py-2.5 rounded-full font-label-md text-label-md bg-surface-container hover:bg-surface-variant text-on-surface-variant transition-colors border border-outline-variant">Tips Wellness</button>
+<button class="snap-start whitespace-nowrap px-5 py-2.5 rounded-full font-label-md text-label-md bg-surface-container hover:bg-surface-variant text-on-surface-variant transition-colors border border-outline-variant">Cerita Petualangan</button>
+<button class="snap-start whitespace-nowrap px-5 py-2.5 rounded-full font-label-md text-label-md bg-surface-container hover:bg-surface-variant text-on-surface-variant transition-colors border border-outline-variant">Warta Desa</button>
+<button class="snap-start whitespace-nowrap px-5 py-2.5 rounded-full font-label-md text-label-md bg-surface-container hover:bg-surface-variant text-on-surface-variant transition-colors border border-outline-variant">UMKM Lokal</button>
+</section>
+<!-- Content Layout: Main Grid + Sidebar -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Main Articles Grid (Left/Main Column) -->
+<div class="lg:col-span-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<!-- Article Card 1 -->
+<article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(27,67,50,0.04)] border border-surface-variant hover:shadow-[0_4px_24px_rgba(27,67,50,0.08)] transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="River tubing adventure" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Group of friends laughing and riding yellow inner tubes down a fast-flowing, clear river surrounded by dense green jungle trees in bright daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoiKRb9VzsbHQZxu2_LlpaIk3MVvRkS_546pktQ6TmCIGO0em00RUmXl1AvVeh8IrahnCiXgJZs5BbJkU4os-h_rhX_f9NjR-E4O_UE00lHcbMB9CZ78_t90L6MY61INPRQI2O6cAxGzM9gSie8EdSuqJYDwJNqzSBtN7ZAGEhfArJfuU2za_q8l-XMvyhJge8aaze86sMUwqp8rpJw_wWKpYdPlOzTovZ-cIhkkWKcr-dkNkppFrmgEkRkndpfB8pzdhs6xtuh4A_"/>
+<span class="absolute top-3 left-3 bg-secondary text-on-secondary font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">Cerita Petualangan</span>
+</div>
+<div class="p-stack-md flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 line-clamp-2 group-hover:text-primary transition-colors">Panduan Pemula: Menaklukkan Jeram Sungai Tampirkulon</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-3">Mempersiapkan diri untuk petualangan river tubing pertama Anda? Kami merangkum tips esensial agar pengalaman Anda tetap aman sekaligus memompa adrenalin.</p>
+<div class="mt-auto flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-4 border-t border-surface-variant/50">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit_note</span> Budi Santoso</span>
+<span>10 Okt 2024</span>
+</div>
+</div>
+</article>
+<!-- Article Card 2 -->
+<article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(27,67,50,0.04)] border border-surface-variant hover:shadow-[0_4px_24px_rgba(27,67,50,0.08)] transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Local farming" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Close up of a local Indonesian farmer's hands holding freshly harvested bright orange turmeric roots with soil, wearing traditional woven clothing in a lush garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkOCzkl1Wn_Q-JSqOaLIu0gFYVnquEaJknQhB7Afq810pm1wsk2wU6ctqiMcI8Nej-mSKE37MkWh6QwYZQXscHzkJZOfc4RSnTciE7XeSnHF03Mzad9rOsG7tjuFnGaJiHThtn0HIKDecUzAPPs4L_H5u62QNWdWVOeTS3txd-bXMBKyHPKTyS6lFdYwLaXPYvpxhBGs_WerWzR5-jzblHko8FpdPUN2ImI7_zbYt0-3M-sSDbYPOkgkr0eA37Y-4VlrXdWthwE7zn"/>
+<span class="absolute top-3 left-3 bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">UMKM Lokal</span>
+</div>
+<div class="p-stack-md flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 line-clamp-2 group-hover:text-primary transition-colors">Mengenal Jamu Akar-akaran Karya Ibu-Ibu Desa</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-3">Di balik fasilitas wellness kami, terdapat dedikasi kelompok tani wanita lokal yang memasok bahan herbal organik berkualitas tinggi untuk minuman selamat datang Anda.</p>
+<div class="mt-auto flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-4 border-t border-surface-variant/50">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit_note</span> Rina Melati</span>
+<span>08 Okt 2024</span>
+</div>
+</div>
+</article>
+<!-- Article Card 3 -->
+<article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(27,67,50,0.04)] border border-surface-variant hover:shadow-[0_4px_24px_rgba(27,67,50,0.08)] transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Yoga session" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Small group of people practicing morning yoga on a bamboo platform under a large tree canopy, soft sunlight filtering through leaves, peaceful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClSMTKL2YZoLzX9xBCMeQuliUDmjv1QT-D2u72arBe6rC97gPO_dQ1l_u8HQvZoqW5CJeJjaueuCvUF0swe7IvUD5kG-GY_d-G_I-w9X9kmkk9w4DUpaajBCRtIqplOCcGWq9T2WWJkr9z-tMReXL1lubqwPGYrvNOcQK0U7Ze-0tDDKE98syt1uAVZqdymBrola9vm5RCyZBNq889eG7hVcuR9aHnId7I0tbBgXVF-ZslELcuzbziFkp9xqpvZr7FLpkwepc0qrgu"/>
+<span class="absolute top-3 left-3 bg-primary-fixed-dim text-on-primary-fixed-variant font-label-sm text-label-sm px-2.5 py-0.5 rounded-full">Tips Wellness</span>
+</div>
+<div class="p-stack-md flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 line-clamp-2 group-hover:text-primary transition-colors">5 Pose Yoga Sederhana untuk Pemulihan Pasca-Petualangan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-3">Setelah seharian mendayung atau trekking, otot Anda butuh diregangkan. Berikut rutinitas 15 menit yang bisa dilakukan di kabin Anda.</p>
+<div class="mt-auto flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-4 border-t border-surface-variant/50">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit_note</span> Dr. Ayu Larasati</span>
+<span>05 Okt 2024</span>
+</div>
+</div>
+</article>
+<!-- Article Card 4 -->
+<article class="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(27,67,50,0.04)] border border-surface-variant hover:shadow-[0_4px_24px_rgba(27,67,50,0.08)] transition-all duration-300">
+<div class="relative h-48 overflow-hidden">
+<img alt="Nature trail" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Scenic dirt hiking trail winding through tall green grass and scattered trees leading towards misty mountains in the distance under a clear sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgshi1Kj1aVkuQIoVMFYMa1gKwooU7C6hKdHPdNuVEUGk10YBMm1v27nosOiv3twdam8Zq7WoBXwLBuFloHn_Hy5DOhMVyRLRZPtPfPkzN1gW2w4bjFfsLFfvCWlieTIu-WRXJ_mEtqjRbdUlavurlbTDHOgtVYGRJSPi1-BK2dfcW7e_EjGFNY5DVqTUi_N7LovUOHzHiuBtO-uE3BXnHRvM-DLo3qn1yASs0eNi50X9QkLfwOBAUIPxmQpsVh7FnfO57W33oLLgP"/>
+<span class="absolute top-3 left-3 bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-outline-variant">Warta Desa</span>
+</div>
+<div class="p-stack-md flex flex-col flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 line-clamp-2 group-hover:text-primary transition-colors">Pembukaan Jalur Trekking Baru 'Bukit Harapan'</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-3">Kerjasama antara Westtamp Wellness dan pemuda desa menghasilkan rute hiking baru yang menawarkan panorama lembah 360 derajat di titik tertingginya.</p>
+<div class="mt-auto flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-4 border-t border-surface-variant/50">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">edit_note</span> Tim Komunitas</span>
+<span>01 Okt 2024</span>
+</div>
+</div>
+</article>
+</div>
+<!-- Load More Button -->
+<div class="mt-stack-lg text-center">
+<button class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-colors">
+                        Muat Lebih Banyak <span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Sidebar (Right Column) -->
+<aside class="lg:col-span-4 flex flex-col gap-stack-lg mt-stack-lg lg:mt-0">
+<!-- Popular Articles Widget -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-md border border-surface-variant shadow-[0_2px_8px_rgba(27,67,50,0.03)]">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container icon-fill">local_fire_department</span>
+                        Artikel Populer
+                    </h3>
+<ul class="flex flex-col gap-4">
+<li class="group flex gap-4 items-start">
+<div class="w-8 font-headline-md text-outline-variant group-hover:text-primary transition-colors">01</div>
+<div>
+<a class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight" href="#">Manfaat Mandi Air Dingin Alami di Pagi Hari</a>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 block">Tips Wellness</span>
+</div>
+</li>
+<li class="group flex gap-4 items-start border-t border-surface-variant/50 pt-4">
+<div class="w-8 font-headline-md text-outline-variant group-hover:text-primary transition-colors">02</div>
+<div>
+<a class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight" href="#">Mengenal Tim Rescue Sungai Tampirkulon</a>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 block">Warta Desa</span>
+</div>
+</li>
+<li class="group flex gap-4 items-start border-t border-surface-variant/50 pt-4">
+<div class="w-8 font-headline-md text-outline-variant group-hover:text-primary transition-colors">03</div>
+<div>
+<a class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight" href="#">Review: Menu Sehat Khas Resto Dapur Bumi</a>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 block">UMKM Lokal</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Newsletter Subscription Widget -->
+<div class="bg-primary-container text-on-primary-container rounded-xl p-stack-md relative overflow-hidden shadow-sm">
+<!-- Decorative abstract shape -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary-fixed opacity-10 rounded-full blur-2xl"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-[32px] mb-2 text-primary-fixed">mark_email_read</span>
+<h3 class="font-headline-md text-headline-md mb-2 text-white">Langganan Buletin</h3>
+<p class="font-body-md text-body-md text-primary-fixed-dim mb-4 text-sm">Dapatkan inspirasi wellness mingguan dan penawaran eksklusif langsung di kotak masuk Anda.</p>
+<form class="flex flex-col gap-3">
+<input class="w-full px-4 py-3 rounded-lg bg-surface-container-lowest border-none text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary-fixed focus:outline-none font-body-md" placeholder="Alamat email Anda" required="" type="email"/>
+<button class="w-full bg-primary-fixed text-on-primary-fixed px-4 py-3 rounded-lg font-label-md text-label-md hover:bg-white transition-colors flex justify-center items-center gap-2" type="submit">
+                                Daftar Sekarang <span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</form>
+<p class="text-[10px] text-primary-fixed-dim mt-3 text-center">Kami menjaga privasi Anda. Tidak ada spam.</p>
+</div>
+</div>
+<!-- Tag Cloud -->
+<div class="bg-surface-container-low rounded-xl p-stack-md">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-stack-md text-lg">Jelajahi Topik</h3>
+<div class="flex flex-wrap gap-2">
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Mindfulness</a>
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Tubing</a>
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Kuliner Sehat</a>
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Keluarga</a>
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Retreat</a>
+<a class="px-3 py-1.5 rounded bg-surface-container-lowest border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:border-primary hover:text-primary transition-colors" href="#">Alam</a>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer Shared Component -->
+<footer class="bg-emerald-900 dark:bg-neutral-950 text-emerald-50 dark:text-emerald-100 font-['Plus_Jakarta_Sans'] text-sm leading-relaxed full-width bottom-0 border-t border-emerald-800 dark:border-neutral-800 flat no shadows">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-12 px-6 lg:px-12 max-w-screen-2xl mx-auto items-center">
+<div class="flex flex-col items-start gap-4">
+<span class="font-bold text-lg text-emerald-50">Westtamp Wellness</span>
+<p class="text-emerald-100/70">© 2024 Westtamp Wellness. Grounded Vitality in Tampirkulon.</p>
+</div>
+<div class="flex flex-wrap items-center justify-start md:justify-end gap-6">
+<a class="text-emerald-100/70 hover:text-white hover:text-emerald-300 transition-colors duration-200 focus:ring-2 focus:ring-emerald-400 outline-none" href="#">Privacy Policy</a>
+<a class="text-emerald-100/70 hover:text-white hover:text-emerald-300 transition-colors duration-200 focus:ring-2 focus:ring-emerald-400 outline-none" href="#">Safety Guidelines</a>
+<a class="text-emerald-100/70 hover:text-white hover:text-emerald-300 transition-colors duration-200 focus:ring-2 focus:ring-emerald-400 outline-none" href="#">Village News</a>
+<a class="text-emerald-100/70 hover:text-white hover:text-emerald-300 transition-colors duration-200 focus:ring-2 focus:ring-emerald-400 outline-none" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>
