@@ -73,7 +73,7 @@ class BlogController extends Controller
                 // Fallback to original format
                 $extension = $file->getClientOriginalExtension();
                 $filename = uniqid() . '.' . $extension;
-                $file->storeAs('public/blogs', $filename);
+                $file->storeAs('blogs', $filename, 'public');
                 $data['image_url'] = '/storage/blogs/' . $filename;
             }
         }
@@ -160,7 +160,7 @@ class BlogController extends Controller
             } else {
                 $extension = $file->getClientOriginalExtension();
                 $filename = uniqid() . '.' . $extension;
-                $file->storeAs('public/blogs', $filename);
+                $file->storeAs('blogs', $filename, 'public');
                 $data['image_url'] = '/storage/blogs/' . $filename;
             }
         }
@@ -207,7 +207,7 @@ class BlogController extends Controller
         } else {
             $extension = $file->getClientOriginalExtension();
             $filename = uniqid() . '.' . $extension;
-            $file->storeAs('public/content', $filename);
+            $file->storeAs('content', $filename, 'public');
             $url = '/storage/content/' . $filename;
         }
 

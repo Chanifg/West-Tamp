@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\GalleryController;
 
 use App\Http\Controllers\AuthController;
 
@@ -32,8 +33,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/admin/blogs/{id}', [BlogController::class, 'update']);
     Route::delete('/admin/blogs/{id}', [BlogController::class, 'destroy']);
     Route::post('/admin/upload-image', [BlogController::class, 'uploadImage']);
+
+    // Gallery Admin Routes
+    Route::post('/admin/galleries', [GalleryController::class, 'store']);
+    Route::delete('/admin/galleries/{id}', [GalleryController::class, 'destroy']);
 });
 
 // Blog Public Routes
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{slug}', [BlogController::class, 'show']);
+
+// Gallery Public Routes
+Route::get('/galleries', [GalleryController::class, 'index']);
