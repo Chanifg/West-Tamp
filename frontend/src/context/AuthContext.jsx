@@ -5,31 +5,39 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+// Set up Axios Interceptor once
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  config.headers['Accept'] = 'application/json';
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
 
-  // Set default axios header
   useEffect(() => {
-    axios.defaults.headers.common['Accept'] = 'application/json';
-    
+    // Whenever token in state changes, make sure localstorage matches
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       localStorage.setItem('token', token);
       
-      // Optionally fetch user info to confirm token is valid
+      // Fetch user info
       axios.get('http://localhost:8000/api/user')
         .then(res => {
           setUser(res.data);
         })
         .catch(err => {
           console.error("Token invalid", err);
-          logout();
+          handleLogout(); // local logout without API call
         })
         .finally(() => setLoading(false));
     } else {
-      delete axios.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
       setLoading(false);
     }
@@ -49,6 +57,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+  };
+
   const logout = async () => {
     try {
       if (token) {
@@ -57,8 +71,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error(err);
     } finally {
-      setUser(null);
-      setToken(null);
+      handleLogout();
     }
   };
 

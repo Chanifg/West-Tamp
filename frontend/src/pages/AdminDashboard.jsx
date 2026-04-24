@@ -31,6 +31,14 @@ export default function AdminDashboard() {
     title: '', category: '', location: '', image_file: null
   });
 
+  // Package State
+  const [packages, setPackages] = useState([]);
+  const [showPackageForm, setShowPackageForm] = useState(false);
+  const [editingPackage, setEditingPackage] = useState(null);
+  const [packageForm, setPackageForm] = useState({
+    name: '', description: '', price: ''
+  });
+
   useEffect(() => {
     if (activeTab === 'dashboard') {
       fetchStats();
@@ -38,6 +46,8 @@ export default function AdminDashboard() {
       fetchBlogs();
     } else if (activeTab === 'galleries') {
       fetchGalleries();
+    } else if (activeTab === 'packages') {
+      fetchPackages();
     }
   }, [activeTab]);
 
@@ -57,6 +67,50 @@ export default function AdminDashboard() {
     axios.get('http://localhost:8000/api/galleries')
       .then(res => setGalleries(res.data))
       .catch(err => console.error(err));
+  };
+
+  const fetchPackages = () => {
+    axios.get('http://localhost:8000/api/admin/packages')
+      .then(res => setPackages(res.data))
+      .catch(err => console.error(err));
+  };
+
+  const handleEditPackage = (pkg) => {
+    setEditingPackage(pkg);
+    setPackageForm({
+      name: pkg.name,
+      description: pkg.description,
+      price: pkg.price
+    });
+    setShowPackageForm(true);
+  };
+
+  const handlePackageSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    const url = editingPackage 
+      ? `http://localhost:8000/api/admin/packages/${editingPackage.id}` 
+      : 'http://localhost:8000/api/admin/packages';
+    
+    axios.post(url, packageForm)
+    .then(res => {
+      alert(editingPackage ? "Package updated!" : "Package created!");
+      setShowPackageForm(false);
+      setEditingPackage(null);
+      setPackageForm({ name: '', description: '', price: '' });
+      fetchPackages();
+    })
+    .catch(err => alert("Error: " + (err.response?.data?.message || err.message)))
+    .finally(() => setLoading(false));
+  };
+
+  const handleDeletePackage = (id) => {
+    if (window.confirm('Are you sure you want to delete this package?')) {
+      axios.delete(`http://localhost:8000/api/admin/packages/${id}`)
+        .then(() => fetchPackages())
+        .catch(err => alert(err.response?.data?.message || err.message));
+    }
   };
 
   const handleGallerySubmit = (e) => {
@@ -251,6 +305,14 @@ export default function AdminDashboard() {
             Gallery Management
           </button>
 
+          <button 
+            onClick={() => setActiveTab('packages')} 
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-bold ${activeTab === 'packages' ? 'bg-primary-container/10 text-primary-container' : 'text-on-surface-variant hover:bg-surface'}`}
+          >
+            <span className="material-symbols-outlined">inventory_2</span>
+            Package Management
+          </button>
+
           <button onClick={logout} className="flex items-center gap-3 px-4 py-3 mt-auto text-error hover:bg-error-container/50 rounded-lg transition-colors w-full text-left font-bold">
             <span className="material-symbols-outlined">logout</span>
             Sign Out
@@ -263,10 +325,10 @@ export default function AdminDashboard() {
         <header className="mb-8 flex justify-between items-end">
           <div>
             <h1 className="font-headline-lg text-3xl font-bold text-on-surface mb-2">
-              {activeTab === 'dashboard' ? 'Operational Dashboard' : activeTab === 'blogs' ? 'Kabar & Blog Management' : 'Gallery Management'}
+              {activeTab === 'dashboard' ? 'Operational Dashboard' : activeTab === 'blogs' ? 'Kabar & Blog Management' : activeTab === 'galleries' ? 'Gallery Management' : 'Package Management'}
             </h1>
             <p className="text-on-surface-variant">
-              {activeTab === 'dashboard' ? 'Real-time overview of river activities and bookings.' : activeTab === 'blogs' ? 'Manage articles, news, and wellness tips for visitors.' : 'Manage photos for the public gallery page.'}
+              {activeTab === 'dashboard' ? 'Real-time overview of river activities and bookings.' : activeTab === 'blogs' ? 'Manage articles, news, and wellness tips for visitors.' : activeTab === 'galleries' ? 'Manage photos for the public gallery page.' : 'Manage river tubing packages and pricing.'}
             </p>
           </div>
           {activeTab === 'dashboard' && (
@@ -690,6 +752,84 @@ export default function AdminDashboard() {
                     <button type="submit" disabled={loading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 flex items-center gap-2">
                        {loading && <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>}
                        {loading ? 'Mengunggah...' : 'Unggah Foto'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'packages' && (
+          <div className="w-full">
+            {!showPackageForm ? (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-headline-md text-xl font-bold text-on-surface">Daftar Paket Tubing</h3>
+                  <button onClick={() => { setEditingPackage(null); setPackageForm({ name: '', description: '', price: '' }); setShowPackageForm(true); }} className="bg-primary text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 shrink-0">
+                    <span className="material-symbols-outlined">add</span> Buat Paket Baru
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {packages.map(pkg => (
+                    <div key={pkg.id} className="border border-surface-variant rounded-xl p-6 bg-surface/30 flex flex-col">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-12 h-12 rounded-lg bg-primary-container/20 text-primary flex items-center justify-center">
+                          <span className="material-symbols-outlined">kayaking</span>
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => handleEditPackage(pkg)} className="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
+                            <span className="material-symbols-outlined text-sm">edit</span>
+                          </button>
+                          <button onClick={() => handleDeletePackage(pkg.id)} className="text-error hover:bg-error/10 p-2 rounded-full transition-colors">
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                          </button>
+                        </div>
+                      </div>
+                      <h4 className="font-bold text-lg text-on-surface mb-2">{pkg.name}</h4>
+                      <p className="text-sm text-on-surface-variant line-clamp-3 mb-4 flex-1">{pkg.description}</p>
+                      <div className="pt-4 border-t border-surface-variant flex justify-between items-center">
+                        <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Harga per Pax</span>
+                        <span className="text-lg font-bold text-primary">Rp{Number(pkg.price).toLocaleString('id-ID')}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {packages.length === 0 && (
+                    <div className="col-span-full py-12 text-center text-on-surface-variant bg-surface rounded-xl border-2 border-dashed border-outline-variant">
+                      <span className="material-symbols-outlined text-4xl mb-2 opacity-50">inventory_2</span>
+                      <p>Belum ada paket produk.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant max-w-2xl">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold">{editingPackage ? 'Edit Paket Tubing' : 'Buat Paket Baru'}</h2>
+                  <button onClick={() => { setShowPackageForm(false); setEditingPackage(null); }} className="text-on-surface-variant hover:text-on-surface px-4 py-2 rounded-lg font-bold">
+                    Batal
+                  </button>
+                </div>
+                <form onSubmit={handlePackageSubmit} className="flex flex-col gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-on-surface mb-2">Nama Paket *</label>
+                    <input required type="text" value={packageForm.name} onChange={e => setPackageForm({...packageForm, name: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Paket Arus Deras Expert" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-on-surface mb-2">Harga per Pax (Rp) *</label>
+                    <input required type="number" value={packageForm.price} onChange={e => setPackageForm({...packageForm, price: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: 50000" />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-on-surface mb-2">Deskripsi Layanan *</label>
+                    <textarea required rows="4" value={packageForm.description} onChange={e => setPackageForm({...packageForm, description: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-none" placeholder="Jelaskan apa saja yang didapat pengunjung dalam paket ini..."></textarea>
+                  </div>
+
+                  <div className="flex justify-end pt-4 border-t border-surface-variant">
+                    <button type="submit" disabled={loading} className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50">
+                       {loading ? 'Menyimpan...' : (editingPackage ? 'Simpan Perubahan' : 'Publish Paket')}
                     </button>
                   </div>
                 </form>

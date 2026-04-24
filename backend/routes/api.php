@@ -6,6 +6,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\PackageController;
 
 use App\Http\Controllers\AuthController;
 
@@ -37,6 +38,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Gallery Admin Routes
     Route::post('/admin/galleries', [GalleryController::class, 'store']);
     Route::delete('/admin/galleries/{id}', [GalleryController::class, 'destroy']);
+
+    // Package Admin Routes
+    Route::get('/admin/packages', [PackageController::class, 'index']);
+    Route::post('/admin/packages', [PackageController::class, 'store']);
+    Route::post('/admin/packages/{id}', [PackageController::class, 'update']);
+    Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 });
 
 // Blog Public Routes
