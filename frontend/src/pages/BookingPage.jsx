@@ -98,7 +98,14 @@ export default function BookingPage() {
                     <div className="font-headline-md text-xl text-primary-container mb-4">
                       Rp{parseInt(pkg.price).toLocaleString('id-ID')} <span className="font-body-md text-base text-on-surface-variant font-normal">/pax</span>
                     </div>
-                    <p className="font-body-md">{pkg.description}</p>
+                    <div className="space-y-1">
+                      {(pkg.description || '').split(/\r?\n/).filter(l => l.trim() !== '').map((line, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-on-surface-variant">
+                          <span className="material-symbols-outlined notranslate text-[16px] mt-1 shrink-0 text-primary">check_circle</span>
+                          <p>{line.trim()}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>

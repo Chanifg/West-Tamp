@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\TubingPackage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class PackageController extends Controller
 {
@@ -18,9 +22,18 @@ class PackageController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'is_popular' => 'nullable',
+            'image_file' => 'nullable|image|max:10240',
         ]);
 
-        $package = TubingPackage::create($request->all());
+        $data = $request->only(['name', 'description', 'price']);
+        $data['is_popular'] = filter_var($request->is_popular, FILTER_VALIDATE_BOOLEAN);
+
+        if ($request->hasFile('image_file')) {
+            $data['image_url'] = $this->handleImageUpload($request->file('image_file'));
+        }
+
+        $package = TubingPackage::create($data);
 
         return response()->json([
             'message' => 'Package created successfully',
@@ -42,9 +55,22 @@ class PackageController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'is_popular' => 'nullable',
+            'image_file' => 'nullable|image|max:10240',
         ]);
 
-        $package->update($request->all());
+        $data = $request->only(['name', 'description', 'price']);
+        $data['is_popular'] = filter_var($request->is_popular, FILTER_VALIDATE_BOOLEAN);
+
+        if ($request->hasFile('image_file')) {
+            // Delete old image if exists
+            if ($package->image_url && Str::startsWith($package->image_url, '/storage/packages/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $package->image_url));
+            }
+            $data['image_url'] = $this->handleImageUpload($request->file('image_file'));
+        }
+
+        $package->update($data);
 
         return response()->json([
             'message' => 'Package updated successfully',
@@ -63,10 +89,50 @@ class PackageController extends Controller
             ], 422);
         }
 
+        // Delete image if exists
+        if ($package->image_url && Str::startsWith($package->image_url, '/storage/packages/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $package->image_url));
+        }
+
         $package->delete();
 
         return response()->json([
             'message' => 'Package deleted successfully'
         ]);
+    }
+
+    private function handleImageUpload($file)
+    {
+        $filenameWebp = uniqid() . '.webp';
+        $directory = 'packages';
+        $fullDir = storage_path('app/public/' . $directory);
+        
+        if (!file_exists($fullDir)) {
+            mkdir($fullDir, 0755, true);
+        }
+
+        $pathWebp = $fullDir . '/' . $filenameWebp;
+        $successWebp = false;
+
+        if (function_exists('imagewebp')) {
+            try {
+                $manager = new ImageManager(new Driver());
+                $image = $manager->decodePath($file->getRealPath());
+                $encoded = $image->encode(new \Intervention\Image\Encoders\WebpEncoder(quality: 80));
+                file_put_contents($pathWebp, $encoded->toString());
+                $successWebp = true;
+            } catch (\Exception $e) {
+                \Log::error("WebP conversion failed: " . $e->getMessage());
+            }
+        }
+
+        if ($successWebp) {
+            return '/storage/' . $directory . '/' . $filenameWebp;
+        } else {
+            $extension = $file->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $extension;
+            $file->storeAs($directory, $filename, 'public');
+            return '/storage/' . $directory . '/' . $filename;
+        }
     }
 }

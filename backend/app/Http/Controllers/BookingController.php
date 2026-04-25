@@ -14,7 +14,7 @@ class BookingController extends Controller
 {
     public function getPackages()
     {
-        return response()->json(TubingPackage::all());
+        return response()->json(TubingPackage::orderBy('is_popular', 'desc')->orderBy('id', 'desc')->get());
     }
 
     public function checkAvailability(Request $request)

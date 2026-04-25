@@ -140,7 +140,7 @@ export default function LandingPage() {
         {/* Packages Section */}
         <section className="py-24 px-6 md:px-12 bg-surface-container-lowest overflow-hidden">
           <div className="max-w-container-max mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16 px-4 md:px-0">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16 px-0">
                <div className="max-w-2xl">
                   <span className="font-label-md text-primary font-bold tracking-widest uppercase mb-4 block">Pilihan Pengalaman</span>
                   <h2 className="font-headline-xl text-3xl md:text-5xl lg:text-headline-lg text-on-surface font-bold leading-tight">Paket Tubing & <span className="text-primary italic">Healing</span> Sesuai Ritme Anda</h2>
@@ -153,41 +153,55 @@ export default function LandingPage() {
                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className={`flex flex-wrap gap-8 ${packages.length < 3 ? 'justify-center' : 'justify-start'}`}>
               {loadingPackages ? (
                 [1, 2, 3].map(i => (
-                  <div key={i} className="h-96 bg-surface-container animate-pulse rounded-3xl"></div>
+                  <div key={i} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.35rem)] h-96 bg-surface-container animate-pulse rounded-3xl"></div>
                 ))
               ) : packages.length > 0 ? (
-                packages.map((pkg, idx) => (
-                  <div key={pkg.id} className={`p-8 rounded-3xl flex flex-col transition-all duration-500 hover:-translate-y-2 group relative overflow-hidden ${idx === 1 ? 'bg-primary text-white shadow-[0_20px_50px_rgba(27,67,50,0.3)] scale-105 z-10' : 'bg-surface border border-surface-variant hover:border-primary/30 shadow-sm'}`}>
-                    {/* Decorative pattern */}
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform"></div>
-                    
-                    <div className="mb-8">
-                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${idx === 1 ? 'bg-white/20 border-white/30 text-white' : 'bg-primary-container/10 border-primary/10 text-primary'}`}>
-                          <span className="material-symbols-outlined text-3xl">{idx === 0 ? 'sailing' : idx === 1 ? 'explore' : 'meditation'}</span>
-                       </div>
-                       <h3 className="font-headline-md text-2xl font-bold mb-3">{pkg.name}</h3>
-                       <p className={`font-body-md line-clamp-3 text-sm leading-relaxed ${idx === 1 ? 'text-white/80' : 'text-on-surface-variant'}`}>{pkg.description}</p>
-                    </div>
-
-                    <div className="mt-auto">
-                        <div className="flex items-baseline gap-1 mb-8">
-                           <span className="text-xs font-bold uppercase tracking-widest opacity-70">Mulai Dari</span>
-                           <div className="text-3xl font-bold">Rp{Number(pkg.price).toLocaleString('id-ID')}</div>
-                           <span className="text-xs font-medium opacity-60">/pax</span>
+                packages.map((pkg, idx) => {
+                  const isFeatured = pkg.is_popular;
+                  // Dynamic icon based on featured or sequence
+                  const icon = isFeatured ? 'travel_explore' : (idx === 0 ? 'sailing' : 'spa');
+                  
+                  return (
+                    <div key={pkg.id} className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.35rem)] p-8 rounded-3xl flex flex-col transition-all duration-500 hover:-translate-y-2 group relative overflow-hidden ${isFeatured ? 'bg-primary text-white shadow-[0_20px_50px_rgba(27,67,50,0.3)] scale-105 z-10' : 'bg-surface border border-surface-variant hover:border-primary/30 shadow-sm'}`}>
+                      {/* Decorative pattern */}
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform z-0"></div>
+                      
+                      <div className="mb-8 relative z-10">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${isFeatured ? 'bg-white/20 border-white/30 text-white' : 'bg-primary-container/10 border-primary/10 text-primary'}`}>
+                            <span className="material-symbols-outlined notranslate text-3xl select-none" style={{ lineHeight: 1, display: 'block' }}>{icon}</span>
                         </div>
-                        <Link to="/booking">
-                           <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-md active:scale-[0.98] cursor-pointer ${idx === 1 ? 'bg-white text-primary hover:bg-emerald-50' : 'bg-primary text-white hover:bg-primary/90'}`}>
-                              Pesan Sekarang
-                           </button>
-                        </Link>
+                        <h3 className="font-headline-md text-2xl font-bold mb-3">{pkg.name}</h3>
+                        
+                        <div className="space-y-2 mb-4">
+                          {(pkg.description || '').split(/\r?\n/).filter(line => line.trim() !== '').map((line, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <span className={`material-symbols-outlined notranslate text-[18px] mt-1 shrink-0 ${isFeatured ? 'text-white' : 'text-primary'}`}>check_circle</span>
+                              <p className={`font-body-md text-sm leading-relaxed ${isFeatured ? 'text-white' : 'text-on-surface-variant'}`}>{line.trim()}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-auto relative z-10">
+                          <div className="flex items-baseline gap-1 mb-8">
+                            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Mulai Dari</span>
+                            <div className="text-3xl font-bold">Rp{Number(pkg.price).toLocaleString('id-ID')}</div>
+                            <span className="text-xs font-medium opacity-60">/pax</span>
+                          </div>
+                          <Link to="/booking">
+                            <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-md active:scale-[0.98] cursor-pointer ${isFeatured ? 'bg-white text-primary hover:bg-emerald-50' : 'bg-primary text-white hover:bg-primary/90'}`}>
+                                Pesan Sekarang
+                            </button>
+                          </Link>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
-                <div className="col-span-full py-12 text-center text-on-surface-variant italic">Belum ada paket tersedia saat ini.</div>
+                <div className="w-full py-12 text-center text-on-surface-variant italic">Belum ada paket tersedia saat ini.</div>
               )}
             </div>
 
@@ -200,7 +214,7 @@ export default function LandingPage() {
         </section>
 
         {/* Blog & Kabar Lokal Section */}
-        <section className="py-24 px- margin md:px-12 max-w-container-max mx-auto bg-surface-container-low/30">
+        <section className="py-24 px-6 md:px-12 max-w-container-max mx-auto bg-surface-container-low/30">
           <div className="text-center mb-16">
             <h2 className="font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold">Kabar dari Aliran Sungai & Desa</h2>
             <p className="font-body-md text-on-surface-variant max-w-2xl mx-auto">Temukan inspirasi kesejahteraan, cerita petualangan seru, dan perkembangan terbaru dari komunitas lokal Tampirkulon. Merawat bumi, merawat diri.</p>

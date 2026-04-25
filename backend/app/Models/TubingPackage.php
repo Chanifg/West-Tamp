@@ -12,7 +12,13 @@ class TubingPackage extends Model
     protected $fillable = [
         'name',
         'description',
-        'price'
+        'price',
+        'image_url',
+        'is_popular'
+    ];
+
+    protected $casts = [
+        'is_popular' => 'boolean'
     ];
 
     public function bookings()
