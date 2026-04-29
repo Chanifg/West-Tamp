@@ -48,13 +48,18 @@ export default function LandingPage() {
           <div className="absolute inset-0 z-0">
             <img alt="River tubing scenery" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOV8Fkil5gWn5WomVc0jKUkQHDc8RObXooZsrAws6uo_eHX0YyP3JeaLcQ1IkJbNUys7DUp-QhUW80UyOFzM0GkoH4QwaDK4Ez8k7fB1WMxnzO46WfgkDLhHz0o__H0hYRpcg3RSrvDntGoHkL4Z-wZh7sgvg0L8dje628nV-qlqkGv0b-TJwyItSFHUE993Wg31-Jn6i1lZ0s0a71VRNjznmn6QHkjQDZd31p7JoGc4AVTRxzpbGjTGqDXg15KeCd530DS7_7KXnr" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20"></div>
+            <div className="absolute inset-0 bg-grain pointer-events-none"></div>
+
+            {/* Background Orbs */}
+            <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }}></div>
           </div>
           <div className="relative z-10 max-w-container-max mx-auto px-6 md:px-12 w-full text-center mt-20">
             <span className="inline-block px-4 py-2 bg-primary-container/90 backdrop-blur-sm text-on-primary-container rounded-full font-label-sm font-bold tracking-wider uppercase mb-6 shadow-lg">
               Wellness-tourism di Desa Tampirkulon
             </span>
             <h1 className="font-headline-xl text-4xl md:text-6xl lg:text-[64px] text-on-primary drop-shadow-xl mb-6 max-w-4xl mx-auto leading-tight font-bold">
-              Westtamp Wellness: <br/> Petualangan Seru & Karya Lokal
+              Westtamp Wellness: <br /> Petualangan Seru & Karya Lokal
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
               <Link to="/booking">
@@ -96,61 +101,82 @@ export default function LandingPage() {
         </section>
 
         {/* Fasilitas Section */}
-        <section className="py-24 px-6 md:px-12 max-w-container-max mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold">Pilar Fasilitas Kami</h2>
-            <p className="font-body-md text-on-surface-variant max-w-2xl mx-auto">Kami mengutamakan keselamatan, kesehatan, dan kenyamanan Anda selama menikmati wisata alam di Desa Tampirkulon.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Pillar 1 */}
-            <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
-              <div className="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary-container mb-6 group-hover:-translate-y-1 transition-transform">
-                <span className="material-symbols-outlined text-3xl">water_drop</span>
-              </div>
-              <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Keamanan Tubing</h3>
-              <p className="font-body-md text-on-surface-variant">Perlengkapan safety gear standar internasional dan pemandu tersertifikasi untuk setiap petualangan.</p>
+        <section className="py-24 relative overflow-hidden">
+          <div className="max-w-container-max mx-auto px-6 md:px-12 relative">
+            {/* Watermark Accent */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-headline-xl text-[13vw] opacity-[0.03] select-none pointer-events-none whitespace-nowrap font-black tracking-tighter z-0">
+              TAMPIRKULON
             </div>
-            {/* Pillar 2 */}
-            <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
-              <div className="w-14 h-14 bg-error-container rounded-xl flex items-center justify-center text-on-error-container mb-6 group-hover:-translate-y-1 transition-transform">
-                <span className="material-symbols-outlined text-3xl">monitor_heart</span>
-              </div>
-              <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Fasilitas Kesehatan</h3>
-              <p className="font-body-md text-on-surface-variant">Layanan free checkup sebelum memulai aktivitas untuk memastikan kondisi fisik prima.</p>
+
+            {/* Floating Accents */}
+            <div className="absolute top-20 right-10 opacity-10 animate-float z-0">
+              <span className="material-symbols-outlined text-8xl text-primary">eco</span>
             </div>
-            {/* Pillar 3 */}
-            <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
-              <div className="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center text-on-tertiary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
-                <span className="material-symbols-outlined text-3xl">restaurant</span>
-              </div>
-              <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Konsumsi Sehat</h3>
-              <p className="font-body-md text-on-surface-variant">Sajian lokal bergizi tinggi seperti olahan lele segar dan minuman hangat jahe telang.</p>
+            <div className="absolute bottom-20 left-10 opacity-10 animate-float-delayed z-0">
+              <span className="material-symbols-outlined text-7xl text-secondary">potted_plant</span>
             </div>
-            {/* Pillar 4 */}
-            <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
-              <div className="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center text-on-primary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
-                <span className="material-symbols-outlined text-3xl">deck</span>
+
+            <div className="relative z-10 text-center mb-16">
+              <h2 className="font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold">Pilar Fasilitas Kami</h2>
+              <p className="font-body-md text-on-surface-variant max-w-2xl mx-auto">Kami mengutamakan keselamatan, kesehatan, dan kenyamanan Anda selama menikmati wisata alam di Desa Tampirkulon.</p>
+            </div>
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Pillar 1 */}
+              <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_20px_40px_rgba(27,67,50,0.12)] hover:border-primary/20 transition-all duration-500 group">
+                <div className="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary-container mb-6 group-hover:-translate-y-1 transition-transform shadow-inner">
+                  <span className="material-symbols-outlined text-3xl">water_drop</span>
+                </div>
+                <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Keamanan Tubing</h3>
+                <p className="font-body-md text-on-surface-variant">Perlengkapan safety gear standar internasional dan pemandu tersertifikasi untuk setiap petualangan.</p>
               </div>
-              <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Kenyamanan Publik</h3>
-              <p className="font-body-md text-on-surface-variant">Area bilas bersih, loker aman, dan ruang istirahat yang menyatu dengan alam pedesaan.</p>
+              {/* Pillar 2 */}
+              <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+                <div className="w-14 h-14 bg-error-container rounded-xl flex items-center justify-center text-on-error-container mb-6 group-hover:-translate-y-1 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">monitor_heart</span>
+                </div>
+                <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Fasilitas Kesehatan</h3>
+                <p className="font-body-md text-on-surface-variant">Layanan free checkup sebelum memulai aktivitas untuk memastikan kondisi fisik prima.</p>
+              </div>
+              {/* Pillar 3 */}
+              <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+                <div className="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center text-on-tertiary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">restaurant</span>
+                </div>
+                <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Konsumsi Sehat</h3>
+                <p className="font-body-md text-on-surface-variant">Sajian lokal bergizi tinggi seperti olahan lele segar dan minuman hangat jahe telang.</p>
+              </div>
+              {/* Pillar 4 */}
+              <div className="bg-surface-container-lowest rounded-2xl p-8 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.08)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.15)] transition-all duration-300 group">
+                <div className="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center text-on-primary-fixed mb-6 group-hover:-translate-y-1 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">deck</span>
+                </div>
+                <h3 className="font-headline-md text-xl font-bold text-on-surface mb-3">Kenyamanan Publik</h3>
+                <p className="font-body-md text-on-surface-variant">Area bilas bersih, loker aman, dan ruang istirahat yang menyatu dengan alam pedesaan.</p>
+              </div>
             </div>
           </div>
         </section>
-  
+
         {/* Packages Section */}
-        <section className="py-24 px-6 md:px-12 bg-surface-container-lowest overflow-hidden">
-          <div className="max-w-container-max mx-auto">
+        <section className="py-24 px-6 md:px-12 bg-surface-container-lowest overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(27,67,50,0.05),transparent_60%)] z-0"></div>
+
+          {/* Decorative Accent Lines */}
+          <div className="absolute top-1/4 -left-12 w-24 h-[1px] bg-primary/20 rotate-45 z-0"></div>
+          <div className="absolute top-1/3 -left-12 w-32 h-[1px] bg-primary/10 rotate-45 z-0"></div>
+
+          <div className="max-w-container-max mx-auto relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16 px-0">
-               <div className="max-w-2xl">
-                  <span className="font-label-md text-primary font-bold tracking-widest uppercase mb-4 block">Pilihan Pengalaman</span>
-                  <h2 className="font-headline-xl text-3xl md:text-5xl lg:text-headline-lg text-on-surface font-bold leading-tight">Paket Tubing & <span className="text-primary italic">Healing</span> Sesuai Ritme Anda</h2>
-                  <p className="font-body-md text-on-surface-variant mt-6 text-lg">Dari aliran arus yang memicu adrenalin hingga ketenangan meditasi pinggir sungai, temukan paket yang menyatu dengan jiwa Anda.</p>
-               </div>
-               <div className="hidden md:block">
-                  <Link to="/booking" className="inline-flex items-center gap-2 font-bold text-primary hover:gap-4 transition-all">
-                     Cek Semua Sesi <span className="material-symbols-outlined">arrow_forward</span>
-                  </Link>
-               </div>
+              <div className="max-w-2xl">
+                <span className="font-label-md text-primary font-bold tracking-widest uppercase mb-4 block">Pilihan Pengalaman</span>
+                <h2 className="font-headline-xl text-3xl md:text-5xl lg:text-headline-lg text-on-surface font-bold leading-tight">Paket Tubing & <span className="text-primary italic">Healing</span> Sesuai Ritme Anda</h2>
+                <p className="font-body-md text-on-surface-variant mt-6 text-lg">Dari aliran arus yang memicu adrenalin hingga ketenangan meditasi pinggir sungai, temukan paket yang menyatu dengan jiwa Anda.</p>
+              </div>
+              <div className="hidden md:block">
+                <Link to="/booking" className="inline-flex items-center gap-2 font-bold text-primary hover:gap-4 transition-all">
+                  Cek Semua Sesi <span className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+              </div>
             </div>
 
             <div className={`flex flex-wrap gap-8 ${packages.length < 3 ? 'justify-center' : 'justify-start'}`}>
@@ -163,18 +189,18 @@ export default function LandingPage() {
                   const isFeatured = pkg.is_popular;
                   // Dynamic icon based on featured or sequence
                   const icon = isFeatured ? 'travel_explore' : (idx === 0 ? 'sailing' : 'spa');
-                  
+
                   return (
                     <div key={pkg.id} className={`w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.35rem)] p-8 rounded-3xl flex flex-col transition-all duration-500 hover:-translate-y-2 group relative overflow-hidden ${isFeatured ? 'bg-primary text-white shadow-[0_20px_50px_rgba(27,67,50,0.3)] scale-105 z-10' : 'bg-surface border border-surface-variant hover:border-primary/30 shadow-sm'}`}>
                       {/* Decorative pattern */}
                       <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform z-0"></div>
-                      
+
                       <div className="mb-8 relative z-10">
                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${isFeatured ? 'bg-white/20 border-white/30 text-white' : 'bg-primary-container/10 border-primary/10 text-primary'}`}>
-                            <span className="material-symbols-outlined notranslate text-3xl select-none" style={{ lineHeight: 1, display: 'block' }}>{icon}</span>
+                          <span className="material-symbols-outlined notranslate text-3xl select-none" style={{ lineHeight: 1, display: 'block' }}>{icon}</span>
                         </div>
                         <h3 className="font-headline-md text-2xl font-bold mb-3">{pkg.name}</h3>
-                        
+
                         <div className="space-y-2 mb-4">
                           {(pkg.description || '').split(/\r?\n/).filter(line => line.trim() !== '').map((line, i) => (
                             <div key={i} className="flex items-start gap-2">
@@ -186,16 +212,16 @@ export default function LandingPage() {
                       </div>
 
                       <div className="mt-auto relative z-10">
-                          <div className="flex items-baseline gap-1 mb-8">
-                            <span className="text-xs font-bold uppercase tracking-widest opacity-70">Mulai Dari</span>
-                            <div className="text-3xl font-bold">Rp{Number(pkg.price).toLocaleString('id-ID')}</div>
-                            <span className="text-xs font-medium opacity-60">/pax</span>
-                          </div>
-                          <Link to="/booking">
-                            <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-md active:scale-[0.98] cursor-pointer ${isFeatured ? 'bg-white text-primary hover:bg-emerald-50' : 'bg-primary text-white hover:bg-primary/90'}`}>
-                                Pesan Sekarang
-                            </button>
-                          </Link>
+                        <div className="flex items-baseline gap-1 mb-8">
+                          <span className="text-xs font-bold uppercase tracking-widest opacity-70">Mulai Dari</span>
+                          <div className="text-3xl font-bold">Rp{Number(pkg.price).toLocaleString('id-ID')}</div>
+                          <span className="text-xs font-medium opacity-60">/pax</span>
+                        </div>
+                        <Link to="/booking">
+                          <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-md active:scale-[0.98] cursor-pointer ${isFeatured ? 'bg-white text-primary hover:bg-emerald-50' : 'bg-primary text-white hover:bg-primary/90'}`}>
+                            Pesan Sekarang
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   );
@@ -206,66 +232,77 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-16 md:hidden text-center">
-                <Link to="/booking" className="font-bold text-primary inline-flex items-center gap-2">
-                   Cek Semua Sesi <span className="material-symbols-outlined">arrow_forward</span>
-                </Link>
+              <Link to="/booking" className="font-bold text-primary inline-flex items-center gap-2">
+                Cek Semua Sesi <span className="material-symbols-outlined">arrow_forward</span>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Blog & Kabar Lokal Section */}
-        <section className="py-24 px-6 md:px-12 max-w-container-max mx-auto bg-surface-container-low/30">
-          <div className="text-center mb-16">
-            <h2 className="font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold">Kabar dari Aliran Sungai & Desa</h2>
-            <p className="font-body-md text-on-surface-variant max-w-2xl mx-auto">Temukan inspirasi kesejahteraan, cerita petualangan seru, dan perkembangan terbaru dari komunitas lokal Tampirkulon. Merawat bumi, merawat diri.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {loadingBlogs ? (
-              [1, 2, 3].map(i => (
-                <div key={i} className="bg-white rounded-2xl h-80 animate-pulse border border-surface-variant"></div>
-              ))
-            ) : blogs.length > 0 ? (
-              blogs.map(blog => (
-                <article key={blog.id} className="bg-surface-container-lowest rounded-2xl border border-surface-variant overflow-hidden shadow-[0_4px_20px_rgb(27,67,50,0.05)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.12)] transition-all duration-300 flex flex-col group">
-                  <div className="h-48 overflow-hidden">
-                    <img 
-                      alt={blog.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      src={getImageUrl(blog.image_url)} 
-                    />
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="font-label-sm text-primary mb-3 font-semibold">{formatDate(blog.created_at)}</div>
-                    <Link to={`/blog/${blog.slug}`}>
-                      <h3 className="font-headline-md text-xl text-on-surface mb-3 font-bold group-hover:text-primary transition-colors line-clamp-2">
-                        {blog.title}
-                      </h3>
-                    </Link>
-                    <p className="font-body-md text-sm text-on-surface-variant mb-6 flex-grow line-clamp-3">
-                      {blog.excerpt || blog.content}
-                    </p>
-                    <Link 
-                      to={`/blog/${blog.slug}`} 
-                      className="font-label-md text-primary font-bold hover:text-primary-container transition-colors inline-flex items-center gap-1 mt-auto"
-                    >
-                      Baca Selengkapnya
-                      <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                    </Link>
-                  </div>
-                </article>
-              ))
-            ) : (
+        <section className="py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-surface-container-low/20 z-0"></div>
+          <div className="absolute inset-0 bg-grain z-0"></div>
+
+          {/* Decorative shapes */}
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl z-0"></div>
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl z-0"></div>
+
+          <div className="max-w-container-max mx-auto px-6 md:px-12 relative z-10">
+
+            <div className="relative z-10 text-center mb-16">
+              <div className="inline-block px-3 py-1 bg-primary/10 rounded-full text-primary font-bold text-xs uppercase tracking-widest mb-4">Warta Lokal</div>
+              <h2 className="font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold">Kabar dari Aliran Sungai & Desa</h2>
+              <p className="font-body-md text-on-surface-variant max-w-2xl mx-auto">Temukan inspirasi kesejahteraan, cerita petualangan seru, dan perkembangan terbaru dari komunitas lokal Tampirkulon. Merawat bumi, merawat diri.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {loadingBlogs ? (
+                [1, 2, 3].map(i => (
+                  <div key={i} className="bg-white rounded-2xl h-80 animate-pulse border border-surface-variant"></div>
+                ))
+              ) : blogs.length > 0 ? (
+                blogs.map(blog => (
+                  <article key={blog.id} className="bg-surface-container-lowest rounded-2xl border border-surface-variant overflow-hidden shadow-[0_4px_20px_rgb(27,67,50,0.05)] hover:shadow-[0_8px_30px_rgb(27,67,50,0.12)] transition-all duration-300 flex flex-col group">
+                    <div className="h-48 overflow-hidden">
+                      <img
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        src={getImageUrl(blog.image_url)}
+                      />
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="font-label-sm text-primary mb-3 font-semibold">{formatDate(blog.created_at)}</div>
+                      <Link to={`/blog/${blog.slug}`}>
+                        <h3 className="font-headline-md text-xl text-on-surface mb-3 font-bold group-hover:text-primary transition-colors line-clamp-2">
+                          {blog.title}
+                        </h3>
+                      </Link>
+                      <p className="font-body-md text-sm text-on-surface-variant mb-6 flex-grow line-clamp-3">
+                        {blog.excerpt || blog.content}
+                      </p>
+                      <Link
+                        to={`/blog/${blog.slug}`}
+                        className="font-label-md text-primary font-bold hover:text-primary-container transition-colors inline-flex items-center gap-1 mt-auto"
+                      >
+                        Baca Selengkapnya
+                        <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                      </Link>
+                    </div>
+                  </article>
+                ))
+              ) : (
                 <div className="col-span-3 text-center py-10 text-on-surface-variant">Belum ada kabar terbaru.</div>
-            )}
-          </div>
-          
-          <div className="mt-12 text-center">
-            <Link to="/blog">
-              <button className="px-8 py-3 rounded-full border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all cursor-pointer">
-                Lihat Semua Artikel
-              </button>
-            </Link>
+              )}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link to="/blog">
+                <button className="px-8 py-3 rounded-full border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all cursor-pointer">
+                  Lihat Semua Artikel
+                </button>
+              </Link>
+            </div>
           </div>
         </section>
       </main>
