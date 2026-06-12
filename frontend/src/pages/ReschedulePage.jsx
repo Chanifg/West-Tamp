@@ -45,7 +45,7 @@ export default function ReschedulePage() {
     // but we can query it or we can build a simple endpoint. Let's make sure backend has:
     // GET /api/bookings/lookup?booking_ref=...
     // Let's call GET /api/bookings/lookup
-    client.get(`/api/bookings/lookup?booking_ref=${bookingRef}`)
+    client.get(`/api/bookings/verify-reschedule?booking_ref=${bookingRef}`)
       .then(res => {
         setBooking(res.data);
       })
@@ -70,7 +70,7 @@ export default function ReschedulePage() {
     }
 
     setLoading(true);
-    client.put('/api/bookings/reschedule', {
+    client.post('/api/bookings/reschedule', {
       booking_ref: booking.booking_ref,
       session_id: availability[session].id
     })

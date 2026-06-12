@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ETicketMail;
+use App\Mail\RescheduleSuccessMail;
 
 class BookingController extends Controller
 {
@@ -88,6 +91,7 @@ class BookingController extends Controller
             'session_id' => 'required|exists:tubing_sessions,id',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
+            'customer_email' => 'required|email|max:255',
             'ticket_qty' => 'required|integer|min:1|max:100',
         ]);
 
@@ -122,6 +126,7 @@ class BookingController extends Controller
                     ),
                     'customer_details' => array(
                         'first_name' => $request->customer_name,
+                        'email' => $request->customer_email,
                         'phone' => $request->customer_phone,
                     ),
                     'item_details' => array(
@@ -151,6 +156,7 @@ class BookingController extends Controller
                     'tubing_session_id' => $session->id,
                     'customer_name' => $request->customer_name,
                     'customer_phone' => $request->customer_phone,
+                    'customer_email' => $request->customer_email,
                     'ticket_qty' => $request->ticket_qty,
                     'total_price' => $totalPrice,
                     'qr_code' => null, // Generated upon payment success
@@ -171,7 +177,40 @@ class BookingController extends Controller
         }
     }
 
-    public function reschedule(Request $request)
+    public function verifyReschedule(Request $request)
+    {
+        $request->validate([
+            'booking_ref' => 'required|string',
+        ]);
+
+        $booking = Booking::with(['package', 'session'])
+            ->where('booking_ref', strtoupper($request->booking_ref))
+            ->first();
+
+        if (!$booking) {
+            return response()->json(['message' => 'Tiket tidak ditemukan.'], 404);
+        }
+
+        if ($booking->payment_status !== 'success') {
+            return response()->json(['message' => 'Hanya tiket yang sudah dibayar yang dapat dijadwalkan ulang.'], 400);
+        }
+
+        if ($booking->session->status !== 'cancelled') {
+            return response()->json(['message' => 'Sesi untuk tiket ini masih aktif. Penjadwalan ulang hanya dapat dilakukan jika sesi dibatalkan karena cuaca buruk.'], 400);
+        }
+
+        $sessionDate = Carbon::parse($booking->session->session_date);
+        if ($sessionDate->addDays(30)->lt(Carbon::today())) {
+            return response()->json(['message' => 'Batas waktu reschedule (30 hari dari sesi asli) telah kedaluwarsa.'], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'booking' => $booking
+        ]);
+    }
+
+    public function processReschedule(Request $request)
     {
         $request->validate([
             'booking_ref' => 'required|string|exists:bookings,booking_ref',
@@ -180,12 +219,21 @@ class BookingController extends Controller
 
         try {
             return DB::transaction(function () use ($request) {
-                $booking = Booking::where('booking_ref', $request->booking_ref)
+                $booking = Booking::where('booking_ref', strtoupper($request->booking_ref))
                     ->lockForUpdate()
                     ->firstOrFail();
 
                 if ($booking->payment_status !== 'success') {
-                    return response()->json(['message' => 'Only successful/paid bookings can be rescheduled.'], 400);
+                    return response()->json(['message' => 'Hanya tiket yang sudah dibayar yang dapat dijadwalkan ulang.'], 400);
+                }
+
+                if ($booking->session->status !== 'cancelled') {
+                    return response()->json(['message' => 'Sesi untuk tiket ini tidak dibatalkan.'], 400);
+                }
+
+                $sessionDate = Carbon::parse($booking->session->session_date);
+                if ($sessionDate->addDays(30)->lt(Carbon::today())) {
+                    return response()->json(['message' => 'Batas waktu reschedule (30 hari) telah kedaluwarsa.'], 400);
                 }
 
                 $newSession = TubingSession::where('id', $request->session_id)
@@ -193,11 +241,11 @@ class BookingController extends Controller
                     ->firstOrFail();
 
                 if ($newSession->status !== 'active') {
-                    return response()->json(['message' => 'The destination session is not active.'], 400);
+                    return response()->json(['message' => 'Sesi tujuan tidak aktif.'], 400);
                 }
 
                 if (($newSession->booked_capacity + $booking->ticket_qty) > $newSession->max_capacity) {
-                    return response()->json(['message' => 'Not enough slots available in the selected session.'], 400);
+                    return response()->json(['message' => 'Kuota tidak mencukupi pada sesi yang dipilih.'], 400);
                 }
 
                 // Release capacity from the old session
@@ -211,6 +259,13 @@ class BookingController extends Controller
                 // Update booking
                 $booking->tubing_session_id = $newSession->id;
                 $booking->save();
+
+                // Send reschedule success email
+                try {
+                    Mail::to($booking->customer_email)->send(new RescheduleSuccessMail($booking));
+                } catch (\Exception $e) {
+                    Log::error("Failed to send Reschedule Success email for booking ref {$booking->booking_ref}: " . $e->getMessage());
+                }
 
                 return response()->json([
                     'success' => true,
@@ -247,6 +302,13 @@ class BookingController extends Controller
                 $booking->qr_code = 'WT-QR-' . $booking->booking_ref;
                 $booking->save();
                 
+                // Send Email E-Ticket
+                try {
+                    Mail::to($booking->customer_email)->send(new ETicketMail($booking));
+                } catch (\Exception $e) {
+                    Log::error("Failed to send ETicket email for booking ref {$booking->booking_ref}: " . $e->getMessage());
+                }
+
                 // SIMULATE WA TICKET SENDING
                 Log::info("[TICKET SENT VIA WA] To: {$booking->customer_phone}, QR: {$booking->qr_code}");
             }

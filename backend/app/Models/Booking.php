@@ -15,6 +15,7 @@ class Booking extends Model
         'tubing_session_id',
         'customer_name',
         'customer_phone',
+        'customer_email',
         'ticket_qty',
         'total_price',
         'qr_code',

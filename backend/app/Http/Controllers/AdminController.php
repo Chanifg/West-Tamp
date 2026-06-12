@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\TubingSession;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WeatherEmergencyMail;
 
 class AdminController extends Controller
 {
@@ -111,21 +113,23 @@ class AdminController extends Controller
             ->where('payment_status', 'success')
             ->get();
 
-        $waCount = 0;
+        $emailCount = 0;
         foreach ($bookings as $b) {
             // Generate auto-reschedule link (this would point to frontend reschedule page)
             $rescheduleUrl = env('FRONTEND_URL', 'http://localhost:5173') . "/reschedule?booking_ref=" . $b->booking_ref;
 
-            // SIMULATE WA EMERGENCY SENDING
-            $msg = "INFO DARURAT: Mohon maaf, akibat kondisi cuaca buruk (arus Sungai Elo membahayakan), sesi Tubing Anda hari ini DIBATALKAN demi keselamatan. Silakan atur ulang kuota kedatangan Anda (Berlaku 30 hari): {$rescheduleUrl}";
-            
-            Log::info("[EMERGENCY WA] To: {$b->customer_phone}, Message: {$msg}");
-            $waCount++;
+            // Send Email Weather Emergency
+            try {
+                Mail::to($b->customer_email)->send(new WeatherEmergencyMail($b, $rescheduleUrl));
+                $emailCount++;
+            } catch (\Exception $e) {
+                Log::error("Failed to send weather emergency email to {$b->customer_email} for booking {$b->booking_ref}: " . $e->getMessage());
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => "Sesi dibatalkan. Link reschedule telah dikirim ke {$waCount} pengunjung."
+            'message' => "Sesi dibatalkan. Link reschedule telah dikirim ke {$emailCount} pengunjung."
         ]);
     }
 }

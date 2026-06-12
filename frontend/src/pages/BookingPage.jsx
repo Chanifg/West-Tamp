@@ -13,6 +13,7 @@ export default function BookingPage() {
   
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
 
   const navigate = useNavigate();
 
@@ -35,8 +36,14 @@ export default function BookingPage() {
   }, [date]);
 
   const handleCheckout = () => {
-    if (!selectedPackage || !session || !date || !customerName || !customerPhone) {
-      alert("Please fill in all details (Date, Session, Name, Phone).");
+    if (!selectedPackage || !session || !date || !customerName || !customerPhone || !customerEmail) {
+      alert("Please fill in all details (Date, Session, Name, Phone, Email).");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customerEmail)) {
+      alert("Please enter a valid email address.");
       return;
     }
 
@@ -46,6 +53,7 @@ export default function BookingPage() {
       session_id: availability[session].id,
       customer_name: customerName,
       customer_phone: customerPhone,
+      customer_email: customerEmail,
       ticket_qty: guests
     })
     .then(res => {
@@ -156,9 +164,10 @@ export default function BookingPage() {
               
               <div className="mt-6 pt-6 border-t border-outline-variant">
                 <h3 className="font-label-md mb-2">Customer Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <input type="text" placeholder="Full Name" className="border border-outline-variant p-3 rounded" value={customerName} onChange={e => setCustomerName(e.target.value)} />
                   <input type="tel" placeholder="WhatsApp Number" className="border border-outline-variant p-3 rounded" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                  <input type="email" placeholder="Email Address" className="border border-outline-variant p-3 rounded" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
                 </div>
               </div>
 
