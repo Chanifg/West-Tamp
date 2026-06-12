@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);
-    Route::post('/admin/blogs/{id}', [BlogController::class, 'update']);
+    Route::put('/admin/blogs/{id}', [BlogController::class, 'update']);
     Route::delete('/admin/blogs/{id}', [BlogController::class, 'destroy']);
     Route::post('/admin/upload-image', [BlogController::class, 'uploadImage']);
 
@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Package Admin Routes
     Route::get('/admin/packages', [PackageController::class, 'index']);
     Route::post('/admin/packages', [PackageController::class, 'store']);
-    Route::post('/admin/packages/{id}', [PackageController::class, 'update']);
+    Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 });
 

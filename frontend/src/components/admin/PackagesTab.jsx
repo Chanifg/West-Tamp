@@ -48,6 +48,10 @@ export default function PackagesTab() {
     if (packageForm.image_file) {
       formData.append('image_file', packageForm.image_file);
     }
+
+    if (editingPackage) {
+      formData.append('_method', 'PUT');
+    }
     
     client.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }

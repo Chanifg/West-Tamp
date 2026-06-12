@@ -56,7 +56,7 @@ export default function BlogsTab() {
       : '/api/admin/blogs';
     
     if (editingBlog) {
-      formData.append('_method', 'POST'); 
+      formData.append('_method', 'PUT'); 
     }
 
     client.post(url, formData, {
