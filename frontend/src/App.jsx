@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import BookingPage from './pages/BookingPage';
+import ReschedulePage from './pages/ReschedulePage';
+import CheckBookingPage from './pages/CheckBookingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
@@ -35,6 +37,8 @@ function App() {
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/facilities" element={<FacilitiesPage />} />
           <Route path="/booking" element={<BookingPage />} />
+          <Route path="/reschedule" element={<ReschedulePage />} />
+          <Route path="/cek-tiket" element={<CheckBookingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route 
             path="/admin" 

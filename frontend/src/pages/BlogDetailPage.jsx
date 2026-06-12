@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Navbar from '../components/Navbar';
@@ -15,7 +15,7 @@ export default function BlogDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
-    axios.get(`http://localhost:8000/api/blogs/${slug}`)
+    client.get(`/api/blogs/${slug}`)
       .then(res => setBlog(res.data))
       .catch(err => {
           console.error(err);
@@ -26,7 +26,7 @@ export default function BlogDetailPage() {
 
   const getImageUrl = (path) => {
     if (!path) return "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2670&auto=format&fit=crop";
-    return path.startsWith('http') ? path : `http://localhost:8000${path}`;
+    return apiGetImageUrl(path);
   };
 
   const formatDate = (dateString) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -9,7 +9,7 @@ export default function PackagesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/packages')
+    client.get('/api/packages')
       .then(res => setPackages(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
@@ -17,7 +17,7 @@ export default function PackagesPage() {
 
   const getImageUrl = (path) => {
     if (!path) return null;
-    return path.startsWith('http') ? path : `http://localhost:8000${path}`;
+    return apiGetImageUrl(path);
   };
 
   return (

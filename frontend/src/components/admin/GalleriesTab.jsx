@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client, { getImageUrl } from '../../api/client';
 
 export default function GalleriesTab() {
   const [galleries, setGalleries] = useState([]);
@@ -15,7 +15,7 @@ export default function GalleriesTab() {
   }, []);
 
   const fetchGalleries = () => {
-    axios.get('http://localhost:8000/api/galleries')
+    client.get('/api/galleries')
       .then(res => setGalleries(res.data))
       .catch(err => console.error(err));
   };
@@ -31,7 +31,7 @@ export default function GalleriesTab() {
       formData.append('image_file', galleryForm.image_file);
     }
 
-    axios.post('http://localhost:8000/api/admin/galleries', formData, {
+    client.post('/api/admin/galleries', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
@@ -46,7 +46,7 @@ export default function GalleriesTab() {
 
   const handleDeleteGallery = (id) => {
     if (window.confirm('Are you sure you want to delete this photo?')) {
-      axios.delete(`http://localhost:8000/api/admin/galleries/${id}`)
+      client.delete(`/api/admin/galleries/${id}`)
         .then(() => fetchGalleries())
         .catch(err => alert("Error deleting: " + err.message));
     }
@@ -83,7 +83,7 @@ export default function GalleriesTab() {
               g.category.toLowerCase().includes(galleryAdminSearch.toLowerCase())
             ).map(gallery => (
               <div key={gallery.id} className="bg-surface-container rounded-lg overflow-hidden border border-surface-variant shadow-sm relative group">
-                <img src={`http://localhost:8000${gallery.image_url}`} alt={gallery.title} className="w-full h-40 object-cover" />
+                <img src={getImageUrl(gallery.image_url)} alt={gallery.title} className="w-full h-40 object-cover" />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                    <button onClick={() => handleDeleteGallery(gallery.id)} className="bg-error text-white p-2 rounded-full hover:bg-error/80">
                      <span className="material-symbols-outlined text-sm">delete</span>

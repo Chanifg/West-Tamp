@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import axios from 'axios';
+import client, { getImageUrl } from '../api/client';
 
 export default function GalleryPage() {
   const [galleries, setGalleries] = useState([]);
@@ -9,7 +9,7 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/galleries')
+    client.get('/api/galleries')
       .then(res => {
         setGalleries(res.data);
       })
@@ -78,7 +78,7 @@ export default function GalleryPage() {
               const isLarge = index % 5 === 0;
               return (
                 <div key={gallery.id} className={`group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer bg-surface-container ${getGridClasses(index)}`}>
-                  <img alt={gallery.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src={`http://localhost:8000${gallery.image_url}`} />
+                  <img alt={gallery.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src={getImageUrl(gallery.image_url)} />
                   <div className={`absolute inset-0 bg-gradient-to-t transition-opacity duration-300 ${getGradient(index)}`}></div>
                   
                   <div className={`absolute bottom-0 left-0 w-full transition-transform duration-300 ${isLarge ? 'p-6 -translate-y-2 group-hover:-translate-y-4' : 'p-4'}`}>

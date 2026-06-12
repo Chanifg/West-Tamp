@@ -9,12 +9,36 @@ use App\Models\Booking;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
     public function getPackages()
     {
         return response()->json(TubingPackage::orderBy('is_popular', 'desc')->orderBy('id', 'desc')->get());
+    }
+
+    public function lookup(Request $request)
+    {
+        $request->validate([
+            'booking_ref' => 'required|string',
+            'phone' => 'nullable|string',
+        ]);
+
+        $query = Booking::with(['package', 'session'])
+            ->where('booking_ref', strtoupper($request->booking_ref));
+
+        if ($request->phone) {
+            $query->where('customer_phone', $request->phone);
+        }
+
+        $booking = $query->first();
+
+        if (!$booking) {
+            return response()->json(['message' => 'Tiket tidak ditemukan.'], 404);
+        }
+
+        return response()->json($booking);
     }
 
     public function checkAvailability(Request $request)
@@ -25,15 +49,23 @@ class BookingController extends Controller
 
         $date = $request->date;
 
-        $pagi = TubingSession::firstOrCreate(
-            ['session_date' => $date, 'shift' => 'pagi'],
-            ['max_capacity' => 100, 'booked_capacity' => 0]
-        );
+        try {
+            $pagi = TubingSession::firstOrCreate(
+                ['session_date' => $date, 'shift' => 'pagi'],
+                ['max_capacity' => 100, 'booked_capacity' => 0]
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            $pagi = TubingSession::where('session_date', $date)->where('shift', 'pagi')->firstOrFail();
+        }
 
-        $siang = TubingSession::firstOrCreate(
-            ['session_date' => $date, 'shift' => 'siang'],
-            ['max_capacity' => 100, 'booked_capacity' => 0]
-        );
+        try {
+            $siang = TubingSession::firstOrCreate(
+                ['session_date' => $date, 'shift' => 'siang'],
+                ['max_capacity' => 100, 'booked_capacity' => 0]
+            );
+        } catch (\Illuminate\Database\QueryException $e) {
+            $siang = TubingSession::where('session_date', $date)->where('shift', 'siang')->firstOrFail();
+        }
 
         return response()->json([
             'pagi' => [
@@ -55,82 +87,136 @@ class BookingController extends Controller
             'package_id' => 'required|exists:tubing_packages,id',
             'session_id' => 'required|exists:tubing_sessions,id',
             'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:20',
+            'customer_phone' => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
             'ticket_qty' => 'required|integer|min:1|max:100',
         ]);
 
-        $session = TubingSession::findOrFail($request->session_id);
-        $package = TubingPackage::findOrFail($request->package_id);
+        try {
+            return DB::transaction(function () use ($request) {
+                $session = TubingSession::where('id', $request->session_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        if ($session->status !== 'active') {
-            return response()->json(['message' => 'Session is cancelled due to weather emergency.'], 400);
+                if ($session->status !== 'active') {
+                    return response()->json(['message' => 'Session is cancelled due to weather emergency.'], 400);
+                }
+
+                if (($session->booked_capacity + $request->ticket_qty) > $session->max_capacity) {
+                    return response()->json(['message' => 'Not enough slots available for this session.'], 400);
+                }
+
+                $package = TubingPackage::findOrFail($request->package_id);
+                $totalPrice = $package->price * $request->ticket_qty;
+                $orderId = 'WT-' . time() . '-' . Str::random(5);
+
+                // Configuration Midtrans
+                \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
+                \Midtrans\Config::$isProduction = false;
+                \Midtrans\Config::$isSanitized = true;
+                \Midtrans\Config::$is3ds = true;
+
+                $params = array(
+                    'transaction_details' => array(
+                        'order_id' => $orderId,
+                        'gross_amount' => $totalPrice,
+                    ),
+                    'customer_details' => array(
+                        'first_name' => $request->customer_name,
+                        'phone' => $request->customer_phone,
+                    ),
+                    'item_details' => array(
+                        array(
+                            'id' => $package->id,
+                            'price' => $package->price,
+                            'quantity' => $request->ticket_qty,
+                            'name' => $package->name
+                        )
+                    )
+                );
+
+                $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
+                if ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)) {
+                    // Mock behavior for testing when keys are not provided
+                    $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(10);
+                } else {
+                    $snapToken = \Midtrans\Snap::getSnapToken($params);
+                }
+
+                // Reserve capacity tentatively
+                $session->increment('booked_capacity', $request->ticket_qty);
+
+                $booking = Booking::create([
+                    'booking_ref' => strtoupper(Str::random(8)),
+                    'tubing_package_id' => $package->id,
+                    'tubing_session_id' => $session->id,
+                    'customer_name' => $request->customer_name,
+                    'customer_phone' => $request->customer_phone,
+                    'ticket_qty' => $request->ticket_qty,
+                    'total_price' => $totalPrice,
+                    'qr_code' => null, // Generated upon payment success
+                    'midtrans_order_id' => $orderId,
+                    'midtrans_snap_token' => $snapToken,
+                    'payment_status' => 'pending'
+                ]);
+
+                return response()->json([
+                    'booking_id' => $booking->id,
+                    'snap_token' => $snapToken,
+                    'order_id' => $orderId
+                ]);
+            });
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
 
-        if (($session->booked_capacity + $request->ticket_qty) > $session->max_capacity) {
-            return response()->json(['message' => 'Not enough slots available for this session.'], 400);
-        }
-
-        $totalPrice = $package->price * $request->ticket_qty;
-        $orderId = 'WT-' . time() . '-' . Str::random(5);
-
-        // Configuration Midtrans
-        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
-        \Midtrans\Config::$isProduction = false;
-        \Midtrans\Config::$isSanitized = true;
-        \Midtrans\Config::$is3ds = true;
-
-        $params = array(
-            'transaction_details' => array(
-                'order_id' => $orderId,
-                'gross_amount' => $totalPrice,
-            ),
-            'customer_details' => array(
-                'first_name' => $request->customer_name,
-                'phone' => $request->customer_phone,
-            ),
-            'item_details' => array(
-                array(
-                    'id' => $package->id,
-                    'price' => $package->price,
-                    'quantity' => $request->ticket_qty,
-                    'name' => $package->name
-                )
-            )
-        );
+    public function reschedule(Request $request)
+    {
+        $request->validate([
+            'booking_ref' => 'required|string|exists:bookings,booking_ref',
+            'session_id' => 'required|exists:tubing_sessions,id',
+        ]);
 
         try {
-            $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
-            if ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)) {
-                // Mock behavior for testing when keys are not provided
-                $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(10);
-            } else {
-                $snapToken = \Midtrans\Snap::getSnapToken($params);
-            }
+            return DB::transaction(function () use ($request) {
+                $booking = Booking::where('booking_ref', $request->booking_ref)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            // Reserve capacity tentatively (in real-world you might want a lock or to only reserve upon success)
-            // But to avoid overselling let's increment it here.
-            $session->increment('booked_capacity', $request->ticket_qty);
+                if ($booking->payment_status !== 'success') {
+                    return response()->json(['message' => 'Only successful/paid bookings can be rescheduled.'], 400);
+                }
 
-            $booking = Booking::create([
-                'booking_ref' => strtoupper(Str::random(8)),
-                'tubing_package_id' => $package->id,
-                'tubing_session_id' => $session->id,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'ticket_qty' => $request->ticket_qty,
-                'total_price' => $totalPrice,
-                'qr_code' => null, // Generated upon payment success
-                'midtrans_order_id' => $orderId,
-                'midtrans_snap_token' => $snapToken,
-                'payment_status' => 'pending'
-            ]);
+                $newSession = TubingSession::where('id', $request->session_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            return response()->json([
-                'booking_id' => $booking->id,
-                'snap_token' => $snapToken,
-                'order_id' => $orderId
-            ]);
+                if ($newSession->status !== 'active') {
+                    return response()->json(['message' => 'The destination session is not active.'], 400);
+                }
 
+                if (($newSession->booked_capacity + $booking->ticket_qty) > $newSession->max_capacity) {
+                    return response()->json(['message' => 'Not enough slots available in the selected session.'], 400);
+                }
+
+                // Release capacity from the old session
+                if ($booking->session) {
+                    $booking->session->decrement('booked_capacity', $booking->ticket_qty);
+                }
+
+                // Reserve capacity in the new session
+                $newSession->increment('booked_capacity', $booking->ticket_qty);
+
+                // Update booking
+                $booking->tubing_session_id = $newSession->id;
+                $booking->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Booking rescheduled successfully.'
+                ]);
+            });
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

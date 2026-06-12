@@ -1,21 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import client from '../api/client';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
-
-// Set up Axios Interceptor once
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  config.headers['Accept'] = 'application/json';
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -28,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       
       // Fetch user info
-      axios.get('http://localhost:8000/api/user')
+      client.get('/api/user')
         .then(res => {
           setUser(res.data);
         })
@@ -45,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post('http://localhost:8000/api/login', { email, password });
+      const res = await client.post('/api/login', { email, password });
       setToken(res.data.token);
       setUser(res.data.user);
       return { success: true };
@@ -66,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       if (token) {
-        await axios.post('http://localhost:8000/api/logout');
+        await client.post('/api/logout');
       }
     } catch (err) {
       console.error(err);

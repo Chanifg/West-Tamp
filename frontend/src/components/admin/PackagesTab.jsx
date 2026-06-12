@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client from '../../api/client';
 
 export default function PackagesTab() {
   const [packages, setPackages] = useState([]);
@@ -15,7 +15,7 @@ export default function PackagesTab() {
   }, []);
 
   const fetchPackages = () => {
-    axios.get('http://localhost:8000/api/admin/packages')
+    client.get('/api/admin/packages')
       .then(res => setPackages(res.data))
       .catch(err => console.error(err));
   };
@@ -37,8 +37,8 @@ export default function PackagesTab() {
     setLoading(true);
     
     const url = editingPackage 
-      ? `http://localhost:8000/api/admin/packages/${editingPackage.id}` 
-      : 'http://localhost:8000/api/admin/packages';
+      ? `/api/admin/packages/${editingPackage.id}` 
+      : '/api/admin/packages';
 
     const formData = new FormData();
     formData.append('name', packageForm.name);
@@ -49,7 +49,7 @@ export default function PackagesTab() {
       formData.append('image_file', packageForm.image_file);
     }
     
-    axios.post(url, formData, {
+    client.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
@@ -65,7 +65,7 @@ export default function PackagesTab() {
 
   const handleDeletePackage = (id) => {
     if (window.confirm('Are you sure?')) {
-      axios.delete(`http://localhost:8000/api/admin/packages/${id}`)
+      client.delete(`/api/admin/packages/${id}`)
         .then(() => fetchPackages())
         .catch(err => alert(err.response?.data?.message || err.message));
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import client, { getImageUrl } from '../../api/client';
 
 export default function BlogsTab() {
   const [blogs, setBlogs] = useState([]);
@@ -18,7 +18,7 @@ export default function BlogsTab() {
   }, []);
 
   const fetchBlogs = () => {
-    axios.get('http://localhost:8000/api/blogs')
+    client.get('/api/blogs')
       .then(res => setBlogs(res.data))
       .catch(err => console.error(err));
   };
@@ -52,14 +52,14 @@ export default function BlogsTab() {
     }
 
     const url = editingBlog 
-      ? `http://localhost:8000/api/admin/blogs/${editingBlog.id}` 
-      : 'http://localhost:8000/api/admin/blogs';
+      ? `/api/admin/blogs/${editingBlog.id}` 
+      : '/api/admin/blogs';
     
     if (editingBlog) {
       formData.append('_method', 'POST'); 
     }
 
-    axios.post(url, formData, {
+    client.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
@@ -82,7 +82,7 @@ export default function BlogsTab() {
     const formData = new FormData();
     formData.append('image', file);
 
-    axios.post('http://localhost:8000/api/admin/upload-image', formData, {
+    client.post('/api/admin/upload-image', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
@@ -98,7 +98,7 @@ export default function BlogsTab() {
 
   const handleDeleteBlog = (id) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
-      axios.delete(`http://localhost:8000/api/admin/blogs/${id}`)
+      client.delete(`/api/admin/blogs/${id}`)
         .then(() => fetchBlogs())
         .catch(err => alert("Error deleting: " + err.message));
     }
@@ -155,9 +155,9 @@ export default function BlogsTab() {
                   <tr key={blog.id} className="border-b border-surface-variant/50 hover:bg-surface/50">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        {blog.image_url ? (
-                          <img src={`http://localhost:8000${blog.image_url}`} className="w-12 h-12 rounded object-cover" alt="" />
-                        ) : (
+                         {blog.image_url ? (
+                           <img src={getImageUrl(blog.image_url)} className="w-12 h-12 rounded object-cover" alt="" />
+                         ) : (
                           <div className="w-12 h-12 bg-surface-variant rounded flex items-center justify-center">
                             <span className="material-symbols-outlined text-outline">image</span>
                           </div>

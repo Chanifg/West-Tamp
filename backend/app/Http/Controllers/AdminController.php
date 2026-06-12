@@ -33,6 +33,7 @@ class AdminController extends Controller
 
         // Current Visitors Arrived vs Expected (for today)
         $today = date('Y-m-d');
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
         $todaysSessions = TubingSession::where('session_date', $today)->pluck('id');
         
         $expectedToday = Booking::whereIn('tubing_session_id', $todaysSessions)
@@ -44,6 +45,11 @@ class AdminController extends Controller
             ->where('arrival_status', 'arrived')
             ->sum('ticket_qty');
 
+        $activeSessions = TubingSession::whereIn('session_date', [$today, $tomorrow])
+            ->orderBy('session_date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
         return response()->json([
             'total_tickets' => $totalTickets,
             'total_revenue' => $totalRevenue,
@@ -51,7 +57,8 @@ class AdminController extends Controller
             'today_visitors' => [
                 'expected' => $expectedToday,
                 'arrived' => $arrivedToday
-            ]
+            ],
+            'active_sessions' => $activeSessions
         ]);
     }
 

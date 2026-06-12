@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -12,7 +12,7 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/blogs')
+    client.get('/api/blogs')
       .then(res => setBlogs(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
@@ -20,7 +20,7 @@ export default function BlogPage() {
 
   const getImageUrl = (path) => {
     if (!path) return "https://lh3.googleusercontent.com/aida-public/AB6AXuAeodPvk7ZVRaCZ8Dzxa2CaNkefcVlz_6v_sCkCS4GCcoBWuz3FtQOi2WSzW_JeKkQLVCj8H3-7RTCZfvpnhvZYVybTkfa9A4ZZIYy7Su9PW721JgF98MDNRDstC-jAim0TMjEtdfwUw2uW5q7LL4UJIIYj7FkWS-A03cK7Rdvs6QzZtNFXWNmbxPO3Kxswmkn5eczCw1G2O6TjFMRBZIri4crxrFFpV7vQSB6kIhTOmtHTFlM2We42VjZs6xepk14IttpeyC4R4Jsd";
-    return path.startsWith('http') ? path : `http://localhost:8000${path}`;
+    return apiGetImageUrl(path);
   };
 
   const formatDate = (dateString) => {

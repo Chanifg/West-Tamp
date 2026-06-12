@@ -20,7 +20,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Booking Flow Endpoints
 Route::get('/packages', [BookingController::class, 'getPackages']);
 Route::post('/sessions/availability', [BookingController::class, 'checkAvailability']);
+Route::get('/bookings/lookup', [BookingController::class, 'lookup']);
 Route::post('/bookings/checkout', [BookingController::class, 'checkout']);
+Route::put('/bookings/reschedule', [BookingController::class, 'reschedule']);
 Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook']);
 
 // Admin Endpoints

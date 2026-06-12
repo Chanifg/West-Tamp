@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import client from '../api/client';
 
 export default function BookingPage() {
   const [packages, setPackages] = useState([]);
@@ -18,7 +18,7 @@ export default function BookingPage() {
 
   useEffect(() => {
     // Fetch packages from backend
-    axios.get('http://localhost:8000/api/packages')
+    client.get('/api/packages')
       .then(res => {
         setPackages(res.data);
         if(res.data.length > 0) setSelectedPackage(res.data[0]);
@@ -28,7 +28,7 @@ export default function BookingPage() {
 
   useEffect(() => {
     if (date) {
-      axios.post('http://localhost:8000/api/sessions/availability', { date })
+      client.post('/api/sessions/availability', { date })
         .then(res => setAvailability(res.data))
         .catch(err => console.error(err));
     }
@@ -41,7 +41,7 @@ export default function BookingPage() {
     }
 
     setLoading(true);
-    axios.post('http://localhost:8000/api/bookings/checkout', {
+    client.post('/api/bookings/checkout', {
       package_id: selectedPackage.id,
       session_id: availability[session].id,
       customer_name: customerName,
@@ -49,9 +49,25 @@ export default function BookingPage() {
       ticket_qty: guests
     })
     .then(res => {
-      // Simulate Snap behavior or redirect to generic success page
-      alert(`Booking Success! Midtrans Order ID: ${res.data.order_id}\n\nNormally midtrans SNAP window would appear here using SnapToken: ${res.data.snap_token}`);
-      navigate('/');
+      if (window.snap) {
+        window.snap.pay(res.data.snap_token, {
+          onSuccess: function (result) {
+            navigate('/');
+          },
+          onPending: function (result) {
+            navigate('/');
+          },
+          onError: function (result) {
+            alert("Payment failed!");
+          },
+          onClose: function () {
+            alert("Checkout popup closed. Complete payment within 30 minutes.");
+            navigate('/');
+          }
+        });
+      } else {
+        alert("Midtrans SDK failed to load. Please try again.");
+      }
     })
     .catch(err => {
       alert("Error: " + (err.response?.data?.message || err.message));
