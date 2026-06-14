@@ -20,4 +20,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Create system user with UID 1000
+RUN useradd -G root -u 1000 -d /home/dev -m dev
+RUN mkdir -p /home/dev/.composer && chown -R dev:dev /home/dev
+
 WORKDIR /var/www/html
+
+USER dev

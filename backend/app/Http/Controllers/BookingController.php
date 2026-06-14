@@ -353,6 +353,7 @@ class BookingController extends Controller
                         
                         // Release capacity
                         if ($booking->session) {
+                            $booking->session()->lockForUpdate()->first();
                             $booking->session->decrement('booked_capacity', $booking->ticket_qty);
                         }
                     }

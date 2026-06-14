@@ -22,6 +22,7 @@ class BookingResource extends JsonResource
             'payment_status' => $this->payment_status,
             'arrival_status' => $this->arrival_status,
             'qr_code' => $this->qr_code,
+            'midtrans_snap_token' => $this->midtrans_snap_token,
             'package' => $this->whenLoaded('package', function () {
                 return [
                     'id' => $this->package->id,

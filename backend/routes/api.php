@@ -21,8 +21,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::middleware('throttle:public-api')->group(function () {
     Route::get('/packages', [BookingController::class, 'getPackages']);
     Route::post('/sessions/availability', [BookingController::class, 'checkAvailability']);
-    Route::get('/bookings/lookup', [BookingController::class, 'lookup']);
-    Route::get('/bookings/verify-reschedule', [BookingController::class, 'verifyReschedule']);
+    Route::get('/bookings/lookup', [BookingController::class, 'lookup'])->middleware('throttle:lookup');
+    Route::get('/bookings/verify-reschedule', [BookingController::class, 'verifyReschedule'])->middleware('throttle:lookup');
 
     // Blog Public Routes
     Route::get('/blogs', [BlogController::class, 'index']);
