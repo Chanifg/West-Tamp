@@ -70,13 +70,13 @@ export default function BookingPage() {
 
   const handleCheckout = () => {
     if (!selectedPackage || !session || !date || !customerName || !customerPhone || !customerEmail) {
-      alert("Please fill in all details (Date, Session, Name, Phone, Email).");
+      toast.error("Silakan lengkapi semua data (Tanggal, Sesi, Nama, Nomor HP, Email).");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(customerEmail)) {
-      alert("Please enter a valid email address.");
+      toast.error("Format alamat email tidak valid.");
       return;
     }
 
@@ -90,28 +90,28 @@ export default function BookingPage() {
       ticket_qty: guests
     })
     .then(res => {
-      if (window.snap) {
+      if (res.data.snap_token) {
         window.snap.pay(res.data.snap_token, {
           onSuccess: function (result) {
-            navigate('/');
+            toast.success("Pembayaran berhasil!");
+            navigate(`/check-booking?booking_ref=${res.data.order_id}`);
           },
           onPending: function (result) {
-            navigate('/');
+            toast.warning("Pembayaran sedang diproses!");
+            navigate(`/check-booking?booking_ref=${res.data.order_id}`);
           },
           onError: function (result) {
             toast.error("Pembayaran gagal!");
           },
           onClose: function () {
-            toast.error("Checkout dibatalkan. Selesaikan pembayaran dalam 15 menit.");
-            navigate('/');
+            toast.info("Anda menutup jendela pembayaran.");
           }
         });
-      } else {
-        toast.error("Midtrans SDK gagal dimuat. Silakan coba lagi.");
       }
     })
     .catch(err => {
-      toast.error("Error: " + (err.response?.data?.message || err.message));
+      console.error(err);
+      toast.error(err.response?.data?.message || "Terjadi kesalahan saat checkout.");
     })
     .finally(() => {
       setLoading(false);
@@ -121,47 +121,42 @@ export default function BookingPage() {
   const totalPrice = selectedPackage ? selectedPackage.price * guests : 0;
 
   return (
-    <div className="bg-background text-on-background min-h-screen flex flex-col">
-      {/* TopNavBar */}
-      <nav className="bg-white/95 backdrop-blur-md sticky top-0 w-full z-50 border-b border-surface-variant shadow-sm font-label-md text-sm">
-        <div className="flex justify-between items-center h-20 px-6 md:px-12 max-w-[1280px] mx-auto">
-          <Link to="/">
-            <div className="text-2xl font-black tracking-tighter text-primary-container">
-              Westtamp Wellness
-            </div>
-          </Link>
-        </div>
-      </nav>
+    <div className="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+      <Navbar />
 
-      {/* Main Content */}
-      <main className="flex-grow w-full max-w-[1280px] mx-auto px-6 md:px-12 py-12">
-        <div className="mb-12">
-          <h1 className="font-headline-xl text-[48px] text-primary mb-2">Booking & Schedule</h1>
-          <p className="font-body-lg text-lg text-on-surface-variant">Select your ideal package and lock in your adventure.</p>
-        </div>
+      <main className="flex-grow w-full max-w-container-max mx-auto px-6 md:px-12 py-12">
+        <h1 className="font-headline-xl text-[48px] text-primary mb-2 text-center md:text-left">Book Your Adventure</h1>
+        <p className="font-body-lg text-lg text-on-surface-variant mb-12 text-center md:text-left">Choose your package, date, and input customer details to secure your spot.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-8 flex flex-col gap-8">
+          {/* Left Column: Form */}
+          <div className="lg:col-span-8 space-y-8">
             {/* Packages */}
             <section className="bg-white rounded-xl p-6 shadow-md border border-surface-variant">
-              <h2 className="font-headline-md text-2xl text-primary mb-6 flex items-center gap-2">Choose Your Package</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h2 className="font-headline-md text-2xl text-primary mb-6">Select Wellness Package</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {packages.map(pkg => (
                   <div key={pkg.id} 
                     onClick={() => setSelectedPackage(pkg)}
-                    className={`border-2 rounded-lg p-6 cursor-pointer transition-all relative ${selectedPackage?.id === pkg.id ? 'border-primary-container bg-primary-fixed/20' : 'border-outline-variant bg-surface'}`}>
-                    <h3 className="font-headline-lg text-[24px] text-primary mb-1">{pkg.name}</h3>
-                    <div className="font-headline-md text-xl text-primary-container mb-4">
-                      Rp{parseInt(pkg.price).toLocaleString('id-ID')} <span className="font-body-md text-base text-on-surface-variant font-normal">/pax</span>
+                    className={`border rounded-xl p-6 cursor-pointer transition-all flex flex-col justify-between ${selectedPackage?.id === pkg.id ? 'border-primary-container bg-primary-container/5 ring-1 ring-primary-container' : 'border-outline-variant hover:border-primary-container'}`}>
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="font-headline-sm text-lg font-bold text-on-surface">{pkg.name}</h3>
+                        {pkg.is_popular && <span className="bg-primary-container text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Popular</span>}
+                      </div>
+                      <p className="text-sm text-on-surface-variant mb-6">{pkg.description}</p>
                     </div>
-                    <div className="space-y-1">
-                      {(pkg.description || '').split(/\r?\n/).filter(l => l.trim() !== '').map((line, i) => (
-                        <div key={i} className="flex items-start gap-2 text-sm text-on-surface-variant">
-                          <span className="material-symbols-outlined notranslate text-[16px] mt-1 shrink-0 text-primary">check_circle</span>
-                          <p>{line.trim()}</p>
-                        </div>
-                      ))}
+                    
+                    <div>
+                      <p className="text-xl font-bold text-primary mb-4">Rp{parseInt(pkg.price).toLocaleString('id-ID')} <span className="text-xs font-normal text-on-surface-variant">/ pax</span></p>
+                      <div className="border-t border-outline-variant pt-4 flex flex-col gap-2">
+                        {(pkg.features || '').split(',').map((line, i) => (
+                          <div key={i} className="flex items-start gap-2 text-sm text-on-surface-variant">
+                            <span className="material-symbols-outlined notranslate text-[16px] mt-1 shrink-0 text-primary">check_circle</span>
+                            <p>{line.trim()}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -173,8 +168,8 @@ export default function BookingPage() {
               <h2 className="font-headline-md text-2xl text-primary mb-6 flex items-center gap-2">Select Date & Session</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="font-label-md text-on-surface block mb-2">Adventure Date</label>
-                  <input type="date" className="w-full border border-outline-variant rounded-lg p-4 bg-surface" 
+                  <label htmlFor="adventure_date" className="font-label-md text-on-surface block mb-2">Adventure Date</label>
+                  <input id="adventure_date" type="date" className="w-full border border-outline-variant rounded-lg p-4 bg-surface" 
                     value={date} onChange={e => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
                 </div>
 
@@ -182,12 +177,16 @@ export default function BookingPage() {
                   <label className="font-label-md text-on-surface block mb-2">Session</label>
                   <div className="flex gap-4">
                     <button onClick={() => setSession('pagi')} disabled={!availability?.pagi}
-                      className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'pagi' ? 'border-primary-container bg-primary-container/10 text-primary-container font-bold' : 'border-outline-variant bg-surface opacity-80'}`}>
+                      className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'pagi' ? 'border-primary-container bg-primary-container/10 text-primary-container font-bold' : 'border-outline-variant bg-surface opacity-80'}`}
+                      aria-label="Pilih sesi pagi"
+                    >
                       Pagi (08:00 - 11:00)
                       {availability && <div className="text-xs font-normal mt-1">{availability.pagi.available} left</div>}
                     </button>
                     <button onClick={() => setSession('siang')} disabled={!availability?.siang}
-                      className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'siang' ? 'border-primary-container bg-primary-container/10 text-primary-container font-bold' : 'border-outline-variant bg-surface opacity-80'}`}>
+                      className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'siang' ? 'border-primary-container bg-primary-container/10 text-primary-container font-bold' : 'border-outline-variant bg-surface opacity-80'}`}
+                      aria-label="Pilih sesi siang"
+                    >
                       Siang (13:00 - 16:00)
                       {availability && <div className="text-xs font-normal mt-1">{availability.siang.available} left</div>}
                     </button>
@@ -198,12 +197,11 @@ export default function BookingPage() {
               <div className="mt-6 pt-6 border-t border-outline-variant">
                 <h3 className="font-label-md mb-2">Customer Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input type="text" placeholder="Full Name" className="border border-outline-variant p-3 rounded" value={customerName} onChange={e => setCustomerName(e.target.value)} />
-                  <input type="tel" placeholder="WhatsApp Number" className="border border-outline-variant p-3 rounded" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
-                  <input type="email" placeholder="Email Address" className="border border-outline-variant p-3 rounded" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
+                  <input id="customer_name" aria-label="Nama Lengkap" type="text" placeholder="Full Name" className="border border-outline-variant p-3 rounded" value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                  <input id="customer_phone" aria-label="Nomor WhatsApp" type="tel" placeholder="WhatsApp Number" className="border border-outline-variant p-3 rounded" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                  <input id="customer_email" aria-label="Alamat Email" type="email" placeholder="Email Address" className="border border-outline-variant p-3 rounded" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} />
                 </div>
               </div>
-
             </section>
           </div>
 

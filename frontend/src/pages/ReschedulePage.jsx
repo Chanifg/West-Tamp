@@ -78,7 +78,7 @@ export default function ReschedulePage() {
 
   const handleReschedule = () => {
     if (!booking || !date || !session || !availability) {
-      alert("Silakan pilih tanggal dan sesi tujuan.");
+      toast.error("Silakan pilih tanggal dan sesi tujuan.");
       return;
     }
 
@@ -121,6 +121,8 @@ export default function ReschedulePage() {
               <h2 className="font-headline-md text-2xl text-primary mb-4">Cari Kode Booking</h2>
               <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-4">
                 <input 
+                  id="booking_ref_search"
+                  aria-label="Cari Kode Booking"
                   type="text" 
                   placeholder="Masukkan 8 Karakter Kode Booking (Cth: ABCD1234)" 
                   value={searchRef}
@@ -186,8 +188,9 @@ export default function ReschedulePage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                   <div>
-                    <label className="font-label-md text-on-surface block mb-2 font-bold">Tanggal Baru</label>
+                    <label htmlFor="reschedule_date" className="font-label-md text-on-surface block mb-2 font-bold">Tanggal Baru</label>
                     <input 
+                      id="reschedule_date"
                       type="date" 
                       className="w-full border border-surface-variant rounded-lg p-4 bg-surface" 
                       value={date} 
