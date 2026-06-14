@@ -35,19 +35,15 @@ Digitalisasi Desa Wisata Tampirkulon (Wellness-Tourism) untuk pengelolaan pemesa
    docker compose up -d
    ```
 
-3. **Inisialisasi Database**
-   ```bash
-   docker exec westtamp_backend php artisan migrate --seed
-   ```
-
-4. **Akses Aplikasi**
+3. **Akses Aplikasi**
+   Setelah semua container berjalan dan berstatus healthy, aplikasi siap diakses:
    - **Frontend**: [http://localhost:5173](http://localhost:5173)
    - **Backend API**: [http://localhost:8000](http://localhost:8000)
    - **Admin Dashboard**: [http://localhost:5173/admin](http://localhost:5173/admin)
 
-5. **Kredensial Admin Default**
+4. **Kredensial Admin Default**
    - **Email**: `admin@westtamp.com`
-   - **Password**: `password`
+   - **Password**: `pokdarwis_admin_2026`
 
 ## 📁 Struktur Direktori
 - `backend/`: Source code Laravel API.
