@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { useToast } from '../context/ToastContext';
+import Navbar from '../components/Navbar';
 
 export default function BookingPage() {
   const [packages, setPackages] = useState([]);
