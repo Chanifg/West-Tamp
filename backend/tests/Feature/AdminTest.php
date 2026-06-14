@@ -23,10 +23,9 @@ class AdminTest extends TestCase
         $user = User::create([
             'name' => 'Regular User',
             'email' => 'user@example.com',
-            'role' => 'user',
             'password' => bcrypt('password')
         ]);
-
+        // Default role is 'user' which is constrained by EnsuringIsAdmin
         Sanctum::actingAs($user);
 
         $response = $this->getJson('/api/admin/dashboard-stats');
@@ -39,13 +38,13 @@ class AdminTest extends TestCase
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'role' => 'admin',
             'password' => bcrypt('password')
         ]);
+        $admin->role = 'admin';
+        $admin->save();
 
         Sanctum::actingAs($admin);
 
-        // Make sure we have a session to avoid dashboard stats query issues or ensure it returns 200
         $response = $this->getJson('/api/admin/dashboard-stats');
         $response->assertStatus(200);
     }
@@ -55,9 +54,10 @@ class AdminTest extends TestCase
         $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'role' => 'admin',
             'password' => bcrypt('password')
         ]);
+        $admin->role = 'admin';
+        $admin->save();
 
         Sanctum::actingAs($admin);
 

@@ -62,7 +62,7 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="relative min-h-[90vh] md:min-h-[921px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <img alt="River tubing scenery" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOV8Fkil5gWn5WomVc0jKUkQHDc8RObXooZsrAws6uo_eHX0YyP3JeaLcQ1IkJbNUys7DUp-QhUW80UyOFzM0GkoH4QwaDK4Ez8k7fB1WMxnzO46WfgkDLhHz0o__H0hYRpcg3RSrvDntGoHkL4Z-wZh7sgvg0L8dje628nV-qlqkGv0b-TJwyItSFHUE993Wg31-Jn6i1lZ0s0a71VRNjznmn6QHkjQDZd31p7JoGc4AVTRxzpbGjTGqDXg15KeCd530DS7_7KXnr" />
+            <img alt="River tubing scenery" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOV8Fkil5gWn5WomVc0jKUkQHDc8RObXooZsrAws6uo_eHX0YyP3JeaLcQ1IkJbNUys7DUp-QhUW80UyOFzM0GkoH4QwaDK4Ez8k7fB1WMxnzO46WfgkDLhHz0o__H0hYRpcg3RSrvDntGoHkL4Z-wZh7sgvg0L8dje628nV-qlqkGv0b-TJwyItSFHUE993Wg31-Jn6i1lZ0s0a71VRNjznmn6QHkjQDZd31p7JoGc4AVTRxzpbGjTGqDXg15KeCd530DS7_7KXnr" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/20"></div>
             <div className="absolute inset-0 bg-grain pointer-events-none"></div>
 

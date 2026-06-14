@@ -16,12 +16,13 @@ class DatabaseSeeder extends Seeder
     {
         // WARNING: Change this password when deploying to production!
         if (User::where('email', 'admin@westtamp.com')->doesntExist()) {
-            User::create([
+            $admin = User::factory()->make([
                 'name' => 'Admin POKDARWIS',
                 'email' => 'admin@westtamp.com',
-                'role' => 'admin',
-                'password' => bcrypt('password')
+                'password' => bcrypt('pokdarwis_admin_2026')
             ]);
+            $admin->role = 'admin';
+            $admin->save();
         }
 
         TubingPackage::firstOrCreate(

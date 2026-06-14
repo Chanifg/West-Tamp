@@ -7,6 +7,8 @@ use Tests\TestCase;
 use App\Models\TubingSession;
 use App\Models\TubingPackage;
 use App\Models\Booking;
+use App\Models\User;
+use Laravel\Sanctum\Sanctum;
 
 class BookingTest extends TestCase
 {
@@ -111,9 +113,10 @@ class BookingTest extends TestCase
             'customer_phone' => '081234567890',
             'customer_email' => 'dwi@example.com',
             'ticket_qty' => 5,
-            'total_price' => 750000,
-            'payment_status' => 'success' // Must be success to reschedule
+            'total_price' => 750000
         ]);
+        $booking->payment_status = 'success';
+        $booking->save();
 
         // 1. Verify reschedule
         $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST1');
@@ -156,12 +159,13 @@ class BookingTest extends TestCase
             'ticket_qty' => 2,
             'total_price' => 300000,
             'midtrans_order_id' => 'WT-ORDER-WEBHOOK',
-            'payment_status' => 'pending'
         ]);
+        // payment_status defaults to pending, which is correct
 
         $response = $this->postJson('/api/webhooks/midtrans', [
             'transaction_status' => 'settlement',
-            'order_id' => 'WT-ORDER-WEBHOOK'
+            'order_id' => 'WT-ORDER-WEBHOOK',
+            // in testing signature check is skipped because signature_key is empty/null
         ]);
 
         $response->assertStatus(200);
@@ -173,17 +177,50 @@ class BookingTest extends TestCase
         });
     }
 
+    public function test_midtrans_webhook_signature_verification()
+    {
+        $package = $this->createPackage();
+        $session = $this->createSession();
+
+        $booking = Booking::create([
+            'booking_ref' => 'REFSIGN',
+            'tubing_package_id' => $package->id,
+            'tubing_session_id' => $session->id,
+            'customer_name' => 'Sign Tester',
+            'customer_phone' => '081234567890',
+            'customer_email' => 'sign@example.com',
+            'ticket_qty' => 1,
+            'total_price' => 150000,
+            'midtrans_order_id' => 'WT-ORDER-SIGN',
+        ]);
+
+        // Send request with an invalid signature
+        $response = $this->postJson('/api/webhooks/midtrans', [
+            'transaction_status' => 'settlement',
+            'order_id' => 'WT-ORDER-SIGN',
+            'status_code' => '200',
+            'gross_amount' => '150000',
+            'signature_key' => 'invalid_signature_hash_here'
+        ]);
+
+        // Should return 403 Forbidden
+        $response->assertStatus(403);
+        $response->assertJsonFragment(['message' => 'Invalid signature key']);
+    }
+
     public function test_weather_emergency_sends_emails_to_all_bookings()
     {
         \Illuminate\Support\Facades\Mail::fake();
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'role' => 'admin',
             'password' => bcrypt('password')
         ]);
-        \Laravel\Sanctum\Sanctum::actingAs($user);
+        $user->role = 'admin';
+        $user->save();
+        
+        Sanctum::actingAs($user);
 
         $package = $this->createPackage();
         $session = $this->createSession();
@@ -196,9 +233,10 @@ class BookingTest extends TestCase
             'customer_phone' => '081234567890',
             'customer_email' => 'feri@example.com',
             'ticket_qty' => 2,
-            'total_price' => 300000,
-            'payment_status' => 'success'
+            'total_price' => 300000
         ]);
+        $booking->payment_status = 'success';
+        $booking->save();
 
         $response = $this->postJson('/api/admin/weather-emergency', [
             'session_id' => $session->id
@@ -226,9 +264,10 @@ class BookingTest extends TestCase
             'customer_phone' => '081234567890',
             'customer_email' => 'gita@example.com',
             'ticket_qty' => 5,
-            'total_price' => 750000,
-            'payment_status' => 'success'
+            'total_price' => 750000
         ]);
+        $booking->payment_status = 'success';
+        $booking->save();
 
         // Verify should fail
         $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST2');
@@ -257,9 +296,10 @@ class BookingTest extends TestCase
             'customer_phone' => '081234567890',
             'customer_email' => 'hari@example.com',
             'ticket_qty' => 5,
-            'total_price' => 750000,
-            'payment_status' => 'success'
+            'total_price' => 750000
         ]);
+        $booking->payment_status = 'success';
+        $booking->save();
 
         // Verify should fail
         $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST3');
@@ -272,5 +312,36 @@ class BookingTest extends TestCase
         ]);
 
         $response->assertStatus(400);
+    }
+
+    public function test_booking_lookup_does_not_leak_customer_pii()
+    {
+        $package = $this->createPackage();
+        $session = $this->createSession();
+
+        $booking = Booking::create([
+            'booking_ref' => 'REFPIITEST',
+            'tubing_package_id' => $package->id,
+            'tubing_session_id' => $session->id,
+            'customer_name' => 'PII Customer',
+            'customer_phone' => '081234567890',
+            'customer_email' => 'pii@example.com',
+            'ticket_qty' => 2,
+            'total_price' => 300000
+        ]);
+
+        $response = $this->getJson('/api/bookings/lookup?booking_ref=REFPIITEST');
+        $response->assertStatus(200);
+        
+        // Assert it does not leak email or phone
+        $response->assertJsonMissing(['customer_phone' => '081234567890']);
+        $response->assertJsonMissing(['customer_email' => 'pii@example.com']);
+        
+        // Assert it returns key non-sensitive fields
+        $response->assertJsonFragment([
+            'booking_ref' => 'REFPIITEST',
+            'customer_name' => 'PII Customer',
+            'ticket_qty' => 2
+        ]);
     }
 }

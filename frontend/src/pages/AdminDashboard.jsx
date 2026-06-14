@@ -9,19 +9,40 @@ import PackagesTab from '../components/admin/PackagesTab';
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Admin Dashboard | Westtamp Wellness";
   }, []);
 
   return (
-    <div className="bg-background text-on-background font-body-md min-h-screen flex">
+    <div className="bg-background text-on-background font-body-md min-h-screen flex flex-col lg:flex-row">
+      {/* Mobile Top Header */}
+      <header className="lg:hidden bg-primary-container text-white p-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-2xl">admin_panel_settings</span>
+          <span className="font-headline-sm font-bold text-lg">Westtamp Admin</span>
+        </div>
+        <button 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
+          aria-label={sidebarOpen ? "Tutup menu sidebar" : "Buka menu sidebar"}
+        >
+          <span className="material-symbols-outlined">{sidebarOpen ? 'close' : 'menu'}</span>
+        </button>
+      </header>
+
       {/* SideNavBar Component */}
       <AdminSidebar 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setSidebarOpen(false);
+        }} 
         user={user} 
         logout={logout} 
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
 
       {/* Main Content Area */}

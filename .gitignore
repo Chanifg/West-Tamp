@@ -20,3 +20,4 @@ Thumbs.db
 # Project specific
 backend/auth.json
 frontend/dist
+nginx/certs/

@@ -18,11 +18,21 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:lo
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // Booking Flow Endpoints
-Route::get('/packages', [BookingController::class, 'getPackages']);
-Route::post('/sessions/availability', [BookingController::class, 'checkAvailability']);
-Route::get('/bookings/lookup', [BookingController::class, 'lookup']);
+Route::middleware('throttle:public-api')->group(function () {
+    Route::get('/packages', [BookingController::class, 'getPackages']);
+    Route::post('/sessions/availability', [BookingController::class, 'checkAvailability']);
+    Route::get('/bookings/lookup', [BookingController::class, 'lookup']);
+    Route::get('/bookings/verify-reschedule', [BookingController::class, 'verifyReschedule']);
+
+    // Blog Public Routes
+    Route::get('/blogs', [BlogController::class, 'index']);
+    Route::get('/blogs/{slug}', [BlogController::class, 'show']);
+
+    // Gallery Public Routes
+    Route::get('/galleries', [GalleryController::class, 'index']);
+});
+
 Route::post('/bookings/checkout', [BookingController::class, 'checkout'])->middleware('throttle:checkout');
-Route::get('/bookings/verify-reschedule', [BookingController::class, 'verifyReschedule']);
 Route::post('/bookings/reschedule', [BookingController::class, 'processReschedule'])->middleware('throttle:checkout');
 Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook'])->middleware('throttle:webhook');
 
@@ -49,10 +59,3 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
 });
-
-// Blog Public Routes
-Route::get('/blogs', [BlogController::class, 'index']);
-Route::get('/blogs/{slug}', [BlogController::class, 'show']);
-
-// Gallery Public Routes
-Route::get('/galleries', [GalleryController::class, 'index']);

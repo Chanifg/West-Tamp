@@ -29,7 +29,7 @@ class BlogController extends Controller
             'image_url' => 'nullable|string'
         ]);
 
-        $data = $request->except(['image_file']);
+        $data = $request->only(['title', 'category', 'content', 'author', 'excerpt', 'image_url']);
         $data['slug'] = Str::slug($request->title) . '-' . uniqid();
         $data['is_featured'] = filter_var($request->is_featured, FILTER_VALIDATE_BOOLEAN);
 
@@ -113,7 +113,7 @@ class BlogController extends Controller
             'image_file' => 'nullable|image|max:5120',
         ]);
 
-        $data = $request->except(['image_file']);
+        $data = $request->only(['title', 'category', 'content', 'author', 'excerpt']);
         
         // Update slug only if title changes
         if ($blog->title !== $request->title) {

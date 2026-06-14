@@ -20,9 +20,7 @@ class Booking extends Model
         'total_price',
         'qr_code',
         'midtrans_order_id',
-        'midtrans_snap_token',
-        'payment_status',
-        'arrival_status'
+        'midtrans_snap_token'
     ];
 
     public function package()

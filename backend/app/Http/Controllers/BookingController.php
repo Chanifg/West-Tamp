@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ETicketMail;
 use App\Mail\RescheduleSuccessMail;
+use App\Http\Resources\BookingResource;
 
 class BookingController extends Controller
 {
@@ -41,7 +42,7 @@ class BookingController extends Controller
             return response()->json(['message' => 'Tiket tidak ditemukan.'], 404);
         }
 
-        return response()->json($booking);
+        return new BookingResource($booking);
     }
 
     public function checkAvailability(Request $request)
@@ -161,8 +162,7 @@ class BookingController extends Controller
                     'total_price' => $totalPrice,
                     'qr_code' => null, // Generated upon payment success
                     'midtrans_order_id' => $orderId,
-                    'midtrans_snap_token' => $snapToken,
-                    'payment_status' => 'pending'
+                    'midtrans_snap_token' => $snapToken
                 ]);
 
                 return response()->json([
@@ -210,7 +210,7 @@ class BookingController extends Controller
 
         return response()->json([
             'success' => true,
-            'booking' => $booking
+            'booking' => new BookingResource($booking)
         ]);
     }
 
@@ -321,36 +321,48 @@ class BookingController extends Controller
         $transaction = $notif->transaction_status;
         $order_id = $notif->order_id;
         
-        $booking = Booking::where('midtrans_order_id', $order_id)->first();
-        if (!$booking) return response()->json('Order not found', 404);
+        try {
+            return DB::transaction(function () use ($order_id, $transaction) {
+                $booking = Booking::where('midtrans_order_id', $order_id)
+                    ->lockForUpdate()
+                    ->first();
 
-        if ($transaction == 'capture' || $transaction == 'settlement') {
-            if ($booking->payment_status != 'success') {
-                $booking->payment_status = 'success';
-                // Generate simple QR Code string for verification
-                $booking->qr_code = 'WT-QR-' . $booking->booking_ref;
-                $booking->save();
-                
-                // Send Email E-Ticket
-                try {
-                    Mail::to($booking->customer_email)->send(new ETicketMail($booking));
-                } catch (\Exception $e) {
-                    Log::error("Failed to send ETicket email for booking ref {$booking->booking_ref}: " . $e->getMessage());
+                if (!$booking) return response()->json('Order not found', 404);
+
+                if ($transaction == 'capture' || $transaction == 'settlement') {
+                    if ($booking->payment_status != 'success') {
+                        $booking->payment_status = 'success';
+                        // Generate simple QR Code string for verification
+                        $booking->qr_code = 'WT-QR-' . $booking->booking_ref;
+                        $booking->save();
+                        
+                        // Send Email E-Ticket
+                        try {
+                            Mail::to($booking->customer_email)->send(new ETicketMail($booking));
+                        } catch (\Exception $e) {
+                            Log::error("Failed to send ETicket email for booking ref {$booking->booking_ref}: " . $e->getMessage());
+                        }
+
+                        // SIMULATE WA TICKET SENDING
+                        Log::info("[TICKET SENT VIA WA] To: {$booking->customer_phone}, QR: {$booking->qr_code}");
+                    }
+                } else if ($transaction == 'cancel' || $transaction == 'deny' || $transaction == 'expire') {
+                    if ($booking->payment_status != 'failed' && $booking->payment_status != 'expired') {
+                        $booking->payment_status = $transaction == 'expire' ? 'expired' : 'failed';
+                        $booking->save();
+                        
+                        // Release capacity
+                        if ($booking->session) {
+                            $booking->session->decrement('booked_capacity', $booking->ticket_qty);
+                        }
+                    }
                 }
 
-                // SIMULATE WA TICKET SENDING
-                Log::info("[TICKET SENT VIA WA] To: {$booking->customer_phone}, QR: {$booking->qr_code}");
-            }
-        } else if ($transaction == 'cancel' || $transaction == 'deny' || $transaction == 'expire') {
-            if ($booking->payment_status != 'failed' && $booking->payment_status != 'expired') {
-                $booking->payment_status = $transaction == 'expire' ? 'expired' : 'failed';
-                $booking->save();
-                
-                // Release capacity
-                $booking->session->decrement('booked_capacity', $booking->ticket_qty);
-            }
+                return response()->json('OK');
+            });
+        } catch (\Exception $e) {
+            Log::error("Error in Midtrans webhook transaction: " . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['error' => 'Internal Server Error'], 500);
         }
-
-        return response()->json('OK');
     }
 }

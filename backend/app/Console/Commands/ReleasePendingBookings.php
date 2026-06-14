@@ -32,23 +32,29 @@ class ReleasePendingBookings extends Command
         $expiredTime = Carbon::now()->subMinutes(15);
 
         // Select bookings that are still pending and created before the expired time
-        $bookings = Booking::where('payment_status', 'pending')
+        $bookingIds = Booking::where('payment_status', 'pending')
             ->where('created_at', '<', $expiredTime)
-            ->get();
+            ->pluck('id');
 
         $count = 0;
-        foreach ($bookings as $booking) {
-            DB::transaction(function () use ($booking, &$count) {
-                $booking->payment_status = 'expired';
-                $booking->save();
+        foreach ($bookingIds as $id) {
+            DB::transaction(function () use ($id, &$count) {
+                $booking = Booking::where('id', $id)
+                    ->lockForUpdate()
+                    ->first();
 
-                // Release the capacity back to the session
-                if ($booking->session) {
-                    $booking->session->decrement('booked_capacity', $booking->ticket_qty);
+                if ($booking && $booking->payment_status === 'pending') {
+                    $booking->payment_status = 'expired';
+                    $booking->save();
+
+                    // Release the capacity back to the session
+                    if ($booking->session) {
+                        $booking->session->decrement('booked_capacity', $booking->ticket_qty);
+                    }
+
+                    $count++;
+                    $this->info("Booking {$booking->booking_ref} has been marked as expired and capacity released.");
                 }
-
-                $count++;
-                $this->info("Booking {$booking->booking_ref} has been marked as expired and capacity released.");
             });
         }
 
