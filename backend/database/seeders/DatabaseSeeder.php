@@ -14,26 +14,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         // WARNING: Change this password when deploying to production!
-        User::factory()->create([
-            'name' => 'Admin POKDARWIS',
-            'email' => 'admin@westtamp.com',
-            'role' => 'admin',
-            'password' => bcrypt('password')
-        ]);
+        if (User::where('email', 'admin@westtamp.com')->doesntExist()) {
+            User::create([
+                'name' => 'Admin POKDARWIS',
+                'email' => 'admin@westtamp.com',
+                'role' => 'admin',
+                'password' => bcrypt('password')
+            ]);
+        }
 
-        TubingPackage::create([
-            'name' => 'Paket Fun (Pemuda)',
-            'description' => 'Termasuk alat keselamatan, pemandu, dan welcome drink.',
-            'price' => 150000
-        ]);
+        TubingPackage::firstOrCreate(
+            ['name' => 'Paket Fun (Pemuda)'],
+            [
+                'description' => 'Termasuk alat keselamatan, pemandu, dan welcome drink.',
+                'price' => 150000
+            ]
+        );
 
-        TubingPackage::create([
-            'name' => 'Paket Adventure (Keluarga)',
-            'description' => 'Termasuk makan siang sehat, dokumentasi, loker, dan ruang ganti.',
-            'price' => 275000
-        ]);
+        TubingPackage::firstOrCreate(
+            ['name' => 'Paket Adventure (Keluarga)'],
+            [
+                'description' => 'Termasuk makan siang sehat, dokumentasi, loker, dan ruang ganti.',
+                'price' => 275000
+            ]
+        );
     }
 }
