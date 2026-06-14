@@ -27,7 +27,7 @@ export default function GalleriesTab() {
     client.get('/api/galleries')
       .then(res => setGalleries(res.data))
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat galeri foto.");
       });
   };

@@ -35,7 +35,7 @@ export default function CheckBookingPage() {
         toast.success("Data pemesanan ditemukan!");
       })
       .catch(err => {
-        console.error(err);
+        
         const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
         setError(errMsg);
         toast.error(errMsg);

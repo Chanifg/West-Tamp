@@ -30,7 +30,7 @@ export default function BlogDetailPage() {
         }
       })
       .catch(err => {
-          console.error(err);
+          
           setError("Artikel tidak ditemukan atau terjadi kesalahan peladen.");
           toast.error("Gagal memuat detail artikel.");
       })

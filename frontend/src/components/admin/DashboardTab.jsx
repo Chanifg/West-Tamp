@@ -22,7 +22,7 @@ export default function DashboardTab() {
       scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 }, false);
       scanner.render((decodedText) => {
         setIsScanning(false);
-        scanner.clear().catch(err => console.error("Error clearing scanner on success", err));
+        scanner.clear().catch(err => {});
         verifyCode(decodedText);
       }, (error) => {
         // scan errors can be ignored
@@ -30,7 +30,7 @@ export default function DashboardTab() {
     }
     return () => {
       if (scanner) {
-        scanner.clear().catch(err => console.error("Error clearing scanner on unmount", err));
+        scanner.clear().catch(err => {});
       }
     };
   }, [isScanning]);
@@ -38,7 +38,7 @@ export default function DashboardTab() {
   const fetchStats = () => {
     client.get('/api/admin/dashboard-stats')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {});
   };
 
   const verifyCode = (code) => {

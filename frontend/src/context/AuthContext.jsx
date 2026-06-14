@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
           setUser(res.data);
         })
         .catch(err => {
-          console.error("Token invalid", err);
+          
           handleLogout(); // local logout without API call
         })
         .finally(() => setLoading(false));
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         await client.post('/api/logout');
       }
     } catch (err) {
-      console.error(err);
+      
     } finally {
       handleLogout();
     }

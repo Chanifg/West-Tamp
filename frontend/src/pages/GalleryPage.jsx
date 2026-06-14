@@ -23,7 +23,7 @@ export default function GalleryPage() {
         setGalleries(res.data);
       })
       .catch(err => {
-        console.error("Error fetching galleries:", err);
+        
         toast.error("Gagal memuat galeri foto.");
       })
       .finally(() => setLoading(false));

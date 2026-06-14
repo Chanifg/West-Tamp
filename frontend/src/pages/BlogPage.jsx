@@ -24,7 +24,7 @@ export default function BlogPage() {
     client.get('/api/blogs')
       .then(res => setBlogs(res.data))
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat daftar artikel.");
       })
       .finally(() => setLoading(false));

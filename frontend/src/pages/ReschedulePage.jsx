@@ -39,7 +39,7 @@ export default function ReschedulePage() {
     if (date) {
       client.post('/api/sessions/availability', { date })
         .then(res => setAvailability(res.data))
-        .catch(err => console.error("Error fetching availability:", err));
+        .catch(err => {});
     }
   }, [date]);
 
@@ -61,7 +61,7 @@ export default function ReschedulePage() {
         toast.success("Kode booking terverifikasi untuk reschedule!");
       })
       .catch(err => {
-        console.error(err);
+        
         const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
         setMessage({ type: 'error', text: errMsg });
         toast.error(errMsg);

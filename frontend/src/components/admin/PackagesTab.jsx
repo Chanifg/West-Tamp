@@ -23,7 +23,7 @@ export default function PackagesTab() {
     client.get('/api/admin/packages')
       .then(res => setPackages(res.data))
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat paket wisata.");
       });
   };

@@ -27,7 +27,7 @@ export default function LandingPage() {
         setBlogs(res.data.slice(0, 3));
       })
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat kabar terbaru.");
       })
       .finally(() => setLoadingBlogs(false));
@@ -38,7 +38,7 @@ export default function LandingPage() {
         setPackages(res.data);
       })
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat paket wisata.");
       })
       .finally(() => setLoadingPackages(false));

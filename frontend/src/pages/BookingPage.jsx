@@ -52,7 +52,7 @@ export default function BookingPage() {
         if(res.data.length > 0) setSelectedPackage(res.data[0]);
       })
       .catch(err => {
-        console.error(err);
+        
         toast.error("Gagal memuat paket wisata.");
       });
   }, []);
@@ -62,7 +62,7 @@ export default function BookingPage() {
       client.post('/api/sessions/availability', { date })
         .then(res => setAvailability(res.data))
         .catch(err => {
-          console.error(err);
+          
           toast.error("Gagal memuat ketersediaan sesi.");
         });
     }
@@ -110,7 +110,7 @@ export default function BookingPage() {
       }
     })
     .catch(err => {
-      console.error(err);
+      
       toast.error(err.response?.data?.message || "Terjadi kesalahan saat checkout.");
     })
     .finally(() => {
