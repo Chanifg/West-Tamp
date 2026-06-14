@@ -116,7 +116,7 @@ class AdminController extends Controller
         $emailCount = 0;
         foreach ($bookings as $b) {
             // Generate auto-reschedule link (this would point to frontend reschedule page)
-            $rescheduleUrl = env('FRONTEND_URL', 'http://localhost:5173') . "/reschedule?booking_ref=" . $b->booking_ref;
+            $rescheduleUrl = config('app.frontend_url') . "/reschedule?booking_ref=" . $b->booking_ref;
 
             // Send Email Weather Emergency
             try {
@@ -131,5 +131,14 @@ class AdminController extends Controller
             'success' => true,
             'message' => "Sesi dibatalkan. Link reschedule telah dikirim ke {$emailCount} pengunjung."
         ]);
+    }
+
+    public function listSessions()
+    {
+        $sessions = TubingSession::orderBy('session_date', 'desc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        return response()->json($sessions);
     }
 }

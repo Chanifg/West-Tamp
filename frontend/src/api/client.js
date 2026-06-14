@@ -18,6 +18,21 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
+// Automatically handle 401 Unauthorized responses (token expired/invalid)
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      // Only redirect if not already on login page to avoid infinite loops
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const getImageUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http')) return path;

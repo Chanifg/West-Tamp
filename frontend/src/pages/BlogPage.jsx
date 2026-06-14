@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../context/ToastContext';
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState([]);
@@ -11,10 +12,21 @@ export default function BlogPage() {
   const [visibleCount, setVisibleCount] = useState(6); // How many to show in the grid initially
   const [loading, setLoading] = useState(true);
 
+  const toast = useToast();
+
   useEffect(() => {
+    document.title = "Kabar & Artikel Wellness Desa Tampirkulon | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Temukan kabar warta desa, cerita petualangan tubing Sungai Elo, tips wellness, dan info produk lokal UMKM Tampirkulon.");
+    }
+
     client.get('/api/blogs')
       .then(res => setBlogs(res.data))
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat daftar artikel.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -76,6 +88,10 @@ export default function BlogPage() {
                         alt={featuredBlog.title} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                         src={getImageUrl(featuredBlog.image_url)}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                        }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
                     <span className="absolute top-4 left-4 bg-primary text-on-primary font-label-sm text-label-sm px-3 py-1 rounded-full backdrop-blur-md bg-opacity-90">
@@ -162,7 +178,15 @@ export default function BlogPage() {
                     {gridBlogs.map(blog => (
                         <article key={blog.id} className="group flex flex-col bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(27,67,50,0.04)] border border-surface-variant hover:shadow-[0_4px_24px_rgba(27,67,50,0.08)] transition-all duration-300">
                           <div className="relative h-48 overflow-hidden">
-                            <img alt={blog.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={getImageUrl(blog.image_url)} />
+                            <img 
+                              alt={blog.title} 
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                              src={getImageUrl(blog.image_url)} 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                              }}
+                            />
                             <span className="absolute top-3 left-3 bg-surface text-on-surface font-label-sm text-label-sm px-2.5 py-0.5 rounded-full border border-outline-variant shadow-sm">
                                 {blog.category}
                             </span>

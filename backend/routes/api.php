@@ -14,23 +14,24 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 // Booking Flow Endpoints
 Route::get('/packages', [BookingController::class, 'getPackages']);
 Route::post('/sessions/availability', [BookingController::class, 'checkAvailability']);
 Route::get('/bookings/lookup', [BookingController::class, 'lookup']);
-Route::post('/bookings/checkout', [BookingController::class, 'checkout']);
+Route::post('/bookings/checkout', [BookingController::class, 'checkout'])->middleware('throttle:checkout');
 Route::get('/bookings/verify-reschedule', [BookingController::class, 'verifyReschedule']);
-Route::post('/bookings/reschedule', [BookingController::class, 'processReschedule']);
-Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook']);
+Route::post('/bookings/reschedule', [BookingController::class, 'processReschedule'])->middleware('throttle:checkout');
+Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook'])->middleware('throttle:webhook');
 
 // Admin Endpoints
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/dashboard-stats', [AdminController::class, 'dashboardStats']);
     Route::post('/admin/verify-qr', [AdminController::class, 'verifyQr']);
     Route::post('/admin/weather-emergency', [AdminController::class, 'weatherEmergency']);
+    Route::get('/admin/sessions', [AdminController::class, 'listSessions']);
     
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);

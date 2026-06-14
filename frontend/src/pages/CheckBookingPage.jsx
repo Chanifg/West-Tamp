@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import client from '../api/client';
+import { useToast } from '../context/ToastContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -10,6 +11,15 @@ export default function CheckBookingPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const toast = useToast();
+
+  useEffect(() => {
+    document.title = "Cek Status Booking Tiket | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Cek status pembayaran tiket tubing Sungai Elo Anda, unduh QR Code e-ticket, atau lakukan reschedule mandiri.");
+    }
+  }, []);
 
   const handleLookup = (e) => {
     e.preventDefault();
@@ -22,10 +32,13 @@ export default function CheckBookingPage() {
     client.get(`/api/bookings/lookup?booking_ref=${bookingRef.trim()}&phone=${phone.trim()}`)
       .then(res => {
         setBooking(res.data);
+        toast.success("Data pemesanan ditemukan!");
       })
       .catch(err => {
         console.error(err);
-        setError(err.response?.data?.message || 'Kode booking tidak ditemukan.');
+        const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
+        setError(errMsg);
+        toast.error(errMsg);
       })
       .finally(() => {
         setLoading(false);
@@ -42,14 +55,14 @@ export default function CheckBookingPage() {
           window.location.reload();
         },
         onError: function (result) {
-          alert("Pembayaran gagal!");
+          toast.error("Pembayaran gagal!");
         },
         onClose: function () {
-          alert("Jendela pembayaran ditutup.");
+          toast.error("Jendela pembayaran ditutup.");
         }
       });
     } else {
-      alert("Midtrans SDK gagal dimuat.");
+      toast.error("Midtrans SDK gagal dimuat.");
     }
   };
 

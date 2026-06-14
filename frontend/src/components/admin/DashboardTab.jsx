@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import client from '../../api/client';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useToast } from '../../context/ToastContext';
 
 export default function DashboardTab() {
   const [stats, setStats] = useState(null);
@@ -8,6 +9,7 @@ export default function DashboardTab() {
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     fetchStats();
@@ -48,9 +50,11 @@ export default function DashboardTab() {
         setScanResult({ success: true, ...res.data });
         setQrCode('');
         fetchStats();
+        toast.success("Kehadiran pengunjung berhasil diverifikasi!");
       })
       .catch(err => {
         setScanResult({ success: false, message: err.response?.data?.message || err.message });
+        toast.error("Gagal memverifikasi kehadiran: " + (err.response?.data?.message || err.message));
       })
       .finally(() => setLoading(false));
   };
@@ -62,13 +66,13 @@ export default function DashboardTab() {
   };
 
   const handleEmergency = (sessionId, date, shift) => {
-    if (window.confirm(`Apakah Anda yakin ingin MEMBATALKAN Sesi ${shift.toUpperCase()} tanggal ${date} (ID: ${sessionId}) dan mengirimkan WhatsApp notifikasi ke semua pengunjung?`)) {
+    if (window.confirm(`Apakah Anda yakin ingin MEMBATALKAN Sesi ${shift.toUpperCase()} tanggal ${date} (ID: ${sessionId}) dan mengirimkan notifikasi reschedule ke semua pengunjung?`)) {
       client.post('/api/admin/weather-emergency', { session_id: sessionId })
         .then(res => {
-          alert(res.data.message);
+          toast.success(res.data.message || "Sesi berhasil dibatalkan dan email darurat terkirim!");
           fetchStats();
         })
-        .catch(err => alert("Error: " + (err.response?.data?.message || err.message)));
+        .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)));
     }
   };
 
@@ -176,7 +180,7 @@ export default function DashboardTab() {
                         <span className="font-bold text-sm bg-primary/10 text-primary px-2 py-0.5 rounded capitalize">
                           Sesi {session.shift}
                         </span>
-                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${session.status === 'active' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
+                        <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${session.status === 'active' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-error-container/20 text-error border-error/20'}`}>
                           {session.status === 'active' ? 'Aktif' : 'Dibatalkan'}
                         </span>
                       </div>
@@ -242,11 +246,11 @@ export default function DashboardTab() {
             {/* Scan Results */}
             <div className="bg-surface-container/50 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-6 text-center min-h-[160px]">
               {scanResult ? (
-                <div className={`w-full p-4 flex flex-col items-center justify-center rounded-xl ${scanResult.success ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
-                  <span className={`material-symbols-outlined text-4xl mb-2 ${scanResult.success ? 'text-emerald-600' : 'text-red-600'}`}>
+                <div className={`w-full p-4 flex flex-col items-center justify-center rounded-xl ${scanResult.success ? 'bg-emerald-50 border border-emerald-200' : 'bg-error-container/20 border border-error/20'}`}>
+                  <span className={`material-symbols-outlined text-4xl mb-2 ${scanResult.success ? 'text-emerald-600' : 'text-error'}`}>
                     {scanResult.success ? 'check_circle' : 'error'}
                   </span>
-                  <p className={`font-bold text-center ${scanResult.success ? 'text-emerald-800' : 'text-red-800'} mb-2`}>
+                  <p className={`font-bold text-center ${scanResult.success ? 'text-emerald-800' : 'text-error'} mb-2`}>
                     {scanResult.message}
                   </p>
                   {scanResult.success && scanResult.data && (

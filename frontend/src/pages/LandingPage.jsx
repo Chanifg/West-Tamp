@@ -3,12 +3,22 @@ import { Link } from 'react-router-dom';
 import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../context/ToastContext';
 
 export default function LandingPage() {
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
   const [packages, setPackages] = useState([]);
   const [loadingPackages, setLoadingPackages] = useState(true);
+  const toast = useToast();
+
+  useEffect(() => {
+    document.title = "Westtamp Wellness - Destinasi Tubing Desa Wisata Tampirkulon";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Nikmati kesegaran alam dan petualangan rafting tubing terbaik di Sungai Elo, Desa Wisata Tampirkulon bersama Westtamp Wellness.");
+    }
+  }, []);
 
   useEffect(() => {
     // Fetch Blogs
@@ -16,7 +26,10 @@ export default function LandingPage() {
       .then(res => {
         setBlogs(res.data.slice(0, 3));
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat kabar terbaru.");
+      })
       .finally(() => setLoadingBlogs(false));
 
     // Fetch Packages
@@ -24,7 +37,10 @@ export default function LandingPage() {
       .then(res => {
         setPackages(res.data);
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat paket wisata.");
+      })
       .finally(() => setLoadingPackages(false));
   }, []);
 
@@ -269,6 +285,10 @@ export default function LandingPage() {
                         alt={blog.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         src={getImageUrl(blog.image_url)}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                        }}
                       />
                     </div>
                     <div className="p-6 flex flex-col flex-grow">

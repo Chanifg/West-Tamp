@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => array_map('trim', explode(',', env('ALLOWED_CORS_ORIGINS', 'http://localhost:5173'))),
 
     'allowed_origins_patterns' => [],
 

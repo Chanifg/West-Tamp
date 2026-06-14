@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import client, { getImageUrl } from '../../api/client';
+import { useToast } from '../../context/ToastContext';
 
 export default function GalleriesTab() {
   const [galleries, setGalleries] = useState([]);
@@ -10,6 +11,14 @@ export default function GalleriesTab() {
   });
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const toast = useToast();
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [galleryAdminSearch]);
+
   useEffect(() => {
     fetchGalleries();
   }, []);
@@ -17,7 +26,10 @@ export default function GalleriesTab() {
   const fetchGalleries = () => {
     client.get('/api/galleries')
       .then(res => setGalleries(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat galeri foto.");
+      });
   };
 
   const handleGallerySubmit = (e) => {
@@ -35,20 +47,23 @@ export default function GalleriesTab() {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
-      alert("Gallery photo uploaded successfully!");
+      toast.success("Foto galeri berhasil diunggah!");
       setShowGalleryForm(false);
       setGalleryForm({ title: '', category: '', location: '', image_file: null });
       fetchGalleries();
     })
-    .catch(err => alert("Error: " + (err.response?.data?.message || err.message)))
+    .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)))
     .finally(() => setLoading(false));
   };
 
   const handleDeleteGallery = (id) => {
-    if (window.confirm('Are you sure you want to delete this photo?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
       client.delete(`/api/admin/galleries/${id}`)
-        .then(() => fetchGalleries())
-        .catch(err => alert("Error deleting: " + err.message));
+        .then(() => {
+          toast.success("Foto galeri berhasil dihapus!");
+          fetchGalleries();
+        })
+        .catch(err => toast.error("Error deleting: " + err.message));
     }
   };
 
@@ -78,25 +93,73 @@ export default function GalleriesTab() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {galleries.filter(g => 
+            {(() => {
+              const filtered = galleries.filter(g => 
+                g.title.toLowerCase().includes(galleryAdminSearch.toLowerCase()) || 
+                g.category.toLowerCase().includes(galleryAdminSearch.toLowerCase())
+              );
+              const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+              
+              return paginated.map(gallery => (
+                <div key={gallery.id} className="bg-surface-container rounded-lg overflow-hidden border border-surface-variant shadow-sm relative group">
+                  <img src={getImageUrl(gallery.image_url)} alt={gallery.title} className="w-full h-40 object-cover" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                     <button onClick={() => handleDeleteGallery(gallery.id)} className="bg-error text-white p-2 rounded-full hover:bg-error/80 cursor-pointer">
+                       <span className="material-symbols-outlined text-sm">delete</span>
+                     </button>
+                  </div>
+                  <div className="p-3">
+                    <span className="inline-block px-2 py-0.5 bg-primary-container text-on-primary-container rounded text-[10px] font-bold mb-1">{gallery.category}</span>
+                    <h4 className="text-sm font-bold truncate">{gallery.title}</h4>
+                    {gallery.location && <p className="text-[10px] text-on-surface-variant truncate mt-1">@ {gallery.location}</p>}
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+
+          {/* Client-side Pagination (M-20) */}
+          {(() => {
+            const filtered = galleries.filter(g => 
               g.title.toLowerCase().includes(galleryAdminSearch.toLowerCase()) || 
               g.category.toLowerCase().includes(galleryAdminSearch.toLowerCase())
-            ).map(gallery => (
-              <div key={gallery.id} className="bg-surface-container rounded-lg overflow-hidden border border-surface-variant shadow-sm relative group">
-                <img src={getImageUrl(gallery.image_url)} alt={gallery.title} className="w-full h-40 object-cover" />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                   <button onClick={() => handleDeleteGallery(gallery.id)} className="bg-error text-white p-2 rounded-full hover:bg-error/80">
-                     <span className="material-symbols-outlined text-sm">delete</span>
-                   </button>
-                </div>
-                <div className="p-3">
-                  <span className="inline-block px-2 py-0.5 bg-primary-container text-on-primary-container rounded text-[10px] font-bold mb-1">{gallery.category}</span>
-                  <h4 className="text-sm font-bold truncate">{gallery.title}</h4>
-                  {gallery.location && <p className="text-[10px] text-on-surface-variant truncate mt-1">@ {gallery.location}</p>}
+            );
+            const total = Math.ceil(filtered.length / itemsPerPage);
+            if (total <= 1) return null;
+            
+            return (
+              <div className="flex items-center justify-between border-t border-surface-variant/30 pt-6 mt-6 text-sm">
+                <p className="text-on-surface-variant">
+                  Menampilkan {Math.min(filtered.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filtered.length, currentPage * itemsPerPage)} dari {filtered.length} foto
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Previous
+                  </button>
+                  {[...Array(total)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${currentPage === i + 1 ? 'bg-primary-container text-white border-primary-container' : 'border-surface-variant hover:bg-surface'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(total, prev + 1))}
+                    disabled={currentPage === total}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       ) : (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant max-w-2xl mx-auto">

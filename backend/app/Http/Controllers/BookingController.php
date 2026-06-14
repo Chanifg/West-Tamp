@@ -114,10 +114,10 @@ class BookingController extends Controller
                 $orderId = 'WT-' . time() . '-' . Str::random(5);
 
                 // Configuration Midtrans
-                \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
-                \Midtrans\Config::$isProduction = false;
-                \Midtrans\Config::$isSanitized = true;
-                \Midtrans\Config::$is3ds = true;
+                \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+                \Midtrans\Config::$isProduction = config('services.midtrans.is_production', false);
+                \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized', true);
+                \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds', true);
 
                 $params = array(
                     'transaction_details' => array(
@@ -139,7 +139,7 @@ class BookingController extends Controller
                     )
                 );
 
-                $serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
+                $serverKey = config('services.midtrans.server_key');
                 if ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)) {
                     // Mock behavior for testing when keys are not provided
                     $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(10);
@@ -173,7 +173,11 @@ class BookingController extends Controller
             });
 
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            Log::error("Checkout error: " . $e->getMessage(), ['exception' => $e]);
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat memproses checkout.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 
@@ -273,13 +277,38 @@ class BookingController extends Controller
                 ]);
             });
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            Log::error("Reschedule error: " . $e->getMessage(), ['exception' => $e]);
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat memproses reschedule.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 
     public function midtransWebhook(Request $request)
     {
-        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-YOUR_SERVER_KEY');
+        $serverKey = config('services.midtrans.server_key');
+        \Midtrans\Config::$serverKey = $serverKey;
+
+        // Verify Midtrans Signature Key to prevent fraud
+        $signatureKey = $request->signature_key;
+        $orderId = $request->order_id;
+        $statusCode = $request->status_code;
+        $grossAmount = $request->gross_amount;
+
+        $isValidSignature = false;
+        if ($signatureKey && $orderId && $statusCode && $grossAmount) {
+            $computedHash = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
+            $isValidSignature = hash_equals($computedHash, $signatureKey);
+        } elseif (app()->environment('testing') || (app()->environment('local') && ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)))) {
+            $isValidSignature = true; // Allow mock in local/testing when serverKey is not configured
+        }
+
+        if (!$isValidSignature) {
+            Log::warning("Midtrans Webhook: Invalid signature. Payload: " . json_encode($request->all()));
+            return response()->json(['message' => 'Invalid signature key'], 403);
+        }
+
         try {
             $notif = new \Midtrans\Notification();
         } catch (\Exception $e) {

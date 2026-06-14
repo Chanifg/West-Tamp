@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import client, { getImageUrl } from '../../api/client';
+import { useToast } from '../../context/ToastContext';
 
 export default function BlogsTab() {
   const [blogs, setBlogs] = useState([]);
@@ -12,6 +15,15 @@ export default function BlogsTab() {
   const [loading, setLoading] = useState(false);
   const [contentImageLoading, setContentImageLoading] = useState(false);
   const [lastUploadedMarkdown, setLastUploadedMarkdown] = useState("");
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editorTab, setEditorTab] = useState('write');
+  const itemsPerPage = 10;
+  const toast = useToast();
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [adminBlogSearch]);
 
   useEffect(() => {
     fetchBlogs();
@@ -20,7 +32,10 @@ export default function BlogsTab() {
   const fetchBlogs = () => {
     client.get('/api/blogs')
       .then(res => setBlogs(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal mengambil daftar artikel.");
+      });
   };
 
   const handleEditBlog = (blog) => {
@@ -63,14 +78,14 @@ export default function BlogsTab() {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
-      alert(editingBlog ? "Blog updated!" : "Blog created!");
+      toast.success(editingBlog ? "Artikel berhasil diperbarui!" : "Artikel berhasil dibuat!");
       setShowBlogForm(false);
       setEditingBlog(null);
       setBlogForm({ title: '', category: '', author: '', excerpt: '', content: '', is_featured: false, image_file: null });
       setLastUploadedMarkdown("");
       fetchBlogs();
     })
-    .catch(err => alert("Error: " + (err.response?.data?.message || err.message)))
+    .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)))
     .finally(() => setLoading(false));
   };
 
@@ -91,16 +106,20 @@ export default function BlogsTab() {
         ...prev,
         content: prev.content + "\n\n" + res.data.markdown + "\n"
       }));
+      toast.success("Gambar berhasil disisipkan!");
     })
-    .catch(err => alert("Upload failed: " + err.message))
+    .catch(err => toast.error("Upload failed: " + err.message))
     .finally(() => setContentImageLoading(false));
   };
 
   const handleDeleteBlog = (id) => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus artikel ini?')) {
       client.delete(`/api/admin/blogs/${id}`)
-        .then(() => fetchBlogs())
-        .catch(err => alert("Error deleting: " + err.message));
+        .then(() => {
+          toast.success("Artikel berhasil dihapus!");
+          fetchBlogs();
+        })
+        .catch(err => toast.error("Error deleting: " + err.message));
     }
   };
 
@@ -147,53 +166,103 @@ export default function BlogsTab() {
                 </tr>
               </thead>
               <tbody>
-                {blogs.filter(b => 
-                  b.title.toLowerCase().includes(adminBlogSearch.toLowerCase()) || 
-                  (b.author && b.author.toLowerCase().includes(adminBlogSearch.toLowerCase())) ||
-                  b.category.toLowerCase().includes(adminBlogSearch.toLowerCase())
-                ).map(blog => (
-                  <tr key={blog.id} className="border-b border-surface-variant/50 hover:bg-surface/50">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                         {blog.image_url ? (
-                           <img src={getImageUrl(blog.image_url)} className="w-12 h-12 rounded object-cover" alt="" />
-                         ) : (
-                          <div className="w-12 h-12 bg-surface-variant rounded flex items-center justify-center">
-                            <span className="material-symbols-outlined text-outline">image</span>
+                {(() => {
+                  const filtered = blogs.filter(b => 
+                    b.title.toLowerCase().includes(adminBlogSearch.toLowerCase()) || 
+                    (b.author && b.author.toLowerCase().includes(adminBlogSearch.toLowerCase())) ||
+                    b.category.toLowerCase().includes(adminBlogSearch.toLowerCase())
+                  );
+                  const total = Math.ceil(filtered.length / itemsPerPage);
+                  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+                  
+                  return paginated.map(blog => (
+                    <tr key={blog.id} className="border-b border-surface-variant/50 hover:bg-surface/50">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                           {blog.image_url ? (
+                             <img src={getImageUrl(blog.image_url)} className="w-12 h-12 rounded object-cover" alt="" />
+                           ) : (
+                            <div className="w-12 h-12 bg-surface-variant rounded flex items-center justify-center">
+                              <span className="material-symbols-outlined text-outline">image</span>
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-bold text-on-surface line-clamp-1">{blog.title}</p>
+                            <p className="text-xs text-on-surface-variant">Oleh {blog.author}</p>
                           </div>
-                        )}
-                        <div>
-                          <p className="font-bold text-on-surface line-clamp-1">{blog.title}</p>
-                          <p className="text-xs text-on-surface-variant">Oleh {blog.author}</p>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-sm font-medium">
-                      <span className="bg-surface-container px-2 py-1 rounded text-primary border border-surface-variant">{blog.category}</span>
-                    </td>
-                    <td className="py-3 px-4 text-sm text-on-surface-variant">
-                      {formatDate(blog.created_at)}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {blog.is_featured ? (
-                        <span className="material-symbols-outlined text-green-600">check_circle</span>
-                      ) : '-'}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => handleEditBlog(blog)} className="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors">
-                          <span className="material-symbols-outlined">edit</span>
-                        </button>
-                        <button onClick={() => handleDeleteBlog(blog.id)} className="text-error hover:bg-error-container p-2 rounded-full transition-colors">
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="py-3 px-4 text-sm font-medium">
+                        <span className="bg-surface-container px-2 py-1 rounded text-primary border border-surface-variant">{blog.category}</span>
+                      </td>
+                      <td className="py-3 px-4 text-sm text-on-surface-variant">
+                        {formatDate(blog.created_at)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {blog.is_featured ? (
+                          <span className="material-symbols-outlined text-green-600">check_circle</span>
+                        ) : '-'}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => handleEditBlog(blog)} className="text-primary hover:bg-primary-container/20 p-2 rounded-full transition-colors">
+                            <span className="material-symbols-outlined">edit</span>
+                          </button>
+                          <button onClick={() => handleDeleteBlog(blog.id)} className="text-error hover:bg-error-container p-2 rounded-full transition-colors">
+                            <span className="material-symbols-outlined">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ));
+                })()}
               </tbody>
             </table>
           </div>
+
+          {/* Client-side Pagination (M-20) */}
+          {(() => {
+            const filtered = blogs.filter(b => 
+              b.title.toLowerCase().includes(adminBlogSearch.toLowerCase()) || 
+              (b.author && b.author.toLowerCase().includes(adminBlogSearch.toLowerCase())) ||
+              b.category.toLowerCase().includes(adminBlogSearch.toLowerCase())
+            );
+            const total = Math.ceil(filtered.length / itemsPerPage);
+            if (total <= 1) return null;
+            
+            return (
+              <div className="flex items-center justify-between border-t border-surface-variant/30 pt-4 mt-6 text-sm">
+                <p className="text-on-surface-variant">
+                  Menampilkan {Math.min(filtered.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filtered.length, currentPage * itemsPerPage)} dari {filtered.length} artikel
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Previous
+                  </button>
+                  {[...Array(total)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${currentPage === i + 1 ? 'bg-primary-container text-white border-primary-container' : 'border-surface-variant hover:bg-surface'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(total, prev + 1))}
+                    disabled={currentPage === total}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       ) : (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant max-w-4xl mx-auto">
@@ -254,19 +323,45 @@ export default function BlogsTab() {
             </div>
 
             <div className="md:col-span-2">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-4 border-b border-surface-variant/30 pb-2">
                 <label className="block text-sm font-bold text-on-surface">Isi Artikel (Markdown) *</label>
+                <div className="flex gap-2 bg-surface-container p-1 rounded-lg text-xs font-bold">
+                  <button 
+                    type="button"
+                    onClick={() => setEditorTab('write')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${editorTab === 'write' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+                  >
+                    Tulis
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setEditorTab('preview')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${editorTab === 'preview' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
+                  >
+                    Pratinjau
+                  </button>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <div className="lg:col-span-3">
-                  <textarea 
-                    required rows="15" 
-                    value={blogForm.content} 
-                    onChange={e => setBlogForm({...blogForm, content: e.target.value})} 
-                    className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary font-mono text-sm resize-y" 
-                    placeholder="Markdown content..."
-                  ></textarea>
+                  {editorTab === 'write' ? (
+                    <textarea 
+                      required rows="15" 
+                      value={blogForm.content} 
+                      onChange={e => setBlogForm({...blogForm, content: e.target.value})} 
+                      className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary font-mono text-sm resize-y" 
+                      placeholder="Markdown content..."
+                    ></textarea>
+                  ) : (
+                    <div className="w-full border border-surface-variant rounded-lg px-6 py-6 bg-surface prose prose-sm max-w-none min-h-[360px] overflow-y-auto max-h-[500px]">
+                      {blogForm.content.trim() ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{blogForm.content}</ReactMarkdown>
+                      ) : (
+                        <p className="text-on-surface-variant italic text-sm">Belum ada konten untuk dipratinjau.</p>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
                 <div className="lg:col-span-1 space-y-4">

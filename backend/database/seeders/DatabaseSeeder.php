@@ -16,9 +16,11 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // WARNING: Change this password when deploying to production!
         User::factory()->create([
             'name' => 'Admin POKDARWIS',
             'email' => 'admin@westtamp.com',
+            'role' => 'admin',
             'password' => bcrypt('password')
         ]);
 

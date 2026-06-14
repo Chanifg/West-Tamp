@@ -180,6 +180,7 @@ class BookingTest extends TestCase
         $user = \App\Models\User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+            'role' => 'admin',
             'password' => bcrypt('password')
         ]);
         \Laravel\Sanctum\Sanctum::actingAs($user);

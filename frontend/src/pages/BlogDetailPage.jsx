@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../context/ToastContext';
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
@@ -12,14 +13,26 @@ export default function BlogDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const toast = useToast();
+
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
     client.get(`/api/blogs/${slug}`)
-      .then(res => setBlog(res.data))
+      .then(res => {
+        setBlog(res.data);
+        
+        // Update Title & Meta dynamically (L-05)
+        document.title = `${res.data.title} | Westtamp Wellness`;
+        const meta = document.querySelector('meta[name="description"]');
+        if (meta) {
+          meta.setAttribute("content", res.data.excerpt || res.data.content.substring(0, 150));
+        }
+      })
       .catch(err => {
           console.error(err);
           setError("Artikel tidak ditemukan atau terjadi kesalahan peladen.");
+          toast.error("Gagal memuat detail artikel.");
       })
       .finally(() => setLoading(false));
   }, [slug]);
@@ -71,8 +84,16 @@ export default function BlogDetailPage() {
                 </div>
             </header>
 
-            <div className="w-full h-64 md:h-[400px] lg:h-[500px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-surface-variant">
-                <img src={getImageUrl(blog.image_url)} alt={blog.title} className="w-full h-full object-cover" />
+            <div className="w-full h-64 md:h-[400px] lg:h-[500px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-surface-variant bg-surface-container">
+                <img 
+                  src={getImageUrl(blog.image_url)} 
+                  alt={blog.title} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                  }}
+                />
             </div>
 
             <div className="prose prose-lg md:prose-xl max-w-none text-on-surface font-body-lg text-lg !leading-relaxed">

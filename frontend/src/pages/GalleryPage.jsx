@@ -2,18 +2,30 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import client, { getImageUrl } from '../api/client';
+import { useToast } from '../context/ToastContext';
 
 export default function GalleryPage() {
   const [galleries, setGalleries] = useState([]);
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [loading, setLoading] = useState(true);
 
+  const toast = useToast();
+
   useEffect(() => {
+    document.title = "Galeri Foto Kegiatan & Wisata | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Lihat galeri foto keseruan rafting tubing Sungai Elo, keindahan alam Desa Wisata Tampirkulon, dan UMKM lokal kami.");
+    }
+
     client.get('/api/galleries')
       .then(res => {
         setGalleries(res.data);
       })
-      .catch(err => console.error("Error fetching galleries:", err))
+      .catch(err => {
+        console.error("Error fetching galleries:", err);
+        toast.error("Gagal memuat galeri foto.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -78,7 +90,15 @@ export default function GalleryPage() {
               const isLarge = index % 5 === 0;
               return (
                 <div key={gallery.id} className={`group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer bg-surface-container ${getGridClasses(index)}`}>
-                  <img alt={gallery.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src={getImageUrl(gallery.image_url)} />
+                  <img 
+                    alt={gallery.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    src={getImageUrl(gallery.image_url)} 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                    }}
+                  />
                   <div className={`absolute inset-0 bg-gradient-to-t transition-opacity duration-300 ${getGradient(index)}`}></div>
                   
                   <div className={`absolute bottom-0 left-0 w-full transition-transform duration-300 ${isLarge ? 'p-6 -translate-y-2 group-hover:-translate-y-4' : 'p-4'}`}>

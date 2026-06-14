@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-surface-variant shadow-sm">
-      <div className="flex justify-between items-center h-20 px-6 md:px-12 max-w-[1280px] mx-auto">
+      <div className="flex justify-between items-center h-20 px-12 md:px-12  mx-auto">
         <Link to="/" className="text-2xl font-black tracking-tighter text-primary-container hover:opacity-80 transition-opacity">
           Westtamp Wellness
         </Link>
@@ -41,11 +41,11 @@ export default function Navbar() {
         <div className="flex gap-4 items-center">
           <Link to="/booking" className="hidden sm:block">
             <button className="bg-primary-container text-on-primary-container px-6 py-3 rounded-full font-label-md font-bold hover:bg-primary hover:text-on-primary transition-all active:scale-95 cursor-pointer shadow-sm">
-                Book Your Escape
+              Book Your Escape
             </button>
           </Link>
-          <button 
-            onClick={() => setIsOpen(!isOpen)} 
+          <button
+            onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden text-on-surface p-2 rounded-xl hover:bg-surface-container active:scale-95 transition-all cursor-pointer"
             aria-label="Toggle menu"
           >
@@ -58,7 +58,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 top-20 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsOpen(false)}
         />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import DashboardTab from '../components/admin/DashboardTab';
@@ -9,6 +9,10 @@ import PackagesTab from '../components/admin/PackagesTab';
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    document.title = "Admin Dashboard | Westtamp Wellness";
+  }, []);
 
   return (
     <div className="bg-background text-on-background font-body-md min-h-screen flex">

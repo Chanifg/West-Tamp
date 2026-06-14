@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
+import { useToast } from '../context/ToastContext';
 
 export default function BookingPage() {
   const [packages, setPackages] = useState([]);
@@ -16,6 +17,32 @@ export default function BookingPage() {
   const [customerEmail, setCustomerEmail] = useState('');
 
   const navigate = useNavigate();
+  const toast = useToast();
+
+  useEffect(() => {
+    document.title = "Booking Tiket & Wellness Packages | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Pesan tiket petualangan tubing Sungai Elo dan paket wellness Desa Wisata Tampirkulon secara langsung dan instan.");
+    }
+  }, []);
+
+  const getMaxGuests = () => {
+    if (session && availability && availability[session]) {
+      return availability[session].available;
+    }
+    return 100;
+  };
+
+  useEffect(() => {
+    if (session && availability) {
+      const maxGuests = availability[session]?.available || 100;
+      if (guests > maxGuests) {
+        setGuests(Math.max(1, maxGuests));
+        toast.error(`Jumlah peserta disesuaikan ke ${Math.max(1, maxGuests)} pax sesuai kuota yang tersedia.`);
+      }
+    }
+  }, [session, availability]);
 
   useEffect(() => {
     // Fetch packages from backend
@@ -24,14 +51,20 @@ export default function BookingPage() {
         setPackages(res.data);
         if(res.data.length > 0) setSelectedPackage(res.data[0]);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat paket wisata.");
+      });
   }, []);
 
   useEffect(() => {
     if (date) {
       client.post('/api/sessions/availability', { date })
         .then(res => setAvailability(res.data))
-        .catch(err => console.error(err));
+        .catch(err => {
+          console.error(err);
+          toast.error("Gagal memuat ketersediaan sesi.");
+        });
     }
   }, [date]);
 
@@ -66,19 +99,19 @@ export default function BookingPage() {
             navigate('/');
           },
           onError: function (result) {
-            alert("Payment failed!");
+            toast.error("Pembayaran gagal!");
           },
           onClose: function () {
-            alert("Checkout popup closed. Complete payment within 30 minutes.");
+            toast.error("Checkout dibatalkan. Selesaikan pembayaran dalam 15 menit.");
             navigate('/');
           }
         });
       } else {
-        alert("Midtrans SDK failed to load. Please try again.");
+        toast.error("Midtrans SDK gagal dimuat. Silakan coba lagi.");
       }
     })
     .catch(err => {
-      alert("Error: " + (err.response?.data?.message || err.message));
+      toast.error("Error: " + (err.response?.data?.message || err.message));
     })
     .finally(() => {
       setLoading(false);
@@ -196,7 +229,17 @@ export default function BookingPage() {
                   <div className="flex items-center border border-outline-variant rounded-lg overflow-hidden">
                     <button onClick={() => setGuests(Math.max(1, guests - 1))} className="px-4 py-2 bg-surface hover:bg-surface-variant">-</button>
                     <span className="px-4 font-body-md">{guests}</span>
-                    <button onClick={() => setGuests(guests + 1)} className="px-4 py-2 bg-surface hover:bg-surface-variant">+</button>
+                    <button 
+                      onClick={() => {
+                        const maxGuests = getMaxGuests();
+                        if (guests >= maxGuests) {
+                          toast.error(`Kapasitas maksimum sesi ini hanya tersisa ${maxGuests} ban.`);
+                        } else {
+                          setGuests(guests + 1);
+                        }
+                      }} 
+                      className="px-4 py-2 bg-surface hover:bg-surface-variant"
+                    >+</button>
                   </div>
                 </div>
               </div>

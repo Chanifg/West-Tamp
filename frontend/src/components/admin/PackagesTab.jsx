@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import client from '../../api/client';
+import { useToast } from '../../context/ToastContext';
 
 export default function PackagesTab() {
   const [packages, setPackages] = useState([]);
@@ -10,6 +11,10 @@ export default function PackagesTab() {
   });
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const toast = useToast();
+
   useEffect(() => {
     fetchPackages();
   }, []);
@@ -17,7 +22,10 @@ export default function PackagesTab() {
   const fetchPackages = () => {
     client.get('/api/admin/packages')
       .then(res => setPackages(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat paket wisata.");
+      });
   };
 
   const handleEditPackage = (pkg) => {
@@ -57,21 +65,24 @@ export default function PackagesTab() {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     .then(res => {
-      alert(editingPackage ? "Package updated!" : "Package created!");
+      toast.success(editingPackage ? "Paket berhasil diperbarui!" : "Paket berhasil dibuat!");
       setShowPackageForm(false);
       setEditingPackage(null);
       setPackageForm({ name: '', description: '', price: '', is_popular: false, image_file: null });
       fetchPackages();
     })
-    .catch(err => alert("Error: " + (err.response?.data?.message || err.message)))
+    .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)))
     .finally(() => setLoading(false));
   };
 
   const handleDeletePackage = (id) => {
-    if (window.confirm('Are you sure?')) {
+    if (window.confirm('Apakah Anda yakin ingin menghapus paket ini?')) {
       client.delete(`/api/admin/packages/${id}`)
-        .then(() => fetchPackages())
-        .catch(err => alert(err.response?.data?.message || err.message));
+        .then(() => {
+          toast.success("Paket berhasil dihapus!");
+          fetchPackages();
+        })
+        .catch(err => toast.error(err.response?.data?.message || err.message));
     }
   };
 
@@ -92,33 +103,75 @@ export default function PackagesTab() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {packages.map(pkg => (
-              <div key={pkg.id} className="border border-surface-variant rounded-xl p-6 bg-surface/30 flex flex-col relative overflow-hidden">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary-container/20 text-primary flex items-center justify-center">
-                    <span className="material-symbols-outlined">kayaking</span>
+            {(() => {
+              const paginated = packages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+              return paginated.map(pkg => (
+                <div key={pkg.id} className="border border-surface-variant rounded-xl p-6 bg-surface/30 flex flex-col relative overflow-hidden">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 rounded-lg bg-primary-container/20 text-primary flex items-center justify-center">
+                      <span className="material-symbols-outlined">kayaking</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => handleEditPackage(pkg)} className="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors cursor-pointer">
+                        <span className="material-symbols-outlined text-sm">edit</span>
+                      </button>
+                      <button onClick={() => handleDeletePackage(pkg.id)} className="text-error hover:bg-error/10 p-2 rounded-full transition-colors cursor-pointer">
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => handleEditPackage(pkg)} className="text-primary hover:bg-primary/10 p-2 rounded-full transition-colors">
-                      <span className="material-symbols-outlined text-sm">edit</span>
-                    </button>
-                    <button onClick={() => handleDeletePackage(pkg.id)} className="text-error hover:bg-error/10 p-2 rounded-full transition-colors">
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                    </button>
+                  <h4 className="font-bold text-lg text-on-surface mb-2 flex items-center gap-2">
+                    {pkg.name}
+                    {pkg.is_popular && <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full uppercase font-bold border border-primary/20">Populer</span>}
+                  </h4>
+                  <p className="text-sm text-on-surface-variant line-clamp-3 mb-4 flex-1">{pkg.description}</p>
+                  <div className="pt-4 border-t border-surface-variant flex justify-between items-center">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Harga per Pax</span>
+                    <span className="text-lg font-bold text-primary">Rp{Number(pkg.price).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
-                <h4 className="font-bold text-lg text-on-surface mb-2 flex items-center gap-2">
-                  {pkg.name}
-                  {pkg.is_popular && <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full uppercase font-bold border border-primary/20">Populer</span>}
-                </h4>
-                <p className="text-sm text-on-surface-variant line-clamp-3 mb-4 flex-1">{pkg.description}</p>
-                <div className="pt-4 border-t border-surface-variant flex justify-between items-center">
-                  <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Harga per Pax</span>
-                  <span className="text-lg font-bold text-primary">Rp{Number(pkg.price).toLocaleString('id-ID')}</span>
+              ));
+            })()}
+          </div>
+
+          {/* Client-side Pagination (M-20) */}
+          {(() => {
+            const total = Math.ceil(packages.length / itemsPerPage);
+            if (total <= 1) return null;
+            
+            return (
+              <div className="flex items-center justify-between border-t border-surface-variant/30 pt-6 mt-6 text-sm">
+                <p className="text-on-surface-variant">
+                  Menampilkan {Math.min(packages.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(packages.length, currentPage * itemsPerPage)} dari {packages.length} paket
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Previous
+                  </button>
+                  {[...Array(total)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1.5 rounded-lg border font-bold transition-all cursor-pointer ${currentPage === i + 1 ? 'bg-primary-container text-white border-primary-container' : 'border-surface-variant hover:bg-surface'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(total, prev + 1))}
+                    disabled={currentPage === total}
+                    className="px-3 py-1.5 rounded-lg border border-surface-variant hover:bg-surface disabled:opacity-40 transition-colors cursor-pointer font-bold"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       ) : (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant max-w-2xl mx-auto">

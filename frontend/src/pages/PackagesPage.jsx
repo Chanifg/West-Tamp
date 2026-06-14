@@ -3,15 +3,27 @@ import client, { getImageUrl as apiGetImageUrl } from '../api/client';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../context/ToastContext';
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const toast = useToast();
+
   useEffect(() => {
+    document.title = "Wellness Packages & Pilihan Kegiatan | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Jelajahi berbagai paket wisata wellness dan tubing menarik di Sungai Elo. Pilih petualangan yang menyegarkan jiwa dan raga.");
+    }
+
     client.get('/api/packages')
       .then(res => setPackages(res.data))
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err);
+        toast.error("Gagal memuat paket wisata.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -98,6 +110,10 @@ export default function PackagesPage() {
                           ? "https://lh3.googleusercontent.com/aida-public/AB6AXuC-ZzNAHaspw5KEHfyCuCilX7ffLuDZUK-P42PxO7A3gR0ijF2e-ElJWCuk7Z5eUgA86Xt4OC7de4566-iY4EOuKVV82elxCV8V0oX-gzlM_rKmzXRs2GpskvaOBA_0ozeW593eBZ2SMgqF6ztZaOtQFgjP7lDPujQ67bQUhjWmTxLFmhnzFsuwSseI1Bid3ipGBCZjtJ9d6JbsHPlli9iP-vdjNGlEnCvnD909Yl2D3aqUOxIC0Y2rXsPeFa_O0eWugc_Uyz77PoY1"
                           : "https://lh3.googleusercontent.com/aida-public/AB6AXuBAZMbT0X2e5ifXO-TjUZ0qx3Wfp7UOoFcL3VfhKwomiU_PH1nfhpmv_b3th5nbOfKV-DT4FAXtMgCAqp9ICbbIR9X3yqnTjgFwaNBAbGMHRqhMx7sgZst6x41FIiain5190U4tp3beVjV6Lu7OI08Ycr6nhJAYMXu_SAdeQbwS5ZBmnTz2oq03J2L7jgGlUjCQPqXBJLsRJy0dkpKRQjPpE3l1UlAaVAn_Z4KJXmd0K9TVRO4lXGYDA5Mb-2WWm1pWZeMHdMLS_fTc")
                       }
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'><rect width='100%' height='100%' fill='%23edeeef'/><text x='50%' y='50%' font-family='sans-serif' font-size='24' fill='%23717973' text-anchor='middle' dominant-baseline='middle'>Image Not Found</text></svg>";
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div className="absolute bottom-6 left-6 text-white pr-6">

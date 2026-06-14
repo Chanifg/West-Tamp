@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function FacilitiesPage() {
+  useEffect(() => {
+    document.title = "Fasilitas & Kenyamanan Kegiatan | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Lihat berbagai fasilitas lengkap kami mulai dari keamanan tubing, ruang kesehatan gratis, konsumsi lokal, dan area mandi bilas bersih.");
+    }
+  }, []);
   return (
     <div className="bg-background text-on-background min-h-screen">
       <Navbar />

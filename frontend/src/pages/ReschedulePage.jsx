@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useToast } from '../context/ToastContext';
 
 export default function ReschedulePage() {
   const [bookingRef, setBookingRef] = useState(() => {
@@ -18,6 +19,15 @@ export default function ReschedulePage() {
   const [message, setMessage] = useState(null);
 
   const navigate = useNavigate();
+  const toast = useToast();
+
+  useEffect(() => {
+    document.title = "Atur Ulang Jadwal (Reschedule) | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Layanan darurat cuaca untuk mengatur ulang tanggal dan sesi kegiatan river tubing Anda di Sungai Elo secara mandiri.");
+    }
+  }, []);
 
   useEffect(() => {
     if (bookingRef) {
@@ -48,10 +58,13 @@ export default function ReschedulePage() {
     client.get(`/api/bookings/verify-reschedule?booking_ref=${bookingRef}`)
       .then(res => {
         setBooking(res.data);
+        toast.success("Kode booking terverifikasi untuk reschedule!");
       })
       .catch(err => {
         console.error(err);
-        setMessage({ type: 'error', text: err.response?.data?.message || 'Kode booking tidak ditemukan.' });
+        const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
+        setMessage({ type: 'error', text: errMsg });
+        toast.error(errMsg);
       })
       .finally(() => setFetchingBooking(false));
   };
@@ -76,6 +89,7 @@ export default function ReschedulePage() {
     })
     .then(res => {
       setMessage({ type: 'success', text: 'Reschedule berhasil dilakukan! Jadwal petualangan Anda telah diperbarui.' });
+      toast.success("Jadwal Anda berhasil diatur ulang!");
       // Clear scheduling state
       setBooking(null);
       setDate('');
@@ -83,7 +97,7 @@ export default function ReschedulePage() {
       setAvailability(null);
     })
     .catch(err => {
-      alert("Gagal melakukan reschedule: " + (err.response?.data?.message || err.message));
+      toast.error("Gagal melakukan reschedule: " + (err.response?.data?.message || err.message));
     })
     .finally(() => {
       setLoading(false);

@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function AboutPage() {
+  useEffect(() => {
+    document.title = "Tentang Kami & Kisah Westtamp | Westtamp Wellness";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Pelajari kisah di balik Westtamp Wellness. Perjalanan komunitas Desa Wisata Tampirkulon dalam membangun petualangan tubing dan pariwisata kesehatan berkelanjutan.");
+    }
+  }, []);
   return (
     <div className="bg-background text-on-background min-h-screen">
       <Navbar />

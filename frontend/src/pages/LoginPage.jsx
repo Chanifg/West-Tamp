@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -10,6 +11,11 @@ export default function LoginPage() {
   
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+
+  useEffect(() => {
+    document.title = "Admin Login | Westtamp Wellness";
+  }, []);
 
   // If already logged in, redirect to admin
   if (isAuthenticated) {
@@ -24,9 +30,11 @@ export default function LoginPage() {
     const result = await login(email, password);
     
     if (result.success) {
+      toast.success("Selamat datang kembali, Admin!");
       navigate('/admin');
     } else {
       setError(result.message);
+      toast.error("Gagal masuk: " + result.message);
     }
     
     setLoading(false);
