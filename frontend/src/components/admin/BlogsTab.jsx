@@ -275,12 +275,13 @@ export default function BlogsTab() {
           <form onSubmit={handleBlogSubmit} className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-on-surface mb-2">Judul Artikel *</label>
-                <input required type="text" value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Masukkan judul..." />
+                <label htmlFor="blog_title" className="block text-sm font-bold text-on-surface mb-2">Judul Artikel *</label>
+                <input id="blog_title" required type="text" value={blogForm.title} onChange={e => setBlogForm({...blogForm, title: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Masukkan judul..." />
               </div>
               <div>
-                <label className="block text-sm font-bold text-on-surface mb-2">Kategori Artikel *</label>
+                <label htmlFor="blog_category" className="block text-sm font-bold text-on-surface mb-2">Kategori Artikel *</label>
                 <input 
+                  id="blog_category"
                   required 
                   type="text" 
                   list="category-suggestions"
@@ -300,8 +301,8 @@ export default function BlogsTab() {
                 </datalist>
               </div>
               <div>
-                <label className="block text-sm font-bold text-on-surface mb-2">Penulis</label>
-                <input type="text" value={blogForm.author} onChange={e => setBlogForm({...blogForm, author: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Nama penulis" />
+                <label htmlFor="blog_author" className="block text-sm font-bold text-on-surface mb-2">Penulis</label>
+                <input id="blog_author" type="text" value={blogForm.author} onChange={e => setBlogForm({...blogForm, author: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Nama penulis" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-on-surface mb-2">Jadikan Sorotan Utama?</label>
@@ -313,18 +314,18 @@ export default function BlogsTab() {
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Ringkasan (Excerpt)</label>
-              <textarea value={blogForm.excerpt} onChange={e => setBlogForm({...blogForm, excerpt: e.target.value})} rows="2" className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Singkat, padat, dan menarik..."></textarea>
+              <label htmlFor="blog_excerpt" className="block text-sm font-bold text-on-surface mb-2">Ringkasan (Excerpt)</label>
+              <textarea id="blog_excerpt" value={blogForm.excerpt} onChange={e => setBlogForm({...blogForm, excerpt: e.target.value})} rows="2" className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Singkat, padat, dan menarik..."></textarea>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Aset Gambar (WebP)</label>
-              <input type="file" accept="image/*" onChange={e => setBlogForm({...blogForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
+              <label htmlFor="blog_image" className="block text-sm font-bold text-on-surface mb-2">Aset Gambar (WebP)</label>
+              <input id="blog_image" type="file" accept="image/*" onChange={e => setBlogForm({...blogForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
             </div>
 
             <div className="md:col-span-2">
               <div className="flex justify-between items-center mb-4 border-b border-surface-variant/30 pb-2">
-                <label className="block text-sm font-bold text-on-surface">Isi Artikel (Markdown) *</label>
+                <label htmlFor="blog_content" className="block text-sm font-bold text-on-surface">Isi Artikel (Markdown) *</label>
                 <div className="flex gap-2 bg-surface-container p-1 rounded-lg text-xs font-bold">
                   <button 
                     type="button"
@@ -347,6 +348,7 @@ export default function BlogsTab() {
                 <div className="lg:col-span-3">
                   {editorTab === 'write' ? (
                     <textarea 
+                      id="blog_content"
                       required rows="15" 
                       value={blogForm.content} 
                       onChange={e => setBlogForm({...blogForm, content: e.target.value})} 
@@ -367,12 +369,12 @@ export default function BlogsTab() {
                 <div className="lg:col-span-1 space-y-4">
                   <div className="p-4 bg-surface-container rounded-xl border border-surface-variant">
                     <h4 className="text-sm font-bold mb-3">Sisipkan Gambar</h4>
-                    <label className="block w-full cursor-pointer">
+                    <label htmlFor="content_image_upload" className="block w-full cursor-pointer">
                         <div className="border-2 border-dashed border-outline-variant rounded-lg p-4 text-center hover:bg-white transition-colors">
                             {contentImageLoading ? <span className="material-symbols-outlined animate-spin">autorenew</span> : <span className="material-symbols-outlined text-primary">add_a_photo</span>}
                         </div>
-                        <input type="file" className="hidden" accept="image/*" onChange={handleContentImageUpload} disabled={contentImageLoading} />
                     </label>
+                    <input id="content_image_upload" type="file" className="hidden" accept="image/*" onChange={handleContentImageUpload} disabled={contentImageLoading} />
                     {lastUploadedMarkdown && <code className="text-[10px] mt-2 block break-all bg-white p-1 rounded border">{lastUploadedMarkdown}</code>}
                   </div>
                 </div>

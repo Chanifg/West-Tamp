@@ -171,14 +171,14 @@ export default function GalleriesTab() {
           </div>
           <form onSubmit={handleGallerySubmit} className="flex flex-col gap-6">
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Judul Foto *</label>
-              <input required type="text" value={galleryForm.title} onChange={e => setGalleryForm({...galleryForm, title: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Arus Deras Penuh Tawa" />
+              <label htmlFor="gallery_title" className="block text-sm font-bold text-on-surface mb-2">Judul Foto *</label>
+              <input id="gallery_title" required type="text" value={galleryForm.title} onChange={e => setGalleryForm({...galleryForm, title: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Arus Deras Penuh Tawa" />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-bold text-on-surface mb-2">Kategori *</label>
-                <input required type="text" list="gallery-categories" value={galleryForm.category} onChange={e => setGalleryForm({...galleryForm, category: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Pilih kategori..." />
+                <label htmlFor="gallery_category" className="block text-sm font-bold text-on-surface mb-2">Kategori *</label>
+                <input id="gallery_category" required type="text" list="gallery-categories" value={galleryForm.category} onChange={e => setGalleryForm({...galleryForm, category: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Pilih kategori..." />
                 <datalist id="gallery-categories">
                   <option value="River Tubing" />
                   <option value="Wellness & Kesehatan" />
@@ -187,14 +187,14 @@ export default function GalleriesTab() {
                 </datalist>
               </div>
               <div>
-                <label className="block text-sm font-bold text-on-surface mb-2">Lokasi</label>
-                <input type="text" value={galleryForm.location} onChange={e => setGalleryForm({...galleryForm, location: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Lokasi foto" />
+                <label htmlFor="gallery_location" className="block text-sm font-bold text-on-surface mb-2">Lokasi</label>
+                <input id="gallery_location" type="text" value={galleryForm.location} onChange={e => setGalleryForm({...galleryForm, location: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Lokasi foto" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">File Foto *</label>
-              <input required type="file" accept="image/*" onChange={e => setGalleryForm({...galleryForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
+              <label htmlFor="gallery_image" className="block text-sm font-bold text-on-surface mb-2">File Foto *</label>
+              <input id="gallery_image" required type="file" accept="image/*" onChange={e => setGalleryForm({...galleryForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
             </div>
 
             <div className="flex justify-end pt-4 border-t border-surface-variant">

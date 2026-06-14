@@ -89,8 +89,10 @@ export default function CheckBookingPage() {
 
               <form onSubmit={handleLookup} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-on-surface mb-2">Kode Booking *</label>
+                  <label htmlFor="search_booking_ref" className="block text-sm font-bold text-on-surface mb-2">Kode Booking *</label>
                   <input 
+                    id="search_booking_ref"
+                    aria-label="Kode Booking"
                     type="text" 
                     placeholder="Contoh: WT-XXXXXX atau XXXXXX" 
                     value={bookingRef}
@@ -101,8 +103,10 @@ export default function CheckBookingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-on-surface mb-2">Nomor WhatsApp (Opsional)</label>
+                  <label htmlFor="search_phone" className="block text-sm font-bold text-on-surface mb-2">Nomor WhatsApp (Opsional)</label>
                   <input 
+                    id="search_phone"
+                    aria-label="Nomor WhatsApp"
                     type="tel" 
                     placeholder="Contoh: 081234567890" 
                     value={phone}

@@ -183,16 +183,16 @@ export default function PackagesTab() {
           </div>
           <form onSubmit={handlePackageSubmit} className="flex flex-col gap-6">
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Nama Paket *</label>
-              <input required type="text" value={packageForm.name} onChange={e => setPackageForm({...packageForm, name: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Paket Adventure" />
+              <label htmlFor="package_name" className="block text-sm font-bold text-on-surface mb-2">Nama Paket *</label>
+              <input id="package_name" required type="text" value={packageForm.name} onChange={e => setPackageForm({...packageForm, name: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Paket Adventure" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Deskripsi Paket *</label>
-              <textarea required rows="4" value={packageForm.description} onChange={e => setPackageForm({...packageForm, description: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Gunakan baris baru untuk membuat poin-poin..."></textarea>
+              <label htmlFor="package_description" className="block text-sm font-bold text-on-surface mb-2">Deskripsi Paket *</label>
+              <textarea id="package_description" required rows="4" value={packageForm.description} onChange={e => setPackageForm({...packageForm, description: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Gunakan baris baru untuk membuat poin-poin..."></textarea>
             </div>
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Harga per Pax (Rp) *</label>
-              <input required type="number" value={packageForm.price} onChange={e => setPackageForm({...packageForm, price: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: 50000" />
+              <label htmlFor="package_price" className="block text-sm font-bold text-on-surface mb-2">Harga per Pax (Rp) *</label>
+              <input id="package_price" required type="number" value={packageForm.price} onChange={e => setPackageForm({...packageForm, price: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: 50000" />
             </div>
 
             <div className="flex items-center gap-3 bg-surface p-4 rounded-lg border border-surface-variant">
@@ -201,8 +201,8 @@ export default function PackagesTab() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-on-surface mb-2">Pilih Foto Paket</label>
-              <input type="file" accept="image/*" onChange={e => setPackageForm({...packageForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
+              <label htmlFor="package_image" className="block text-sm font-bold text-on-surface mb-2">Pilih Foto Paket</label>
+              <input id="package_image" type="file" accept="image/*" onChange={e => setPackageForm({...packageForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
             </div>
 
             <div className="flex justify-end pt-4 border-t border-surface-variant">
