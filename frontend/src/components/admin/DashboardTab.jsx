@@ -9,36 +9,16 @@ export default function DashboardTab() {
   const [scanResult, setScanResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportStartDate, setExportStartDate] = useState('');
+  const [exportEndDate, setExportEndDate] = useState('');
+  const [exportFormat, setExportFormat] = useState('excel');
   const toast = useToast();
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  useEffect(() => {
-    let scanner = null;
-    if (isScanning) {
-      // Initialize html5-qrcode scanner
-      scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 }, false);
-      scanner.render((decodedText) => {
-        setIsScanning(false);
-        scanner.clear().catch(err => {});
-        verifyCode(decodedText);
-      }, (error) => {
-        // scan errors can be ignored
-      });
-    }
-    return () => {
-      if (scanner) {
-        scanner.clear().catch(err => {});
-      }
-    };
-  }, [isScanning]);
 
   const fetchStats = () => {
     client.get('/api/admin/dashboard-stats')
       .then(res => setStats(res.data))
-      .catch(err => {});
+      .catch(() => {});
   };
 
   const verifyCode = (code) => {
@@ -65,8 +45,32 @@ export default function DashboardTab() {
     verifyCode(qrCode);
   };
 
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    let scanner = null;
+    if (isScanning) {
+      // Initialize html5-qrcode scanner
+      scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 }, false);
+      scanner.render((decodedText) => {
+        setIsScanning(false);
+        scanner.clear().catch(() => {});
+        verifyCode(decodedText);
+      }, () => {
+        // scan errors can be ignored
+      });
+    }
+    return () => {
+      if (scanner) {
+        scanner.clear().catch(() => {});
+      }
+    };
+  }, [isScanning]);
+
   const handleEmergency = (sessionId, date, shift) => {
-    if (window.confirm(`Apakah Anda yakin ingin MEMBATALKAN Sesi ${shift.toUpperCase()} tanggal ${date} (ID: ${sessionId}) dan mengirimkan notifikasi reschedule ke semua pengunjung?`)) {
+    if (window.confirm(`Apakah Anda yakin ingin MEMBATALKAN Sesi ${shift.toUpperCase()} tanggal ${date} (ID: ${sessionId}) dan mengirimkan email notifikasi ke semua pengunjung?`)) {
       client.post('/api/admin/weather-emergency', { session_id: sessionId })
         .then(res => {
           toast.success(res.data.message || "Sesi berhasil dibatalkan dan email darurat terkirim!");
@@ -74,6 +78,53 @@ export default function DashboardTab() {
         })
         .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)));
     }
+  };
+
+  const handleExport = (e) => {
+    if (e) e.preventDefault();
+    if (!exportStartDate || !exportEndDate) {
+      toast.error("Silakan pilih tanggal mulai dan tanggal selesai.");
+      return;
+    }
+    
+    setExportLoading(true);
+    client.get('/api/admin/reports/export', {
+      params: {
+        start_date: exportStartDate,
+        end_date: exportEndDate,
+        format: exportFormat === 'excel' ? 'csv' : 'pdf'
+      },
+      responseType: 'blob'
+    })
+      .then(res => {
+        const file = new Blob([res.data], { type: res.headers['content-type'] });
+        const fileURL = URL.createObjectURL(file);
+        const fileLink = document.createElement('a');
+        fileLink.href = fileURL;
+        
+        const extension = exportFormat === 'pdf' ? 'pdf' : 'csv';
+        fileLink.setAttribute('download', `Laporan_Keuangan_Westtamp_${exportStartDate}_sd_${exportEndDate}.${extension}`);
+        document.body.appendChild(fileLink);
+        fileLink.click();
+        fileLink.remove();
+        toast.success("Laporan keuangan berhasil diunduh!");
+      })
+      .catch(async err => {
+        let errMsg = "Terjadi kesalahan";
+        if (err.response?.data instanceof Blob) {
+          try {
+            const text = await err.response.data.text();
+            const json = JSON.parse(text);
+            errMsg = json.message || errMsg;
+          } catch (_) {
+            errMsg = err.message || errMsg;
+          }
+        } else {
+          errMsg = err.response?.data?.message || err.message || errMsg;
+        }
+        toast.error("Gagal mengekspor laporan: " + errMsg);
+      })
+      .finally(() => setExportLoading(false));
   };
 
   const currentIndoDate = new Date().toLocaleDateString('id-ID', { 
@@ -169,7 +220,7 @@ export default function DashboardTab() {
               Kontrol Darurat Cuaca Sesi Aktif (Hari Ini & Besok)
             </h3>
             <p className="text-sm text-on-surface-variant mb-6">
-              Gunakan tombol di bawah untuk membatalkan sesi tertentu secara massal jika debit air Elo membahayakan. Ini akan mengirim notifikasi WhatsApp otomatis dengan link reschedule.
+              Gunakan tombol di bawah untuk membatalkan sesi tertentu secara massal jika debit air Elo membahayakan. Ini akan mengirim notifikasi email otomatis ke semua pengunjung untuk melakukan reschedule.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {stats?.active_sessions && stats.active_sessions.length > 0 ? (
@@ -195,7 +246,7 @@ export default function DashboardTab() {
                         className="mt-4 bg-error text-white py-2.5 px-4 rounded-lg text-xs font-bold hover:bg-error/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-[0.98]"
                       >
                         <span className="material-symbols-outlined text-sm">warning</span>
-                        Batalkan Sesi & Kirim WA
+                        Batalkan Sesi & Kirim Email Notifikasi
                       </button>
                     )}
                   </div>
@@ -304,6 +355,71 @@ export default function DashboardTab() {
                 <div className="text-center py-6 text-sm text-on-surface-variant italic">Belum ada rincian data penjualan.</div>
               )}
             </div>
+          </div>
+
+          {/* Export Financial Report Card */}
+          <div className="bg-surface-container-lowest rounded-2xl p-6 border border-surface-variant shadow-[0_4px_20px_rgb(27,67,50,0.05)]">
+            <h3 className="font-headline-md text-lg font-bold text-primary mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">download</span>
+              Ekspor Laporan Keuangan
+            </h3>
+            <form onSubmit={handleExport} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tanggal Mulai</label>
+                <input 
+                  type="date" 
+                  value={exportStartDate}
+                  onChange={e => setExportStartDate(e.target.value)}
+                  className="w-full border border-surface-variant rounded-xl px-4 py-2.5 bg-surface focus:outline-none focus:border-primary text-sm"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tanggal Selesai</label>
+                <input 
+                  type="date" 
+                  value={exportEndDate}
+                  onChange={e => setExportEndDate(e.target.value)}
+                  className="w-full border border-surface-variant rounded-xl px-4 py-2.5 bg-surface focus:outline-none focus:border-primary text-sm"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Format Unduhan</label>
+                <div className="flex gap-4 mt-1">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="exportFormatInline" 
+                      value="excel"
+                      checked={exportFormat === 'excel'}
+                      onChange={() => setExportFormat('excel')}
+                      className="accent-primary"
+                    />
+                    Excel (.csv)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="exportFormatInline" 
+                      value="pdf"
+                      checked={exportFormat === 'pdf'}
+                      onChange={() => setExportFormat('pdf')}
+                      className="accent-primary"
+                    />
+                    PDF (.pdf)
+                  </label>
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                disabled={exportLoading}
+                className="w-full mt-2 bg-primary hover:bg-primary/95 text-white py-3 px-4 rounded-xl font-bold transition-all disabled:opacity-50 text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+              >
+                <span className="material-symbols-outlined text-sm">download</span>
+                {exportLoading ? 'Mengunduh...' : 'Unduh Laporan'}
+              </button>
+            </form>
           </div>
         </div>
 

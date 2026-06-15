@@ -5,11 +5,13 @@ import DashboardTab from '../components/admin/DashboardTab';
 import BlogsTab from '../components/admin/BlogsTab';
 import GalleriesTab from '../components/admin/GalleriesTab';
 import PackagesTab from '../components/admin/PackagesTab';
+import ExportModal from '../components/admin/ExportModal';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Admin Dashboard | Westtamp Wellness";
@@ -43,6 +45,7 @@ export default function AdminDashboard() {
         logout={logout} 
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
+        onOpenExport={() => setIsExportModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -52,6 +55,12 @@ export default function AdminDashboard() {
         {activeTab === 'galleries' && <GalleriesTab />}
         {activeTab === 'packages' && <PackagesTab />}
       </main>
+
+      {/* Financial Report Export Modal */}
+      <ExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+      />
     </div>
   );
 }

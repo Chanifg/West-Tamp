@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import client from '../api/client';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -17,8 +17,8 @@ export default function ReschedulePage() {
   const [loading, setLoading] = useState(false);
   const [fetchingBooking, setFetchingBooking] = useState(false);
   const [message, setMessage] = useState(null);
+  const [rescheduleError, setRescheduleError] = useState(null);
 
-  const navigate = useNavigate();
   const toast = useToast();
 
   useEffect(() => {
@@ -29,45 +29,42 @@ export default function ReschedulePage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (bookingRef) {
-      fetchBookingDetails();
-    }
-  }, [bookingRef]);
-
-  useEffect(() => {
-    if (date) {
-      client.post('/api/sessions/availability', { date })
-        .then(res => setAvailability(res.data))
-        .catch(err => {});
-    }
-  }, [date]);
-
-  const fetchBookingDetails = () => {
-    setFetchingBooking(true);
-    setMessage(null);
-    setBooking(null);
+  const fetchBookingDetails = useCallback(() => {
+    setTimeout(() => {
+      setFetchingBooking(true);
+      setMessage(null);
+      setBooking(null);
+      setRescheduleError(null);
+    }, 0);
     
-    // We will query booking by reference. In Laravel backend, we can create a simple check route
-    // Or reuse verifyQr/lookup if we implement it.
-    // Wait, let's look up using check availability or we can add a lookup route.
-    // Let's implement /api/bookings/lookup on the backend as part of Issue 13,
-    // but we can query it or we can build a simple endpoint. Let's make sure backend has:
-    // GET /api/bookings/lookup?booking_ref=...
-    // Let's call GET /api/bookings/lookup
     client.get(`/api/bookings/verify-reschedule?booking_ref=${bookingRef}`)
       .then(res => {
         setBooking(res.data);
         toast.success("Kode booking terverifikasi untuk reschedule!");
       })
       .catch(err => {
-        
         const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
         setMessage({ type: 'error', text: errMsg });
         toast.error(errMsg);
       })
       .finally(() => setFetchingBooking(false));
-  };
+  }, [bookingRef, toast]);
+
+  useEffect(() => {
+    if (bookingRef) {
+      fetchBookingDetails();
+    }
+  }, [bookingRef, fetchBookingDetails]);
+
+  useEffect(() => {
+    if (date) {
+      client.post('/api/sessions/availability', { date })
+        .then(res => setAvailability(res.data))
+        .catch(err => {
+          console.error("Gagal mengambil ketersediaan sesi", err);
+        });
+    }
+  }, [date]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -83,11 +80,12 @@ export default function ReschedulePage() {
     }
 
     setLoading(true);
+    setRescheduleError(null);
     client.post('/api/bookings/reschedule', {
       booking_ref: booking.booking_ref,
       session_id: availability[session].id
     })
-    .then(res => {
+    .then(() => {
       setMessage({ type: 'success', text: 'Reschedule berhasil dilakukan! Jadwal petualangan Anda telah diperbarui.' });
       toast.success("Jadwal Anda berhasil diatur ulang!");
       // Clear scheduling state
@@ -97,7 +95,9 @@ export default function ReschedulePage() {
       setAvailability(null);
     })
     .catch(err => {
-      toast.error("Gagal melakukan reschedule: " + (err.response?.data?.message || err.message));
+      const errMsg = err.response?.data?.message || err.message || "Gagal melakukan reschedule.";
+      setRescheduleError(errMsg);
+      toast.error("Gagal melakukan reschedule: " + errMsg);
     })
     .finally(() => {
       setLoading(false);
@@ -194,7 +194,7 @@ export default function ReschedulePage() {
                       type="date" 
                       className="w-full border border-surface-variant rounded-lg p-4 bg-surface" 
                       value={date} 
-                      onChange={e => setDate(e.target.value)} 
+                      onChange={e => { setDate(e.target.value); setRescheduleError(null); }} 
                       min={new Date().toISOString().split('T')[0]} 
                     />
                   </div>
@@ -203,7 +203,7 @@ export default function ReschedulePage() {
                     <label className="font-label-md text-on-surface block mb-2 font-bold">Sesi Baru</label>
                     <div className="flex gap-4">
                       <button 
-                        onClick={() => setSession('pagi')} 
+                        onClick={() => { setSession('pagi'); setRescheduleError(null); }} 
                         disabled={!availability?.pagi || availability.pagi.status !== 'active'}
                         className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'pagi' ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-surface-variant bg-surface opacity-80'}`}
                       >
@@ -211,7 +211,7 @@ export default function ReschedulePage() {
                         {availability && <div className="text-xs font-normal mt-1">{availability.pagi.available} left</div>}
                       </button>
                       <button 
-                        onClick={() => setSession('siang')} 
+                        onClick={() => { setSession('siang'); setRescheduleError(null); }} 
                         disabled={!availability?.siang || availability.siang.status !== 'active'}
                         className={`flex-1 py-3 px-4 rounded-lg border text-center transition-all ${session === 'siang' ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-surface-variant bg-surface opacity-80'}`}
                       >
@@ -222,9 +222,16 @@ export default function ReschedulePage() {
                   </div>
                 </div>
 
+                {rescheduleError && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[20px]">error</span>
+                    <p className="text-sm font-semibold">{rescheduleError}</p>
+                  </div>
+                )}
+
                 <div className="flex gap-4 border-t border-surface-variant pt-6">
                   <button 
-                    onClick={() => { setBooking(null); setBookingRef(''); }} 
+                    onClick={() => { setBooking(null); setBookingRef(''); setRescheduleError(null); }} 
                     className="flex-1 py-4 border border-surface-variant rounded-xl font-bold text-on-surface-variant hover:bg-surface transition-colors"
                   >
                     Kembali

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AdminSidebar({ activeTab, setActiveTab, user, logout, sidebarOpen, setSidebarOpen }) {
+export default function AdminSidebar({ activeTab, setActiveTab, user, logout, sidebarOpen, setSidebarOpen, onOpenExport }) {
   return (
     <>
       <aside className={`bg-primary-container border-r border-primary/20 w-72 fixed left-0 top-0 h-screen flex flex-col z-40 transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -54,6 +54,14 @@ export default function AdminSidebar({ activeTab, setActiveTab, user, logout, si
           >
             <span className="material-symbols-outlined">inventory_2</span>
             Package Management
+          </button>
+
+          <button 
+            onClick={onOpenExport} 
+            className="flex items-center gap-3 px-4 py-3 text-primary-fixed-dim/80 hover:bg-white/5 hover:text-white rounded-lg transition-colors font-bold w-full text-left cursor-pointer"
+          >
+            <span className="material-symbols-outlined">download</span>
+            Ekspor Laporan
           </button>
 
           <button onClick={logout} className="flex items-center gap-3 px-4 py-3 mt-auto text-red-300 hover:bg-red-500/20 rounded-lg transition-colors w-full text-left font-bold">
