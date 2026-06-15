@@ -43,6 +43,21 @@ services:
       timeout: 5s
       retries: 3
 
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: westtamp_queue
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
   frontend:
     image: node:20
     container_name: westtamp_frontend
@@ -59,6 +74,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: westtamp_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
 
   nginx:
     image: nginx:alpine
