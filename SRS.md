@@ -255,6 +255,14 @@ Guna menjamin skalabilitas query, indeks harus dipasang pada kolom-kolom berikut
   * Pengembangan: Driver diatur ke `log` (tercatat di `laravel.log`) atau Mailpit (port 1025).
   * Produksi: Menggunakan gateway email transaksional eksternal (Mailgun / SMTP relay AWS SES / Brevo) dengan antrean `queue` diaktifkan di konfigurasi Laravel `queue.php` (`QUEUE_CONNECTION=database`).
 
+### 5.3 Antarmuka Pengguna & Navigasi Global (Shared Components)
+* **Spesifikasi Navigasi Global (Footer)**:
+  * Komponen navigasi footer (`Footer.jsx`) bertindak sebagai komponen bersama (*shared component*) yang wajib dimuat di seluruh halaman antarmuka publik (Landing Page, About Page, Blog Page, Packages Page, Gallery Page, Facilities Page, Check Booking Page, Reschedule Page, dan Booking Page).
+  * Komponen ini wajib menyediakan tautan internal aktif menggunakan elemen navigasi router frontend (seperti `<Link>` dari React Router) yang mengarah ke:
+    * `/contact` (Hubungi Kami)
+    * `/privacy-policy` (Kebijakan Privasi)
+    * `/terms-conditions` (Syarat & Ketentuan)
+
 ---
 
 ## 6. Persyaratan Non-Fungsional (Non-Functional Requirements)

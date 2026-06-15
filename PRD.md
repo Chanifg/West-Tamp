@@ -156,6 +156,7 @@ Admin Dashboard
 - Menampilkan informasi fasilitas unggulan termasuk layanan *free health checkup*
 - Menyebutkan produk UMKM lokal (olahan lele & jahe telang) sebagai bagian dari ekosistem wisata
 - Navigasi jelas menuju halaman paket dan pemesanan
+- Menyediakan navigasi global di bagian bawah halaman melalui komponen Footer untuk mengakses Halaman Hubungi Kami, Kebijakan Privasi, serta Syarat & Ketentuan yang dapat diakses di seluruh halaman publik.
 
 #### F-02: Katalog Paket Tubing
 
