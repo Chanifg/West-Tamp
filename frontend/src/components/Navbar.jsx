@@ -25,7 +25,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-surface-variant shadow-sm">
-      <div className="flex justify-between items-center h-20 px-12 md:px-12  mx-auto">
+      <div className="flex justify-between items-center h-20 px-6 md:px-1  mx-auto">
         <Link to="/" className="text-2xl font-black tracking-tighter text-primary-container hover:opacity-80 transition-opacity">
           Westtamp Wellness
         </Link>

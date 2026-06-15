@@ -250,10 +250,10 @@ class BookingTest extends TestCase
         });
     }
 
-    public function test_reschedule_fails_if_session_not_cancelled()
+    public function test_reschedule_fails_if_session_active_and_less_than_h1()
     {
         $package = $this->createPackage();
-        $oldSession = $this->createSession(now()->addDay()->format('Y-m-d'), 'pagi', 100, 5, 'active');
+        $oldSession = $this->createSession(now()->format('Y-m-d'), 'pagi', 100, 5, 'active');
         $newSession = $this->createSession(now()->addDays(2)->format('Y-m-d'), 'siang', 100, 0, 'active');
 
         $booking = Booking::create([
@@ -269,7 +269,7 @@ class BookingTest extends TestCase
         $booking->payment_status = 'success';
         $booking->save();
 
-        // Verify should fail
+        // Verify should fail (H-0 is not allowed for active sessions)
         $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST2');
         $verifyResponse->assertStatus(400);
 
@@ -280,6 +280,92 @@ class BookingTest extends TestCase
         ]);
 
         $response->assertStatus(400);
+    }
+
+    public function test_reschedule_succeeds_if_session_active_and_h1()
+    {
+        $package = $this->createPackage();
+        $oldSession = $this->createSession(now()->addDay()->format('Y-m-d'), 'pagi', 100, 5, 'active');
+        $newSession = $this->createSession(now()->addDays(2)->format('Y-m-d'), 'siang', 100, 0, 'active');
+
+        $booking = Booking::create([
+            'booking_ref' => 'REFTEST_H1_ACTIVE',
+            'tubing_package_id' => $package->id,
+            'tubing_session_id' => $oldSession->id,
+            'customer_name' => 'Indra',
+            'customer_phone' => '081234567890',
+            'customer_email' => 'indra@example.com',
+            'ticket_qty' => 5,
+            'total_price' => 750000
+        ]);
+        $booking->payment_status = 'success';
+        $booking->save();
+
+        // Verify should succeed (H-1 is allowed for active sessions)
+        $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST_H1_ACTIVE');
+        $verifyResponse->assertStatus(200);
+
+        // Process should succeed
+        $response = $this->postJson('/api/bookings/reschedule', [
+            'booking_ref' => 'REFTEST_H1_ACTIVE',
+            'session_id' => $newSession->id
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['success' => true]);
+    }
+
+    public function test_emergency_cancellation_flow_reschedule_bypass_h1()
+    {
+        $package = $this->createPackage();
+        $oldSession = $this->createSession(now()->format('Y-m-d'), 'pagi', 100, 5, 'active');
+        $newSession = $this->createSession(now()->addDays(2)->format('Y-m-d'), 'siang', 100, 0, 'active');
+
+        $booking = Booking::create([
+            'booking_ref' => 'REFTEST_EMERGENCY',
+            'tubing_package_id' => $package->id,
+            'tubing_session_id' => $oldSession->id,
+            'customer_name' => 'Joko',
+            'customer_phone' => '081234567890',
+            'customer_email' => 'joko@example.com',
+            'ticket_qty' => 5,
+            'total_price' => 750000
+        ]);
+        $booking->payment_status = 'success';
+        $booking->save();
+
+        // Trigger weather emergency for old session
+        // Act as admin
+        $admin = \App\Models\User::factory()->make();
+        $admin->role = 'admin';
+        $admin->save();
+
+        $emergencyResponse = $this->actingAs($admin)
+            ->postJson('/api/admin/weather-emergency', [
+                'session_id' => $oldSession->id
+            ]);
+        $emergencyResponse->assertStatus(200);
+
+        // Old session should be cancelled
+        $this->assertEquals('cancelled', $oldSession->fresh()->status);
+
+        // Booking status should be pending_reschedule
+        $this->assertEquals('pending_reschedule', $booking->fresh()->payment_status);
+
+        // Verify reschedule on H-0 should succeed (because status is cancelled, bypasses H-1)
+        $verifyResponse = $this->getJson('/api/bookings/verify-reschedule?booking_ref=REFTEST_EMERGENCY');
+        $verifyResponse->assertStatus(200);
+
+        // Process reschedule should succeed
+        $rescheduleResponse = $this->postJson('/api/bookings/reschedule', [
+            'booking_ref' => 'REFTEST_EMERGENCY',
+            'session_id' => $newSession->id
+        ]);
+        $rescheduleResponse->assertStatus(200);
+
+        // Booking payment_status should be back to success
+        $this->assertEquals('success', $booking->fresh()->payment_status);
+        $this->assertEquals($newSession->id, $booking->fresh()->tubing_session_id);
     }
 
     public function test_reschedule_fails_if_exceeds_30_days()

@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/admin/verify-qr', [AdminController::class, 'verifyQr']);
     Route::post('/admin/weather-emergency', [AdminController::class, 'weatherEmergency']);
     Route::get('/admin/sessions', [AdminController::class, 'listSessions']);
+    Route::get('/admin/reports/export', [AdminController::class, 'exportReport']);
     
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);

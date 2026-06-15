@@ -195,17 +195,19 @@ class BookingController extends Controller
             return response()->json(['message' => 'Tiket tidak ditemukan.'], 404);
         }
 
-        if ($booking->payment_status !== 'success') {
+        if (!in_array($booking->payment_status, ['success', 'pending_reschedule'])) {
             return response()->json(['message' => 'Hanya tiket yang sudah dibayar yang dapat dijadwalkan ulang.'], 400);
         }
 
-        if ($booking->session->status !== 'cancelled') {
-            return response()->json(['message' => 'Sesi untuk tiket ini masih aktif. Penjadwalan ulang hanya dapat dilakukan jika sesi dibatalkan karena cuaca buruk.'], 400);
+        $sessionDate = Carbon::parse($booking->session->session_date);
+        if ($sessionDate->copy()->addDays(30)->lt(Carbon::today())) {
+            return response()->json(['message' => 'Batas waktu reschedule (30 hari dari sesi asli) telah kedaluwarsa.'], 400);
         }
 
-        $sessionDate = Carbon::parse($booking->session->session_date);
-        if ($sessionDate->addDays(30)->lt(Carbon::today())) {
-            return response()->json(['message' => 'Batas waktu reschedule (30 hari dari sesi asli) telah kedaluwarsa.'], 400);
+        if ($booking->session->status === 'active') {
+            if (Carbon::today()->diffInDays($sessionDate, false) < 1) {
+                return response()->json(['message' => 'Penjadwalan ulang mandiri hanya dapat dilakukan maksimal H-1 sebelum tanggal kunjungan.'], 400);
+            }
         }
 
         return response()->json([
@@ -227,17 +229,19 @@ class BookingController extends Controller
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                if ($booking->payment_status !== 'success') {
+                if (!in_array($booking->payment_status, ['success', 'pending_reschedule'])) {
                     return response()->json(['message' => 'Hanya tiket yang sudah dibayar yang dapat dijadwalkan ulang.'], 400);
                 }
 
-                if ($booking->session->status !== 'cancelled') {
-                    return response()->json(['message' => 'Sesi untuk tiket ini tidak dibatalkan.'], 400);
+                $sessionDate = Carbon::parse($booking->session->session_date);
+                if ($sessionDate->copy()->addDays(30)->lt(Carbon::today())) {
+                    return response()->json(['message' => 'Batas waktu reschedule (30 hari) telah kedaluwarsa.'], 400);
                 }
 
-                $sessionDate = Carbon::parse($booking->session->session_date);
-                if ($sessionDate->addDays(30)->lt(Carbon::today())) {
-                    return response()->json(['message' => 'Batas waktu reschedule (30 hari) telah kedaluwarsa.'], 400);
+                if ($booking->session->status === 'active') {
+                    if (Carbon::today()->diffInDays($sessionDate, false) < 1) {
+                        return response()->json(['message' => 'Penjadwalan ulang mandiri hanya dapat dilakukan maksimal H-1 sebelum tanggal kunjungan.'], 400);
+                    }
                 }
 
                 $newSession = TubingSession::where('id', $request->session_id)
@@ -262,6 +266,7 @@ class BookingController extends Controller
 
                 // Update booking
                 $booking->tubing_session_id = $newSession->id;
+                $booking->payment_status = 'success';
                 $booking->save();
 
                 // Send reschedule success email
