@@ -7,7 +7,8 @@ services:
       MYSQL_DATABASE: westtamp
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
       MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-    # Removed host port mapping (3306:3306) to prevent external connections
+    ports:
+      - "127.0.0.1:3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
     healthcheck:
