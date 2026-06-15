@@ -59,7 +59,7 @@ Sebelum sistem ini ada, proses pemesanan tiket dilakukan secara manual — baik 
 - Verifikasi tiket via QR Code di lokasi
 - Fitur Weather Emergency (pembatalan massal + notifikasi email otomatis)
 - Portal konten publik: Blog, Galeri, informasi fasilitas, dan promosi UMKM
-- Dashboard admin: monitoring pendapatan, statistik booking, manajemen konten
+- Dashboard admin: monitoring pendapatan, statistik analitik bisnis (tren pendapatan, okupansi sesi, & sebaran paket), manajemen konten
 - Laporan keuangan dengan fitur ekspor (Excel/PDF)
 
 ### 3.2 Out-of-Scope (Versi Ini)
@@ -241,6 +241,15 @@ Admin Dashboard
   - Rincian pendapatan per sesi (Pagi/Siang)
 - Admin dapat mengekspor laporan ke format **Excel (.xlsx)** atau **PDF**
 - Data laporan bersumber dari transaksi yang telah dikonfirmasi oleh Midtrans (status: `settlement`)
+
+#### F-14: Dasbor Statistik & Analitik
+
+- Admin terautentikasi dapat mengakses tab khusus analisis statistik bisnis pada dasbor.
+- Dasbor menampilkan visualisasi grafik interaktif:
+  - **Grafik Tren Pendapatan** (Line Chart): Menampilkan grafik linear kenaikan/penurunan pendapatan total bulanan dalam periode berjalan.
+  - **Grafik Sebaran Paket Terpopuler** (Donut/Pie Chart): Menampilkan porsi/persentase total penjualan dan pendapatan untuk masing-masing paket river tubing yang ditawarkan.
+  - **Grafik Okupansi Kapasitas Sesi** (Bar Chart): Menampilkan perbandingan tingkat keterisian kuota ban rata-rata per hari antara sesi Pagi dan sesi Siang.
+- Dasbor menyediakan kontrol filter waktu praktis untuk menyesuaikan grafik berdasarkan periode populer: "Tahun Ini", "3 Bulan Terakhir", dan "6 Bulan Terakhir".
 
 ---
 

@@ -24,7 +24,7 @@ Sistem mencakup:
 * Katalog paket wisata *river tubing*.
 * Mesin transaksi tiket online dengan penguncian kuota sementara dan integrasi Payment Gateway Midtrans.
 * Alur penjadwalan ulang mandiri oleh pelanggan (reschedule).
-* Dasbor administrasi POKDARWIS untuk memantau kapasitas sesi secara real-time, laporan keuangan terperinci (ekspor Excel/PDF), dan panel kendali darurat cuaca (Weather Emergency) yang memproses pembatalan/penundaan massal secara asinkron.
+* Dasbor administrasi POKDARWIS untuk memantau kapasitas sesi secara real-time, laporan keuangan terperinci (ekspor Excel/PDF), grafik statistik analisis bisnis (tren pendapatan, okupansi sesi, & sebaran paket), dan panel kendali darurat cuaca (Weather Emergency) yang memproses pembatalan/penundaan massal secara asinkron.
 
 ### 1.3 Definisi dan Singkatan
 * **POKDARWIS**: Kelompok Sadar Wisata Desa Tampirkulon.
@@ -41,7 +41,7 @@ Sistem mencakup:
 ### 2.1 Arsitektur Aplikasi
 Sistem menggunakan pola arsitektur **Decoupled SPA-API**:
 * **Backend (API)**: Dibangun menggunakan PHP 8.2 dengan Laravel 11. Menggunakan Eloquent ORM untuk pemodelan data dan Laravel Sanctum untuk manajemen sesi API Admin.
-* **Frontend (SPA)**: Dibangun menggunakan React 18 dengan Vite sebagai bundler dan Tailwind CSS/Vanilla CSS untuk antarmuka.
+* **Frontend (SPA)**: Dibangun menggunakan React 18 dengan Vite sebagai bundler, Tailwind CSS/Vanilla CSS untuk antarmuka, serta pustaka **Chart.js** dan **react-chartjs-2** untuk visualisasi analitik.
 * **Reverse Proxy**: Nginx sebagai penyeimbang beban (*load balancer*), penanganan SSL/TLS, dan *reverse proxy* rute frontend dan backend.
 
 ### 2.2 Lingkungan Deployment (Docker Compose)
@@ -237,6 +237,26 @@ Guna menjamin skalabilitas query, indeks harus dipasang pada kolom-kolom berikut
 
 * **Halaman Syarat & Ketentuan (`/terms-conditions`)**:
   * Halaman informasi ketentuan pemesanan tiket, kebijakan batas kuota ban (100 per sesi), batasan reschedule reguler (H-1 sebelum kunjungan), serta hak reschedule gratis tanpa batas H-1 (masa aktif 30 hari) ketika status *Open Ticket* (Weather Emergency) diaktifkan.
+
+### 4.6 Modul Statistik & Analitik (Dashboard Admin)
+* **API Statistik Dasbor**: `GET /api/admin/reports/statistics`
+  * **Query Parameter**:
+    * `range` (Required, ENUM `this_year`, `last_3_months`, `last_6_months`): Rentang waktu untuk filter data statistik.
+  * **Alur Logika**:
+    1. Tentukan rentang tanggal mulai (`start_date`) berdasarkan parameter `range` (`this_year` = 1 Januari s.d. hari ini, `last_3_months` = 3 bulan lalu s.d. hari ini, `last_6_months` = 6 bulan lalu s.d. hari ini).
+    2. Lakukan query agregasi database pada transaksi bookings dengan status `settlement` (sukses):
+       * **Tren Pendapatan Bulanan**: Jumlahkan kolom `total_price` dikelompokkan berdasarkan bulan pembuatan transaksi (`created_at`).
+       * **Distribusi Paket Terpopuler**: Jumlahkan `qty` (tiket) dan `total_price` dikelompokkan berdasarkan `package_id` beserta detail nama paket.
+       * **Rasio Okupansi Sesi**: Hitung rata-rata keterisian kuota ban (`qty` terhadap kapasitas total sesi) terpisah untuk sesi Pagi dan sesi Siang.
+    3. Kembalikan data dalam format JSON terstruktur.
+  * **Respons**: HTTP 200 OK dengan format payload dataset tren pendapatan, distribusi paket, dan okupansi sesi.
+
+* **Visualisasi Antarmuka (Chart.js / react-chartjs-2)**:
+  * Dasbor admin menyediakan tab khusus analisis statistik dengan navigasi filter rentang waktu.
+  * Rendering grafik berbasis HTML5 Canvas:
+    * **Line Chart**: Grafik linear tren pendapatan total bulanan.
+    * **Doughnut Chart**: Distribusi proporsi penjualan tiket dan pendapatan per paket tubing.
+    * **Bar Chart**: Perbandingan okupansi rata-rata sesi Pagi vs sesi Siang.
 
 ---
 
