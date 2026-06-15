@@ -20,7 +20,7 @@ Dokumen Software Requirements Specification (SRS) ini merinci spesifikasi teknis
 
 ### 1.2 Ruang Lingkup Sistem
 Sistem mencakup:
-* Portal landing page informasi Desa Wisata Tampirkulon dan UMKM lokal.
+* Portal landing page informasi Desa Wisata Tampirkulon, Halaman Hubungi Kami, Kebijakan Privasi, Syarat & Ketentuan, serta promosi produk UMKM lokal.
 * Katalog paket wisata *river tubing*.
 * Mesin transaksi tiket online dengan penguncian kuota sementara dan integrasi Payment Gateway Midtrans.
 * Alur penjadwalan ulang mandiri oleh pelanggan (reschedule).
@@ -223,6 +223,20 @@ Guna menjamin skalabilitas query, indeks harus dipasang pada kolom-kolom berikut
        * Render template HTML laporan keuangan ke bentuk PDF menggunakan engine render PDF (seperti `barryvdh/laravel-dompdf`).
        * Kembalikan file stream dengan header `Content-Type: application/pdf`.
   * **Respons**: HTTP 200 OK dengan file stream download.
+
+### 4.5 Modul Halaman Informasi Publik
+* **Formulir Hubungi Kami**: `POST /api/contact` (Opsional V1.0, disimulasikan di frontend atau direkam ke log backend)
+  * **Payload**: `name` (Required), `email` (Required, email), `phone` (Optional), `subject` (Required), `message` (Required).
+  * **Alur Logika**:
+    1. Validasi input payload sesuai dengan tipe data yang ditentukan.
+    2. Kirim email pemberitahuan ke `info@westtamp.desa.id` dan simpan pesan di database untuk audit. (Pada V1.0, disimulasikan dengan pencatatan log backend atau respons sukses statis).
+  * **Respons**: HTTP 200 OK dengan pesan sukses.
+
+* **Halaman Kebijakan Privasi (`/privacy-policy`)**:
+  * Halaman informasi statis terstruktur mengenai pengumpulan data pribadi pengunjung (Nama, Email, HP), penggunaan data untuk e-ticket dan pemberitahuan darurat cuaca, serta pemrosesan pembayaran terenkripsi pihak ketiga (Midtrans).
+
+* **Halaman Syarat & Ketentuan (`/terms-conditions`)**:
+  * Halaman informasi ketentuan pemesanan tiket, kebijakan batas kuota ban (100 per sesi), batasan reschedule reguler (H-1 sebelum kunjungan), serta hak reschedule gratis tanpa batas H-1 (masa aktif 30 hari) ketika status *Open Ticket* (Weather Emergency) diaktifkan.
 
 ---
 
