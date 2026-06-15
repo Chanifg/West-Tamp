@@ -27,9 +27,9 @@ export default function Footer() {
           <h4 className="font-label-md font-bold text-white mb-4">Informasi</h4>
           <div className="flex flex-col gap-3 font-body-md text-sm">
             <Link to="/about" className="text-white/70 hover:text-white transition-colors">Tentang Kami</Link>
-            <a href="#" className="text-white/70 hover:text-white transition-colors">Contact Us</a>
-            <a href="#" className="text-white/70 hover:text-white transition-colors">Kebijakan Privasi</a>
-            <a href="#" className="text-white/70 hover:text-white transition-colors">Syarat & Ketentuan</a>
+            <Link to="/contact" className="text-white/70 hover:text-white transition-colors">Contact Us</Link>
+            <Link to="/privacy-policy" className="text-white/70 hover:text-white transition-colors">Kebijakan Privasi</Link>
+            <Link to="/terms-conditions" className="text-white/70 hover:text-white transition-colors">Syarat & Ketentuan</Link>
           </div>
         </div>
       </div>

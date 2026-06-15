@@ -16,6 +16,9 @@ const BlogDetailPage = React.lazy(() => import('./pages/BlogDetailPage'));
 const PackagesPage = React.lazy(() => import('./pages/PackagesPage'));
 const GalleryPage = React.lazy(() => import('./pages/GalleryPage'));
 const FacilitiesPage = React.lazy(() => import('./pages/FacilitiesPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsConditionsPage = React.lazy(() => import('./pages/TermsConditionsPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 
 // Dynamic Loading Fallback Spinner
@@ -54,6 +57,9 @@ function App() {
               <Route path="/packages" element={<PackagesPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/facilities" element={<FacilitiesPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-conditions" element={<TermsConditionsPage />} />
               <Route path="/booking" element={<BookingPage />} />
               <Route path="/reschedule" element={<ReschedulePage />} />
               <Route path="/cek-tiket" element={<CheckBookingPage />} />
