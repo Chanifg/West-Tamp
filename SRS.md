@@ -164,23 +164,30 @@ Guna menjamin skalabilitas query, indeks harus dipasang pada kolom-kolom berikut
 ### 4.2 Modul Penjadwalan Ulang (Reschedule)
 * **Verifikasi Kelayakan**: `GET /api/bookings/verify-reschedule`
   * **Query Parameter**: `booking_ref`
-  * **Aturan Kelayakan**:
-    * Status transaksi wajib `settlement` (sudah bayar) ATAU `pending_reschedule` (Open Ticket akibat Weather Emergency).
-    * Jika statusnya `settlement` (reschedule biasa), tanggal sesi awal minimal adalah H-1 dari tanggal saat ini. Jika statusnya `pending_reschedule`, batasan H-1 ini dilewati.
-  * **Respons**: HTTP 200 dengan kelayakan `true`/`false` dan sisa kuota tanggal baru yang direferensikan.
+  * **Logika Validasi Kelayakan**:
+    1. Dapatkan record `booking` berdasarkan `booking_ref`. Jika tidak ditemukan, gagalkan dengan HTTP 404.
+    2. Cek status pembayaran tiket. Status wajib bernilai `settlement` ATAU `pending_reschedule` (Open Ticket).
+    3. Jika status tiket adalah `settlement` (Reschedule Reguler):
+       * Bandingkan tanggal sesi asli (`session_date`) dengan tanggal hari ini.
+       * Sesi asli minimal harus berada di hari esok (H-1 sebelum tanggal kunjungan). Jika tanggal sesi asli adalah hari ini (H-0) atau sudah lewat, gagalkan dengan respons error HTTP 400 (Batas waktu reschedule terlampaui).
+    4. Jika status tiket adalah `pending_reschedule` (Reschedule Darurat Cuaca / Open Ticket):
+       * Bypass (abaikan) seluruh pemeriksaan batas waktu H-1. Wisatawan diizinkan melakukan reschedule kapan saja terhitung sejak status diubah menjadi `pending_reschedule` hingga batas maksimal 30 hari.
+    5. Periksa ketersediaan kuota sesi baru yang dipilih.
+  * **Respons**: HTTP 200 OK dengan status kelayakan `true`/`false` beserta sisa kuota sesi yang dapat dipilih.
 
 * **Proses Reschedule**: `POST /api/bookings/reschedule`
   * **Payload**: `booking_ref`, `new_session_date`, `new_session_type`.
   * **Alur Logika**:
     1. Jalankan `DB::transaction`.
-    2. Tarik dan kunci baris kuota sesi baru (`SELECT ... FOR UPDATE`).
-    3. Jika kuota baru tidak mencukupi, gagalkan transaksi (HTTP 422).
-    4. Kurangi kapasitas sesi baru sebesar `qty` pemesanan.
-    5. Tambahkan kapasitas sesi lama sebesar `qty` pemesanan.
-    6. Perbarui rujukan `tubing_session_id` pada entri booking ke sesi baru.
-    7. Ubah status booking dari `pending_reschedule` kembali menjadi `settlement`.
-    8. Kirim email konfirmasi perubahan jadwal sukses ke wisatawan secara asinkron.
-    9. Commit transaksi.
+    2. Jalankan logika validasi kelayakan seperti pada endpoint verifikasi kelayakan (cek status dan batas waktu H-1 atau bypass jika statusnya `pending_reschedule`).
+    3. Tarik dan kunci baris kuota sesi baru (`SELECT ... FOR UPDATE`).
+    4. Jika kapasitas kuota baru kurang dari jumlah ban pemesan (`qty`), kembalikan error HTTP 422 (Kuota sesi penuh).
+    5. Kurangi kapasitas sesi baru sebesar `qty` pemesanan.
+    6. Tambahkan kapasitas sesi lama sebesar `qty` pemesanan.
+    7. Perbarui rujukan `tubing_session_id` pada entri booking ke sesi baru.
+    8. Jika status booking sebelumnya adalah `pending_reschedule`, ubah status kembali menjadi `settlement`.
+    9. Kirim email konfirmasi perubahan jadwal sukses ke email wisatawan (`customer_email`) secara asinkron.
+    10. Commit transaksi.
   * **Respons**: HTTP 200 OK.
 
 ### 4.3 Modul Darurat Cuaca (Weather Emergency)
@@ -194,6 +201,28 @@ Guna menjamin skalabilitas query, indeks harus dipasang pada kolom-kolom berikut
        * Kirim email broadcast penangguhan jadwal berisi tautan reschedule instan gratis tanpa batasan H-1.
     3. Catat log Weather Emergency di audit trail.
   * **Respons**: HTTP 202 Accepted (Tindakan diterima dan sedang diproses di latar belakang).
+
+### 4.4 Modul Laporan Keuangan & Ekspor
+* **Ekspor Laporan Keuangan**: `GET /api/admin/reports/export`
+  * **Query Parameter**:
+    * `start_date` (Required, DATE format `YYYY-MM-DD`): Batas awal rentang laporan pendapatan.
+    * `end_date` (Required, DATE format `YYYY-MM-DD`): Batas akhir rentang laporan pendapatan.
+    * `format` (Required, ENUM `pdf` atau `xlsx`): Format file keluaran ekspor.
+  * **Alur Logika**:
+    1. Validasi parameter input. Pastikan format tanggal valid dan `start_date` tidak lebih besar dari `end_date`.
+    2. Tarik seluruh transaksi pemesanan (`bookings`) yang memiliki status `settlement` (sukses) di mana waktu transaksi (`created_at`) berada dalam rentang `start_date` dan `end_date`.
+    3. Hitung ringkasan akumulatif laporan:
+       * Total pendapatan kotor dalam periode.
+       * Jumlah transaksi sukses, pending, dan gagal/dibatalkan.
+       * Pendapatan per paket tubing.
+       * Pendapatan dan jumlah pengunjung per sesi (Pagi vs Siang).
+    4. Jika `format` bernilai `xlsx`:
+       * Buat spreadsheet data menggunakan pustaka pengolah spreadsheet (seperti `maatwebsite/excel` atau ekspor file CSV standar yang kompatibel dengan Excel).
+       * Kembalikan file stream sebagai unduhan langsung dengan header `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.
+    5. Jika `format` bernilai `pdf`:
+       * Render template HTML laporan keuangan ke bentuk PDF menggunakan engine render PDF (seperti `barryvdh/laravel-dompdf`).
+       * Kembalikan file stream dengan header `Content-Type: application/pdf`.
+  * **Respons**: HTTP 200 OK dengan file stream download.
 
 ---
 

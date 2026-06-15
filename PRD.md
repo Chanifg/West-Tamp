@@ -279,7 +279,7 @@ Admin Dashboard
 |---|---|---|
 | C-01 | **Kuota ban per sesi dapat dikonfigurasi oleh admin** | Nilai default adalah **100 ban per sesi**, berlaku untuk sesi Pagi dan Siang secara terpisah. Admin dapat mengubah batas kuota ini melalui pengaturan sesi di dashboard. Sistem mengunci kuota tiket/ban selama 15 menit setelah checkout untuk memberi kesempatan pembayaran via Midtrans. Jika tidak terbayar dalam 15 menit, kuota dilepaskan secara otomatis. |
 | C-02 | Dua sesi per hari | Hanya tersedia dua sesi: **Pagi** dan **Siang**. Tidak ada sesi tambahan. |
-| C-03 | Reschedule maksimal H-2 | Pelanggan tidak dapat melakukan reschedule mandiri pada hari H kunjungan. |
+| C-03 | Reschedule maksimal H-1 | Pelanggan tidak dapat melakukan reschedule mandiri pada hari H kunjungan. |
 | C-04 | Refund bergantung kebijakan bisnis | Proses refund atas pembatalan akibat Weather Emergency ditentukan oleh kebijakan POKDARWIS dan dieksekusi secara manual melalui dashboard Midtrans. Sistem hanya mencatat pembatalan; tidak memproses refund otomatis. |
 | C-05 | Satu akun admin | Pada versi ini, sistem hanya mendukung satu level akses admin (superadmin). Tidak ada role granular per divisi. |
 
