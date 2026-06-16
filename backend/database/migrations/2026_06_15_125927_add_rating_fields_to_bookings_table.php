@@ -12,11 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-        $table->string('customer_email')
-              ->nullable()
-              ->after('customer_phone');
-    });
+            $table->timestamp('arrived_at')
+                ->nullable()
+                ->after('arrival_status');
 
+            $table->boolean('rating_request_sent')
+                ->default(false)
+                ->after('arrived_at');
+        });
     }
 
     /**
@@ -25,7 +28,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->dropColumn('customer_email');
+            $table->dropColumn([
+                'arrived_at',
+                'rating_request_sent'
+            ]);
+
         });
     }
 };
