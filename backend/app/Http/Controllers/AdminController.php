@@ -123,7 +123,7 @@ class AdminController extends Controller
 
             // Send Email Weather Emergency
             try {
-                Mail::to($b->customer_email)->send(new WeatherEmergencyMail($b, $rescheduleUrl));
+                Mail::to($b->customer_email)->queue(new WeatherEmergencyMail($b, $rescheduleUrl));
                 $emailCount++;
             } catch (\Exception $e) {
                 Log::error("Failed to send weather emergency email to {$b->customer_email} for booking {$b->booking_ref}: " . $e->getMessage());

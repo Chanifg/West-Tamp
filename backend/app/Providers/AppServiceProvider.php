@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('checkout', function (Request $request) {
-            return Limit::perMinute(10)->by($request->ip());
+            return Limit::perMinute(5)->by($request->ip());
         });
 
         RateLimiter::for('webhook', function (Request $request) {
@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('public-api', function (Request $request) {
-            return Limit::perMinute(30)->by($request->ip());
+            return Limit::perMinute(60)->by($request->ip());
         });
 
         RateLimiter::for('lookup', function (Request $request) {

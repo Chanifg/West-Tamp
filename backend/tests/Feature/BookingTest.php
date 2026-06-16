@@ -245,7 +245,7 @@ class BookingTest extends TestCase
         $response->assertStatus(200);
         $this->assertEquals('cancelled', $session->fresh()->status);
 
-        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\WeatherEmergencyMail::class, function ($mail) use ($booking) {
+        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\WeatherEmergencyMail::class, function ($mail) use ($booking) {
             return $mail->hasTo('feri@example.com') && $mail->booking->id === $booking->id;
         });
     }

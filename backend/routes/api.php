@@ -7,6 +7,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ReportController;
 
 use App\Http\Controllers\AuthController;
 
@@ -30,6 +32,9 @@ Route::middleware('throttle:public-api')->group(function () {
 
     // Gallery Public Routes
     Route::get('/galleries', [GalleryController::class, 'index']);
+
+    // Contact Public Route
+    Route::post('/contact', [ContactController::class, 'store']);
 });
 
 Route::post('/bookings/checkout', [BookingController::class, 'checkout'])->middleware('throttle:checkout');
@@ -43,6 +48,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/admin/weather-emergency', [AdminController::class, 'weatherEmergency']);
     Route::get('/admin/sessions', [AdminController::class, 'listSessions']);
     Route::get('/admin/reports/export', [AdminController::class, 'exportReport']);
+    Route::get('/admin/reports/statistics', [ReportController::class, 'getStatistics']);
     
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);
