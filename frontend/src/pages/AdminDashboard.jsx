@@ -5,6 +5,7 @@ import DashboardTab from '../components/admin/DashboardTab';
 import BlogsTab from '../components/admin/BlogsTab';
 import GalleriesTab from '../components/admin/GalleriesTab';
 import PackagesTab from '../components/admin/PackagesTab';
+import StatisticsTab from '../components/admin/StatisticsTab';
 import ExportModal from '../components/admin/ExportModal';
 
 export default function AdminDashboard() {
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
         {activeTab === 'blogs' && <BlogsTab />}
         {activeTab === 'galleries' && <GalleriesTab />}
         {activeTab === 'packages' && <PackagesTab />}
+        {activeTab === 'statistics' && <StatisticsTab />}
       </main>
 
       {/* Financial Report Export Modal */}

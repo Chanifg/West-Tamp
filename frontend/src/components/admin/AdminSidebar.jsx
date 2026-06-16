@@ -57,6 +57,14 @@ export default function AdminSidebar({ activeTab, setActiveTab, user, logout, si
           </button>
 
           <button 
+            onClick={() => setActiveTab('statistics')} 
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-bold ${activeTab === 'statistics' ? 'bg-white/10 text-white' : 'text-primary-fixed-dim/80 hover:bg-white/5 hover:text-white'}`}
+          >
+            <span className="material-symbols-outlined">monitoring</span>
+            Analisis Statistik
+          </button>
+
+          <button 
             onClick={onOpenExport} 
             className="flex items-center gap-3 px-4 py-3 text-primary-fixed-dim/80 hover:bg-white/5 hover:text-white rounded-lg transition-colors font-bold w-full text-left cursor-pointer"
           >

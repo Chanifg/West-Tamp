@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useToast } from '../context/ToastContext';
+import client from '../api/client';
 
 export default function ContactPage() {
   const toast = useToast();
@@ -28,18 +29,24 @@ export default function ContactPage() {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Pesan Anda berhasil terkirim! POKDARWIS akan segera menghubungi Anda.");
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
+    client.post('/api/contact', formData)
+      .then(() => {
+        toast.success("Pesan Anda berhasil terkirim! POKDARWIS akan segera menghubungi Anda.");
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      })
+      .catch(err => {
+        const errMsg = err.response?.data?.message || err.message || "Gagal mengirim pesan. Silakan coba lagi.";
+        toast.error("Gagal mengirim pesan: " + errMsg);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    }, 1000);
   };
 
   return (
