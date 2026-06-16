@@ -13,14 +13,14 @@ class AdminController extends Controller
 {
     public function dashboardStats()
     {
-        // Total Tickets Sold (success payments)
-        $totalTickets = Booking::where('payment_status', 'success')->sum('ticket_qty');
+        // Total Tickets Sold (success payments and open tickets)
+        $totalTickets = Booking::whereIn('payment_status', ['success', 'pending_reschedule'])->sum('ticket_qty');
         
-        // Total Revenue (only from successful bookings, specific to tubing)
-        $totalRevenue = Booking::where('payment_status', 'success')->sum('total_price');
+        // Total Revenue (success and open tickets)
+        $totalRevenue = Booking::whereIn('payment_status', ['success', 'pending_reschedule'])->sum('total_price');
 
         // Revenue by Package
-        $revenueByPackage = Booking::where('payment_status', 'success')
+        $revenueByPackage = Booking::whereIn('payment_status', ['success', 'pending_reschedule'])
             ->select('tubing_package_id')
             ->selectRaw('SUM(total_price) as revenue')
             ->with('package')
