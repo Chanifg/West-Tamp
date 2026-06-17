@@ -129,8 +129,8 @@ class AdminController extends Controller
 
         $emailCount = 0;
         foreach ($bookings as $b) {
-            $b->payment_status = 'pending_reschedule';
-            $b->save();
+            // $b->payment_status = 'pending_reschedule';
+            // $b->save();
 
             // Generate auto-reschedule link (this would point to frontend reschedule page)
             $rescheduleUrl = config('app.frontend_url') . "/reschedule?booking_ref=" . $b->booking_ref;

@@ -7,6 +7,7 @@ use App\Models\Booking;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use App\Mail\RatingReminderMail;
 
 class SendRatingReminder extends Command
 {
@@ -35,36 +36,14 @@ class SendRatingReminder extends Command
                     . '/rating/'
                     . $booking->booking_ref;
 
-                $message = "Halo {$booking->customer_name} 👋
 
-Terima kasih telah mengunjungi WestTamp Wellness dan menikmati pengalaman River Tubing bersama kami.
-
-Kami berharap perjalanan Anda menyenangkan dan memberikan pengalaman yang berkesan.
-
-Masukan dari Anda sangat berarti bagi kami untuk terus meningkatkan kualitas layanan dan pengalaman wisata yang lebih baik.
-
-⭐ Luangkan waktu kurang dari 1 menit untuk memberikan rating dan ulasan melalui tautan berikut:
-
-{$ratingUrl}
-
-Terima kasih atas kepercayaan Anda kepada WestTamp Wellness.
-
-Salam hangat,
-
-Tim WestTamp Wellness";
-
-                Mail::raw(
-                    $message,
-                    function ($mail) use ($booking) {
-
-                        $mail->to(
-                            $booking->customer_email
-                        )
-                        ->subject(
-                            'Bagikan Pengalaman Anda di WestTamp Wellness'
-                        );
-
-                    }
+                Mail::to(
+                    $booking->customer_email
+                )->send(
+                    new RatingReminderMail(
+                        $booking,
+                        $ratingUrl
+                    )
                 );
 
                 $booking->rating_request_sent = true;
@@ -81,7 +60,6 @@ Tim WestTamp Wellness";
                 $this->info(
                     "Sent: {$booking->booking_ref}"
                 );
-
             } catch (\Exception $e) {
 
                 Log::error(

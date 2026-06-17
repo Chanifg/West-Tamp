@@ -90,23 +90,3 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
     Route::put( '/admin/ratings/{rating}/unpublish', [RatingController::class, 'unpublish'] );
 });
-
-use Illuminate\Support\Facades\Mail;
-
-Route::get('/test-mail', function () {
-
-    Mail::raw(
-        'Test email dari WestTamp Wellness 🚣',
-        function ($message) {
-
-            $message->to('codewithferdi@gmail.com')
-                ->subject('SMTP Test WestTamp');
-
-        }
-    );
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Email sent'
-    ]);
-});
