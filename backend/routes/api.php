@@ -9,6 +9,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RatingController;
 
 use App\Http\Controllers\AuthController;
 
@@ -35,6 +36,22 @@ Route::middleware('throttle:public-api')->group(function () {
 
     // Contact Public Route
     Route::post('/contact', [ContactController::class, 'store']);
+
+    // Ratings Public Route
+    Route::get(
+        '/ratings/form/{booking_ref}',
+        [RatingController::class, 'showFormData']
+    );
+
+    Route::post(
+        '/ratings',
+        [RatingController::class, 'store']
+    );
+
+    Route::get(
+        '/ratings/public',
+        [RatingController::class, 'publicRatings']
+    );
 });
 
 Route::post('/bookings/checkout', [BookingController::class, 'checkout'])->middleware('throttle:checkout');
@@ -49,7 +66,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/sessions', [AdminController::class, 'listSessions']);
     Route::get('/admin/reports/export', [AdminController::class, 'exportReport']);
     Route::get('/admin/reports/statistics', [ReportController::class, 'getStatistics']);
-    
+
     // Blog Admin Routes
     Route::post('/admin/blogs', [BlogController::class, 'store']);
     Route::put('/admin/blogs/{id}', [BlogController::class, 'update']);
@@ -65,4 +82,31 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/admin/packages', [PackageController::class, 'store']);
     Route::put('/admin/packages/{id}', [PackageController::class, 'update']);
     Route::delete('/admin/packages/{id}', [PackageController::class, 'destroy']);
+
+    // Ratings Admin Routes
+    Route::get('/admin/ratings', [RatingController::class, 'index']);
+
+    Route::put('/admin/ratings/{id}/publish', [RatingController::class, 'publish']);
+
+    Route::put( '/admin/ratings/{rating}/unpublish', [RatingController::class, 'unpublish'] );
+});
+
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/test-mail', function () {
+
+    Mail::raw(
+        'Test email dari WestTamp Wellness 🚣',
+        function ($message) {
+
+            $message->to('codewithferdi@gmail.com')
+                ->subject('SMTP Test WestTamp');
+
+        }
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Email sent'
+    ]);
 });

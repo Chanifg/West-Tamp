@@ -9,6 +9,9 @@ export default function LandingPage() {
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
   const [packages, setPackages] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] =
+    useState(true);
   const [loadingPackages, setLoadingPackages] = useState(true);
   const toast = useToast();
 
@@ -27,10 +30,21 @@ export default function LandingPage() {
         setBlogs(res.data.slice(0, 3));
       })
       .catch(err => {
-        
+
         toast.error("Gagal memuat kabar terbaru.");
       })
       .finally(() => setLoadingBlogs(false));
+
+      client.get('/api/ratings/public')
+  .then((res) => {
+    setTestimonials(res.data);
+  })
+  .catch(() => {
+    console.error('Failed load testimonials');
+  })
+  .finally(() =>
+    setLoadingTestimonials(false)
+  );
 
     // Fetch Packages
     client.get('/api/packages')
@@ -38,7 +52,7 @@ export default function LandingPage() {
         setPackages(res.data);
       })
       .catch(err => {
-        
+
         toast.error("Gagal memuat paket wisata.");
       })
       .finally(() => setLoadingPackages(false));
@@ -254,6 +268,162 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Testimonials Section */}
+
+<section className="py-24 bg-surface-container-lowest">
+
+  <div className="max-w-container-max mx-auto px-6 md:px-12">
+
+    <div className="text-center mb-16">
+
+      <span className="
+        inline-block
+        px-3
+        py-1
+        bg-primary/10
+        text-primary
+        rounded-full
+        text-xs
+        font-bold
+        tracking-widest
+        uppercase
+        mb-4
+      ">
+        Testimonial
+      </span>
+
+      <h2 className="
+        font-headline-xl text-3xl md:text-headline-lg text-primary mb-4 font-bold
+      ">
+        Apa Kata Pengunjung Kami
+      </h2>
+
+      <p className="
+        text-on-surface-variant
+        max-w-2xl
+        mx-auto
+      ">
+        Pengalaman nyata dari para wisatawan
+        yang telah menikmati petualangan
+        river tubing bersama WestTamp Wellness.
+      </p>
+
+    </div>
+
+    {loadingTestimonials ? (
+
+      <div className="
+        grid
+        md:grid-cols-2
+        lg:grid-cols-3
+        gap-6
+      ">
+
+        {[1,2,3].map((item) => (
+
+          <div
+            key={item}
+            className="
+              h-64
+              rounded-3xl
+              bg-surface-container
+              animate-pulse
+            "
+          />
+
+        ))}
+
+      </div>
+
+    ) : (
+
+      <div className="
+        grid
+        md:grid-cols-2
+        lg:grid-cols-3
+        gap-6
+      ">
+
+        {testimonials.map((item) => (
+
+          <div
+            key={item.id}
+            className="
+              bg-white
+              rounded-3xl
+              p-8
+              border
+              border-surface-variant
+              shadow-sm
+              hover:shadow-lg
+              transition-all
+            "
+          >
+
+            <div className="flex mb-4">
+
+              {[1,2,3,4,5].map((star) => (
+
+                <span
+                  key={star}
+                  className={`material-symbols-outlined ${
+                    star <= item.rating
+                      ? 'text-amber-400'
+                      : 'text-slate-300'
+                  }`}
+                >
+                  star
+                </span>
+
+              ))}
+
+            </div>
+
+            <p className="
+              text-on-surface
+              leading-relaxed
+              mb-6
+              line-clamp-4
+            ">
+              "
+              {item.review}
+              "
+            </p>
+
+            <div className="
+              border-t
+              border-surface-variant
+              pt-4
+            ">
+
+              <h4 className="
+                font-bold
+                text-on-surface
+              ">
+                {item.booking?.customer_name}
+              </h4>
+
+              <p className="
+                text-sm
+                text-on-surface-variant
+              ">
+                Pengunjung WestTamp Wellness
+              </p>
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    )}
+
+  </div>
+
+</section>
 
         {/* Blog & Kabar Lokal Section */}
         <section className="py-24 relative overflow-hidden">

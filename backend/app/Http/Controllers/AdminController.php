@@ -37,11 +37,11 @@ class AdminController extends Controller
         $today = date('Y-m-d');
         $tomorrow = date('Y-m-d', strtotime('+1 day'));
         $todaysSessions = TubingSession::where('session_date', $today)->pluck('id');
-        
+
         $expectedToday = Booking::whereIn('tubing_session_id', $todaysSessions)
             ->where('payment_status', 'success')
             ->sum('ticket_qty');
-            
+
         $arrivedToday = Booking::whereIn('tubing_session_id', $todaysSessions)
             ->where('payment_status', 'success')
             ->where('arrival_status', 'arrived')
@@ -70,20 +70,34 @@ class AdminController extends Controller
             'qr_code' => 'required|string'
         ]);
 
-        $booking = Booking::with(['package', 'session'])->where('qr_code', $request->qr_code)->first();
+        $booking = Booking::with([
+            'package',
+            'session'
+        ])->where(
+            'qr_code',
+            $request->qr_code
+        )->first();
 
         if (!$booking) {
-            return response()->json(['success' => false, 'message' => 'QR Code tidak valid atau tidak ditemukan.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'QR Code tidak valid atau tidak ditemukan.'
+            ], 404);
         }
 
         if ($booking->arrival_status === 'arrived') {
-            return response()->json(['success' => false, 'message' => 'Pengunjung ini sudah diverifikasi sebelumnya.'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengunjung ini sudah diverifikasi sebelumnya.'
+            ], 400);
         }
 
-        // Verify it's the correct date and shift. Usually, admin scans on the spot
-        // Optional logic: Check if today is the booked date
-
         $booking->arrival_status = 'arrived';
+
+        if (!$booking->arrived_at) {
+            $booking->arrived_at = now();
+        }
+
         $booking->save();
 
         return response()->json([
@@ -217,9 +231,9 @@ class AdminController extends Controller
 
         $callback = function () use ($bookings, $startDate, $endDate, $totalRevenue, $totalTickets, $revenueByPackage, $revenueByShift) {
             $file = fopen('php://output', 'w');
-            
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             fputcsv($file, ['WESTTAMP WELLNESS & RIVER TUBING - LAPORAN KEUANGAN']);
             fputcsv($file, ['Periode', ($startDate ?? 'Semua') . ' s/d ' . ($endDate ?? 'Semua')]);
             fputcsv($file, ['Tanggal Ekspor', date('Y-m-d H:i:s')]);

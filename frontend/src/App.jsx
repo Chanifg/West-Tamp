@@ -8,6 +8,7 @@ const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const BookingPage = React.lazy(() => import('./pages/BookingPage'));
 const ReschedulePage = React.lazy(() => import('./pages/ReschedulePage'));
 const CheckBookingPage = React.lazy(() => import('./pages/CheckBookingPage'));
+const RatingPage = React.lazy(() => import('./pages/RatingPage'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const AboutPage = React.lazy(() => import('./pages/AboutPage'));
@@ -31,15 +32,15 @@ const LoadingSpinner = () => (
 // ProtectedRoute with Auth Loading Check (S-10)
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  
+
   if (loading) {
     return <LoadingSpinner />;
   }
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  
+
   return children;
 };
 
@@ -64,13 +65,17 @@ function App() {
               <Route path="/reschedule" element={<ReschedulePage />} />
               <Route path="/cek-tiket" element={<CheckBookingPage />} />
               <Route path="/login" element={<LoginPage />} />
-              <Route 
-                path="/admin" 
+              <Route
+                path="/admin"
                 element={
                   <ProtectedRoute>
                     <AdminDashboard />
                   </ProtectedRoute>
-                } 
+                }
+              />
+              <Route
+                path="/rating/:bookingRef"
+                element={<RatingPage />}
               />
               {/* Route 404 Catch-All (S-09) */}
               <Route path="*" element={<NotFoundPage />} />

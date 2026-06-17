@@ -6,5 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rating extends Model
 {
-    //
+    protected $fillable = [
+        'booking_id',
+        'rating',
+        'review',
+        'is_published'
+    ];
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
 }

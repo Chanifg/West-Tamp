@@ -7,6 +7,7 @@ import GalleriesTab from '../components/admin/GalleriesTab';
 import PackagesTab from '../components/admin/PackagesTab';
 import StatisticsTab from '../components/admin/StatisticsTab';
 import ExportModal from '../components/admin/ExportModal';
+import RatingManagement from '../components/admin/RatingManagement';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -55,6 +56,7 @@ export default function AdminDashboard() {
         {activeTab === 'blogs' && <BlogsTab />}
         {activeTab === 'galleries' && <GalleriesTab />}
         {activeTab === 'packages' && <PackagesTab />}
+        {activeTab === 'ratings' && (<RatingManagement />)}
         {activeTab === 'statistics' && <StatisticsTab />}
       </main>
 

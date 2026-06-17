@@ -93,7 +93,7 @@ export default function StatisticsTab() {
       const yearLabels = activeMonths.length > 0 ? activeMonths : ['Januari', 'Februari', 'Maret'];
       const defaultRevenue = [9200000, 10500000, 12400000, 14200000, 18500000, 24200000, 31050000, 38650000, 41200000, 45800000, 52100000, 64300000];
       const revenueData = yearLabels.map((_, i) => defaultRevenue[i] || 15000000);
-      
+
       return {
         revenue_trend: {
           labels: yearLabels,
@@ -289,23 +289,62 @@ export default function StatisticsTab() {
     <div className="space-y-8">
       {/* Header and Dropdown */}
       <header className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-surface-variant pb-6 gap-4">
+
         <div>
-          <h1 className="font-headline-lg text-3xl font-bold text-primary mb-1">Analisis Statistik & Tren Pendapatan</h1>
-          <p className="text-on-surface-variant text-sm font-medium">Pantau kinerja keuangan, popularitas paket, dan okupansi sesi secara interaktif.</p>
+          <h1 className="font-headline-lg text-3xl font-bold text-primary mb-1">
+            Analisis Statistik & Tren Pendapatan
+          </h1>
+
+          <p className="text-on-surface-variant text-sm font-medium">
+            Pantau kinerja keuangan, popularitas paket, dan okupansi sesi secara interaktif.
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="range-filter" className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Periode:</label>
+
+        <div className="flex items-center gap-3">
+
           <select
-            id="range-filter"
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="border border-surface-variant rounded-xl px-4 py-2.5 bg-white text-sm font-bold text-primary focus:outline-none focus:border-primary cursor-pointer shadow-sm"
+            className="
+        border border-surface-variant
+        rounded-xl
+        px-4
+        py-2.5
+        bg-white
+        text-sm
+        font-bold
+      "
           >
             <option value="this_year">Tahun Ini</option>
             <option value="last_3_months">3 Bulan Terakhir</option>
             <option value="last_6_months">6 Bulan Terakhir</option>
           </select>
+
+          <button
+            onClick={() => {
+    alert('Export Report');
+  }}
+            className="
+        flex items-center gap-2
+        bg-primary
+        text-white
+        px-5
+        py-2.5
+        rounded-xl
+        font-semibold
+        hover:opacity-90
+        transition-all
+      "
+          >
+            <span className="material-symbols-outlined text-[20px]">
+              download
+            </span>
+
+            Export
+          </button>
+
         </div>
+
       </header>
 
       {loading ? (
