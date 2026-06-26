@@ -77,7 +77,7 @@ function App() {
                 path="/rating/:bookingRef"
                 element={<RatingPage />}
               />
-              {/* Route 404 Catch-All (S-09) */}
+            
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </React.Suspense>

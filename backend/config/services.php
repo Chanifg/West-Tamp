@@ -43,9 +43,6 @@ return [
         'is_3ds' => true,
     ],
 
-    'whatsapp' => [
-        'token' => env('WHATSAPP_TOKEN'),
-        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
-    ],
+ 
 
 ];
