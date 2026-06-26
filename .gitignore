@@ -19,7 +19,6 @@ Thumbs.db
 
 # Project specific
 backend/auth.json
-frontend/dist
 nginx/certs/
 backend/database/database.sqlite
 frontend/.env
