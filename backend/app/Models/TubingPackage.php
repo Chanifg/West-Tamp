@@ -21,6 +21,12 @@ class TubingPackage extends Model
         'is_popular' => 'boolean'
     ];
 
+    public function features()
+{
+    return $this->hasMany(PackageFeature::class)
+                ->orderBy('sort_order');
+}
+
     public function bookings()
     {
         return $this->hasMany(Booking::class);

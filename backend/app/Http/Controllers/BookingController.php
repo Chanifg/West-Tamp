@@ -14,12 +14,69 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\ETicketMail;
 use App\Mail\RescheduleSuccessMail;
 use App\Http\Resources\BookingResource;
+use App\Mail\BookingConfirmationMail;
+
 
 class BookingController extends Controller
 {
     public function getPackages()
+{
+    return response()->json(
+        TubingPackage::with('features') // <-- Tambahkan with('features') di sini
+            ->orderBy('is_popular', 'desc')
+            ->orderBy('id', 'desc')
+            ->get()
+    );
+}
+
+    public function show($booking_ref)
     {
-        return response()->json(TubingPackage::orderBy('is_popular', 'desc')->orderBy('id', 'desc')->get());
+        $booking = Booking::with([
+            'package',
+            'session'
+        ])->where('booking_ref', $booking_ref)->first();
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Booking tidak ditemukan.'
+            ], 404);
+        }
+
+        if (
+            $booking->payment_status === 'expired' ||
+            now()->greaterThan($booking->expired_at)
+        ) {
+
+            return response()->json([
+                'message' => 'Booking sudah kedaluwarsa.'
+            ], 410);
+        }
+
+        return response()->json([
+            'booking_ref' => $booking->booking_ref,
+            'customer_name' => $booking->customer_name,
+            'customer_email' => $booking->customer_email,
+            'customer_phone' => $booking->customer_phone,
+
+            'package' => [
+                'id' => $booking->package->id,
+                'name' => $booking->package->name,
+                'price' => $booking->package->price,
+            ],
+
+            'session' => [
+                'id' => $booking->session->id,
+                'shift' => $booking->session->shift,
+                'session_date' => $booking->session->session_date,
+            ],
+
+            'ticket_qty' => $booking->ticket_qty,
+            'total_price' => $booking->total_price,
+
+            'payment_status' => $booking->payment_status,
+            'snap_token' => $booking->midtrans_snap_token,
+            'expired_at' => $booking->expired_at,
+        ]);
     }
 
     public function lookup(Request $request)
@@ -86,100 +143,144 @@ class BookingController extends Controller
     }
 
     public function checkout(Request $request)
-    {
-        $request->validate([
-            'package_id' => 'required|exists:tubing_packages,id',
-            'session_id' => 'required|exists:tubing_sessions,id',
-            'customer_name' => 'required|string|max:255',
-            'customer_phone' => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
-            'customer_email' => 'required|email|max:255',
-            'ticket_qty' => 'required|integer|min:1|max:100',
-        ]);
+{
+    $request->validate([
+        'package_id'      => 'required|exists:tubing_packages,id',
+        'session_id'      => 'required|exists:tubing_sessions,id',
+        'customer_name'   => 'required|string|max:255',
+        'customer_phone'  => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
+        'customer_email'  => 'required|email|max:255',
+        'ticket_qty'      => 'required|integer|min:1|max:100',
+    ]);
+
+    try {
+
+        $booking = DB::transaction(function () use ($request) {
+
+            $session = TubingSession::where('id', $request->session_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($session->status !== 'active') {
+                throw new \Exception('Session is cancelled due to weather emergency.');
+            }
+
+            if (($session->booked_capacity + $request->ticket_qty) > $session->max_capacity) {
+                throw new \Exception('Not enough slots available for this session.');
+            }
+
+            $package = TubingPackage::findOrFail($request->package_id);
+
+            $totalPrice = $package->price * $request->ticket_qty;
+
+            $orderId = 'ORDER-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
+
+            $expiredAt = now()->addHours(24);
+
+            \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('services.midtrans.is_production', false);
+            \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized', true);
+            \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds', true);
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $totalPrice,
+                ],
+
+                'customer_details' => [
+                    'first_name' => $request->customer_name,
+                    'email' => $request->customer_email,
+                    'phone' => $request->customer_phone,
+                ],
+
+                'item_details' => [[
+                    'id' => $package->id,
+                    'price' => $package->price,
+                    'quantity' => $request->ticket_qty,
+                    'name' => $package->name,
+                ]],
+
+                'expiry' => [
+                    'unit' => 'hour',
+                    'duration' => 24,
+                ],
+            ];
+
+            $serverKey = config('services.midtrans.server_key');
+
+            if (
+                empty($serverKey)
+            ) {
+                $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(12);
+            } else {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+            }
+
+            return Booking::create([
+                'booking_ref' => strtoupper(Str::random(8)),
+                'tubing_package_id' => $package->id,
+                'tubing_session_id' => $session->id,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
+                'ticket_qty' => $request->ticket_qty,
+                'total_price' => $totalPrice,
+                'payment_status' => 'pending',
+                'arrival_status' => 'expected',
+                'midtrans_order_id' => $orderId,
+                'midtrans_snap_token' => $snapToken,
+                'expired_at' => $expiredAt,
+                'qr_code' => null,
+            ]);
+        });
 
         try {
-            return DB::transaction(function () use ($request) {
-                $session = TubingSession::where('id', $request->session_id)
-                    ->lockForUpdate()
-                    ->firstOrFail();
 
-                if ($session->status !== 'active') {
-                    return response()->json(['message' => 'Session is cancelled due to weather emergency.'], 400);
-                }
-
-                if (($session->booked_capacity + $request->ticket_qty) > $session->max_capacity) {
-                    return response()->json(['message' => 'Not enough slots available for this session.'], 400);
-                }
-
-                $package = TubingPackage::findOrFail($request->package_id);
-                $totalPrice = $package->price * $request->ticket_qty;
-                $orderId = 'WT-' . time() . '-' . Str::random(5);
-
-                // Configuration Midtrans
-                \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
-                \Midtrans\Config::$isProduction = config('services.midtrans.is_production', false);
-                \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized', true);
-                \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds', true);
-
-                $params = array(
-                    'transaction_details' => array(
-                        'order_id' => $orderId,
-                        'gross_amount' => $totalPrice,
-                    ),
-                    'customer_details' => array(
-                        'first_name' => $request->customer_name,
-                        'email' => $request->customer_email,
-                        'phone' => $request->customer_phone,
-                    ),
-                    'item_details' => array(
-                        array(
-                            'id' => $package->id,
-                            'price' => $package->price,
-                            'quantity' => $request->ticket_qty,
-                            'name' => $package->name
-                        )
-                    )
-                );
-
-                $serverKey = config('services.midtrans.server_key');
-                if ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)) {
-                    // Mock behavior for testing when keys are not provided
-                    $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(10);
-                } else {
-                    $snapToken = \Midtrans\Snap::getSnapToken($params);
-                }
-
-                // Reserve capacity tentatively
-                $session->increment('booked_capacity', $request->ticket_qty);
-
-                $booking = Booking::create([
-                    'booking_ref' => strtoupper(Str::random(8)),
-                    'tubing_package_id' => $package->id,
-                    'tubing_session_id' => $session->id,
-                    'customer_name' => $request->customer_name,
-                    'customer_phone' => $request->customer_phone,
-                    'customer_email' => $request->customer_email,
-                    'ticket_qty' => $request->ticket_qty,
-                    'total_price' => $totalPrice,
-                    'qr_code' => null, // Generated upon payment success
-                    'midtrans_order_id' => $orderId,
-                    'midtrans_snap_token' => $snapToken
-                ]);
-
-                return response()->json([
-                    'booking_id' => $booking->id,
-                    'snap_token' => $snapToken,
-                    'order_id' => $orderId
-                ]);
-            });
+            Mail::to($booking->customer_email)
+                ->send(new BookingConfirmationMail($booking));
 
         } catch (\Exception $e) {
-            Log::error("Checkout error: " . $e->getMessage(), ['exception' => $e]);
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat memproses checkout.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+
+            Log::error('Failed Send Booking Email', [
+                'booking_id' => $booking->id,
+                'email' => $booking->customer_email,
+                'message' => $e->getMessage(),
+            ]);
         }
+
+        return response()->json([
+            'message' => 'Booking created successfully.',
+            'data' => [
+                'booking_ref' => $booking->booking_ref,
+                'snap_token' => $booking->midtrans_snap_token,
+                'payment_status' => $booking->payment_status,
+                'expired_at' => $booking->expired_at,
+            ]
+        ], 201);
+
+    } catch (\Exception $e) {
+
+        Log::error('Checkout Error', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        $status = 500;
+
+        if (
+            $e->getMessage() === 'Session is cancelled due to weather emergency.' ||
+            $e->getMessage() === 'Not enough slots available for this session.'
+        ) {
+            $status = 400;
+        }
+
+        return response()->json([
+            'message' => $e->getMessage(),
+            'error' => config('app.debug') ? $e->getMessage() : null,
+        ], $status);
     }
+}
 
     public function verifyReschedule(Request $request)
     {
@@ -256,7 +357,7 @@ class BookingController extends Controller
                     return response()->json(['message' => 'Kuota tidak mencukupi pada sesi yang dipilih.'], 400);
                 }
 
-                // Release capacity from the old session
+               
                 if ($booking->session) {
                     $booking->session->decrement('booked_capacity', $booking->ticket_qty);
                 }
@@ -291,84 +392,105 @@ class BookingController extends Controller
     }
 
     public function midtransWebhook(Request $request)
-    {
-        $serverKey = config('services.midtrans.server_key');
-        \Midtrans\Config::$serverKey = $serverKey;
+{
+    Log::info('MIDTRANS WEBHOOK', $request->all());
 
-        // Verify Midtrans Signature Key to prevent fraud
-        $signatureKey = $request->signature_key;
-        $orderId = $request->order_id;
-        $statusCode = $request->status_code;
-        $grossAmount = $request->gross_amount;
+    $serverKey = config('services.midtrans.server_key');
 
-        $isValidSignature = false;
-        if ($signatureKey && $orderId && $statusCode && $grossAmount) {
-            $computedHash = hash("sha512", $orderId . $statusCode . $grossAmount . $serverKey);
-            $isValidSignature = hash_equals($computedHash, $signatureKey);
-        } elseif (app()->environment('testing') || (app()->environment('local') && ($serverKey === 'SB-Mid-server-YOUR_SERVER_KEY' || empty($serverKey)))) {
-            $isValidSignature = true; // Allow mock in local/testing when serverKey is not configured
-        }
+    $orderId = $request->input('order_id');
+    $statusCode = $request->input('status_code');
+    $grossAmount = $request->input('gross_amount');
+    $signatureKey = $request->input('signature_key');
+    $transactionStatus = $request->input('transaction_status');
+    $fraudStatus = $request->input('fraud_status');
 
-        if (!$isValidSignature) {
-            Log::warning("Midtrans Webhook: Invalid signature. Payload: " . json_encode($request->all()));
-            return response()->json(['message' => 'Invalid signature key'], 403);
-        }
+    $mySignature = hash('sha512',
+        $orderId . $statusCode . $grossAmount . $serverKey
+    );
 
-        try {
-            $notif = new \Midtrans\Notification();
-        } catch (\Exception $e) {
-            // Because we mock it via frontend testing sometimes we might not have a valid post format
-            // Let's implement static handle for sandbox tests
-            Log::info("Invalid Midtrans Notification format: " . $e->getMessage());
-            $notif = (object) $request->all();
-        }
-
-        $transaction = $notif->transaction_status;
-        $order_id = $notif->order_id;
-        
-        try {
-            return DB::transaction(function () use ($order_id, $transaction) {
-                $booking = Booking::where('midtrans_order_id', $order_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (!$booking) return response()->json('Order not found', 404);
-
-                if ($transaction == 'capture' || $transaction == 'settlement') {
-                    if ($booking->payment_status != 'success') {
-                        $booking->payment_status = 'success';
-                        // Generate simple QR Code string for verification
-                        $booking->qr_code = 'WT-QR-' . $booking->booking_ref;
-                        $booking->save();
-                        
-                        // Send Email E-Ticket
-                        try {
-                            Mail::to($booking->customer_email)->send(new ETicketMail($booking));
-                        } catch (\Exception $e) {
-                            Log::error("Failed to send ETicket email for booking ref {$booking->booking_ref}: " . $e->getMessage());
-                        }
-
-                        // SIMULATE WA TICKET SENDING
-                        Log::info("[TICKET SENT VIA WA] To: {$booking->customer_phone}, QR: {$booking->qr_code}");
-                    }
-                } else if ($transaction == 'cancel' || $transaction == 'deny' || $transaction == 'expire') {
-                    if ($booking->payment_status != 'failed' && $booking->payment_status != 'expired') {
-                        $booking->payment_status = $transaction == 'expire' ? 'expired' : 'failed';
-                        $booking->save();
-                        
-                        // Release capacity
-                        if ($booking->session) {
-                            $booking->session()->lockForUpdate()->first();
-                            $booking->session->decrement('booked_capacity', $booking->ticket_qty);
-                        }
-                    }
-                }
-
-                return response()->json('OK');
-            });
-        } catch (\Exception $e) {
-            Log::error("Error in Midtrans webhook transaction: " . $e->getMessage(), ['exception' => $e]);
-            return response()->json(['error' => 'Internal Server Error'], 500);
-        }
+    if (!hash_equals($mySignature, $signatureKey)) {
+        return response()->json(['message' => 'Invalid Signature'], 403);
     }
+
+    DB::beginTransaction();
+
+    try {
+
+        $booking = Booking::where('midtrans_order_id', $orderId)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$booking) {
+            return response()->json(['message' => 'Booking not found'], 404);
+        }
+
+        switch ($transactionStatus) {
+
+            case 'capture':
+                $booking->payment_status = ($fraudStatus == 'challenge')
+                    ? 'pending'
+                    : 'success';
+                break;
+
+            case 'settlement':
+                $booking->payment_status = 'success';
+                break;
+
+            case 'pending':
+                $booking->payment_status = 'pending';
+                break;
+
+            case 'deny':
+            case 'cancel':
+                $booking->payment_status = 'failed';
+                break;
+
+            case 'expire':
+                $booking->payment_status = 'expired';
+                break;
+        }
+
+        if ($booking->payment_status === 'success' && empty($booking->qr_code)) {
+
+            $booking->qr_code = 'QR-' . $booking->booking_ref;
+
+            $session = $booking->session;
+
+            if ($session) {
+                $session->increment('booked_capacity', $booking->ticket_qty);
+            }
+
+            try {
+                Mail::to($booking->customer_email)
+                    ->send(new ETicketMail($booking));
+            } catch (\Exception $e) {
+                Log::error('Email failed', [$e->getMessage()]);
+            }
+        }
+
+        if (in_array($booking->payment_status, ['failed', 'expired'])) {
+
+            $session = $booking->session;
+
+            if ($session) {
+                $session->decrement('booked_capacity', $booking->ticket_qty);
+            }
+        }
+
+        $booking->save();
+
+        DB::commit();
+
+        return response()->json(['success' => true]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        Log::error('Webhook Error', [
+            'message' => $e->getMessage()
+        ]);
+
+        return response()->json(['message' => 'Server error'], 500);
+    }
+}
 }

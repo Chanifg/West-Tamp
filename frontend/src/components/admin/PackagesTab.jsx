@@ -6,9 +6,17 @@ export default function PackagesTab() {
   const [packages, setPackages] = useState([]);
   const [showPackageForm, setShowPackageForm] = useState(false);
   const [editingPackage, setEditingPackage] = useState(null);
-  const [packageForm, setPackageForm] = useState({
-    name: '', description: '', price: '', is_popular: false, image_file: null
-  });
+  
+  const initialFormState = {
+    name: '',
+    description: '',
+    price: '',
+    is_popular: false,
+    image_file: null,
+    features: ['']
+  };
+
+  const [packageForm, setPackageForm] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,31 +29,41 @@ export default function PackagesTab() {
 
   const fetchPackages = () => {
     client.get('/api/admin/packages')
-      .then(res => setPackages(res.data))
+      .then(res => setPackages(res.data || []))
       .catch(err => {
-        
         toast.error("Gagal memuat paket wisata.");
       });
   };
 
   const handleEditPackage = (pkg) => {
     setEditingPackage(pkg);
+
     setPackageForm({
-      name: pkg.name,
-      description: pkg.description,
-      price: pkg.price,
-      is_popular: pkg.is_popular,
-      image_file: null
+      name: pkg.name || '',
+      description: pkg.description || '',
+      price: pkg.price || '',
+      is_popular: Boolean(pkg.is_popular),
+      image_file: null,
+      features: (pkg.features && pkg.features.length)
+        ? pkg.features.map(f => (typeof f === 'string' ? f : f.feature))
+        : ['']
     });
+
+    setShowPackageForm(true);
+  };
+
+  const handleCreateNewPackage = () => {
+    setEditingPackage(null);
+    setPackageForm(initialFormState);
     setShowPackageForm(true);
   };
 
   const handlePackageSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    const url = editingPackage 
-      ? `/api/admin/packages/${editingPackage.id}` 
+
+    const url = editingPackage
+      ? `/api/admin/packages/${editingPackage.id}`
       : '/api/admin/packages';
 
     const formData = new FormData();
@@ -53,6 +71,12 @@ export default function PackagesTab() {
     formData.append('description', packageForm.description);
     formData.append('price', packageForm.price);
     formData.append('is_popular', packageForm.is_popular ? '1' : '0');
+
+    const validFeatures = (packageForm.features || []).filter(f => f.trim() !== '');
+    validFeatures.forEach(feature => {
+      formData.append('features[]', feature);
+    });
+
     if (packageForm.image_file) {
       formData.append('image_file', packageForm.image_file);
     }
@@ -60,19 +84,19 @@ export default function PackagesTab() {
     if (editingPackage) {
       formData.append('_method', 'PUT');
     }
-    
+
     client.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-    .then(res => {
-      toast.success(editingPackage ? "Paket berhasil diperbarui!" : "Paket berhasil dibuat!");
-      setShowPackageForm(false);
-      setEditingPackage(null);
-      setPackageForm({ name: '', description: '', price: '', is_popular: false, image_file: null });
-      fetchPackages();
-    })
-    .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)))
-    .finally(() => setLoading(false));
+      .then(res => {
+        toast.success(editingPackage ? "Paket berhasil diperbarui!" : "Paket berhasil dibuat!");
+        setShowPackageForm(false);
+        setEditingPackage(null);
+        setPackageForm(initialFormState);
+        fetchPackages();
+      })
+      .catch(err => toast.error("Error: " + (err.response?.data?.message || err.message)))
+      .finally(() => setLoading(false));
   };
 
   const handleDeletePackage = (id) => {
@@ -97,14 +121,27 @@ export default function PackagesTab() {
         <div className="bg-white rounded-xl p-6 shadow-sm border border-surface-variant">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-headline-md text-xl font-bold text-on-surface">Daftar Paket Tubing</h3>
-            <button onClick={() => { setEditingPackage(null); setPackageForm({ name: '', description: '', price: '', is_popular: false, image_file: null }); setShowPackageForm(true); }} className="bg-primary text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 shrink-0 shadow-sm">
+            <button 
+              onClick={handleCreateNewPackage} 
+              className="bg-primary text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-primary/90 shrink-0 shadow-sm"
+            >
               <span className="material-symbols-outlined">add</span> Buat Paket Baru
             </button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(() => {
-              const paginated = packages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+              const safePackages = packages || [];
+              const paginated = safePackages.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+              
+              if (paginated.length === 0) {
+                return (
+                  <p className="text-on-surface-variant col-span-full text-center py-8">
+                    Belum ada paket wisata.
+                  </p>
+                );
+              }
+
               return paginated.map(pkg => (
                 <div key={pkg.id} className="border border-surface-variant rounded-xl p-6 bg-surface/30 flex flex-col relative overflow-hidden">
                   <div className="flex justify-between items-start mb-4">
@@ -124,7 +161,34 @@ export default function PackagesTab() {
                     {pkg.name}
                     {pkg.is_popular && <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full uppercase font-bold border border-primary/20">Populer</span>}
                   </h4>
-                  <p className="text-sm text-on-surface-variant line-clamp-3 mb-4 flex-1">{pkg.description}</p>
+                  <p className="text-sm text-on-surface-variant line-clamp-2 mb-4">
+    {pkg.description}
+</p>
+
+<div className="space-y-2 mb-5 flex-1">
+
+    {(pkg.features || []).slice(0, 5).map((item) => (
+        <div
+            key={item.id}
+            className="flex items-center gap-2 text-sm text-on-surface"
+        >
+            <span className="material-symbols-outlined text-primary text-[18px]">
+                check_circle
+            </span>
+
+            <span className="truncate">
+                {item.feature}
+            </span>
+        </div>
+    ))}
+
+    {(pkg.features || []).length > 5 && (
+        <div className="text-xs text-primary font-semibold pl-7">
+            +{pkg.features.length - 5} fasilitas lainnya
+        </div>
+    )}
+
+</div>
                   <div className="pt-4 border-t border-surface-variant flex justify-between items-center">
                     <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Harga per Pax</span>
                     <span className="text-lg font-bold text-primary">Rp{Number(pkg.price).toLocaleString('id-ID')}</span>
@@ -134,11 +198,11 @@ export default function PackagesTab() {
             })()}
           </div>
 
-          {/* Client-side Pagination (M-20) */}
+          {/* Client-side Pagination */}
           {(() => {
-            const total = Math.ceil(packages.length / itemsPerPage);
+            const total = Math.ceil((packages?.length || 0) / itemsPerPage);
             if (total <= 1) return null;
-            
+
             return (
               <div className="flex items-center justify-between border-t border-surface-variant/30 pt-6 mt-6 text-sm">
                 <p className="text-on-surface-variant">
@@ -184,25 +248,88 @@ export default function PackagesTab() {
           <form onSubmit={handlePackageSubmit} className="flex flex-col gap-6">
             <div>
               <label htmlFor="package_name" className="block text-sm font-bold text-on-surface mb-2">Nama Paket *</label>
-              <input id="package_name" required type="text" value={packageForm.name} onChange={e => setPackageForm({...packageForm, name: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Paket Adventure" />
+              <input id="package_name" required type="text" value={packageForm.name} onChange={e => setPackageForm({ ...packageForm, name: e.target.value })} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: Paket Adventure" />
             </div>
             <div>
               <label htmlFor="package_description" className="block text-sm font-bold text-on-surface mb-2">Deskripsi Paket *</label>
-              <textarea id="package_description" required rows="4" value={packageForm.description} onChange={e => setPackageForm({...packageForm, description: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Gunakan baris baru untuk membuat poin-poin..."></textarea>
+              <textarea id="package_description" required rows="4" value={packageForm.description} onChange={e => setPackageForm({ ...packageForm, description: e.target.value })} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary resize-y" placeholder="Gunakan baris baru untuk membuat poin-poin..."></textarea>
             </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3">
+                Fasilitas Paket
+              </label>
+
+              <div className="space-y-3">
+                {(packageForm.features || ['']).map((feature, index) => (
+                  <div
+                    key={index}
+                    className="flex gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={feature}
+                      placeholder="Contoh : Safety Equipment"
+                      className="flex-1 border border-surface-variant rounded-lg px-4 py-3"
+                      onChange={(e) => {
+                        const updated = [...(packageForm.features || [''])];
+                        updated[index] = e.target.value;
+
+                        setPackageForm({
+                          ...packageForm,
+                          features: updated
+                        });
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      className="px-4 rounded-lg bg-red-500 text-white"
+                      onClick={() => {
+                        const updated = (packageForm.features || []).filter((_, i) => i !== index);
+
+                        setPackageForm({
+                          ...packageForm,
+                          features: updated.length ? updated : ['']
+                        });
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="mt-4 bg-primary text-white px-4 py-2 rounded-lg"
+                onClick={() => {
+                  setPackageForm({
+                    ...packageForm,
+                    features: [
+                      ...(packageForm.features || []),
+                      ''
+                    ]
+                  });
+                }}
+              >
+                + Tambah Fasilitas
+              </button>
+            </div>
+
             <div>
               <label htmlFor="package_price" className="block text-sm font-bold text-on-surface mb-2">Harga per Pax (Rp) *</label>
-              <input id="package_price" required type="number" value={packageForm.price} onChange={e => setPackageForm({...packageForm, price: e.target.value})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: 50000" />
+              <input id="package_price" required type="number" value={packageForm.price} onChange={e => setPackageForm({ ...packageForm, price: e.target.value })} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none focus:border-primary" placeholder="Cth: 50000" />
             </div>
 
             <div className="flex items-center gap-3 bg-surface p-4 rounded-lg border border-surface-variant">
-              <input type="checkbox" id="is_popular" checked={packageForm.is_popular} onChange={e => setPackageForm({...packageForm, is_popular: e.target.checked})} className="w-5 h-5 accent-primary cursor-pointer" />
+              <input type="checkbox" id="is_popular" checked={packageForm.is_popular} onChange={e => setPackageForm({ ...packageForm, is_popular: e.target.checked })} className="w-5 h-5 accent-primary cursor-pointer" />
               <label htmlFor="is_popular" className="font-bold text-on-surface cursor-pointer">Tandai sebagai Paket Terpopuler</label>
             </div>
 
             <div>
               <label htmlFor="package_image" className="block text-sm font-bold text-on-surface mb-2">Pilih Foto Paket</label>
-              <input id="package_image" type="file" accept="image/*" onChange={e => setPackageForm({...packageForm, image_file: e.target.files[0]})} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
+              <input id="package_image" type="file" accept="image/*" onChange={e => setPackageForm({ ...packageForm, image_file: e.target.files[0] })} className="w-full border border-surface-variant rounded-lg px-4 py-3 focus:outline-none bg-surface" />
             </div>
 
             <div className="flex justify-end pt-4 border-t border-surface-variant">

@@ -20,6 +20,7 @@ class Booking extends Model
         'ticket_qty',
         'total_price',
         'qr_code',
+         'expired_at',
 
         'midtrans_order_id',
         'midtrans_snap_token',
@@ -39,6 +40,7 @@ class Booking extends Model
     {
         return $this->belongsTo(TubingPackage::class, 'tubing_package_id');
     }
+    
 
     public function rating()
     {

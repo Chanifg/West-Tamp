@@ -52,11 +52,15 @@ Route::middleware('throttle:public-api')->group(function () {
         '/ratings/public',
         [RatingController::class, 'publicRatings']
     );
+    Route::get(
+    '/bookings/{booking_ref}',
+    [BookingController::class, 'show']
+);
 });
 
 Route::post('/bookings/checkout', [BookingController::class, 'checkout'])->middleware('throttle:checkout');
 Route::post('/bookings/reschedule', [BookingController::class, 'processReschedule'])->middleware('throttle:checkout');
-Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook'])->middleware('throttle:webhook');
+Route::post('/webhooks/midtrans', [BookingController::class, 'midtransWebhook']);
 
 // Admin Endpoints
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {

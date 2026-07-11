@@ -58,10 +58,25 @@
             </div>
 
             <div class="qr-section">
-                <p style="margin-top: 0; font-weight: bold; color: #1e293b;">QR Code Verifikasi Tiket:</p>
-                <div class="qr-code">{{ $booking->qr_code }}</div>
-                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 0; margin-top: 10px;">Tunjukkan kode ini kepada petugas saat tiba di lokasi tubing.</p>
-            </div>
+    <p style="margin-top:0;font-weight:bold;color:#1e293b;">
+        QR Code Verifikasi Tiket:
+    </p>
+
+    <img
+        src="{{ asset('storage/'.$booking->qr_code.'.png') }}"
+        alt="QR Code"
+        width="220"
+        style="background:#fff;padding:10px;border:1px solid #ddd;border-radius:8px;"
+    >
+
+    <p style="margin-top:12px;font-weight:bold">
+        {{ $booking->qr_code }}
+    </p>
+
+    <p style="font-size:.8rem;color:#64748b;">
+        Tunjukkan QR Code ini kepada petugas saat tiba.
+    </p>
+</div>
             
             <p style="margin-top: 20px;">Harap tiba di lokasi 30 menit sebelum sesi dimulai. Jangan ragu menghubungi CS kami jika ada pertanyaan.</p>
         </div>

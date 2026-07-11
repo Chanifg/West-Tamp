@@ -117,21 +117,91 @@ export default function StatisticsTab() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    client.get(`/api/admin/reports/statistics?range=${range}`)
-      .then(res => {
-        setStats(res.data);
-      })
-      .catch(() => {
-        // Fallback to high-quality mock data automatically
-        const mock = getMockData(range);
-        setStats(mock);
-        toast.success("Dasbor analitik dimuat dalam mode demo (fallback).");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [range]);
+  setLoading(true);
+
+  client
+    .get(`/api/admin/reports/statistics?range=${range}`)
+    .then((res) => {
+      console.log("API Response:", res.data);
+
+      // jika response = { success: true, data: {...} }
+      const apiData = res.data.data;
+
+      const transformedData = {
+        revenue_trend: {
+          labels: apiData.revenue_trend.map((item) => {
+            const date = new Date(item.month + "-01");
+            return date.toLocaleString("id-ID", {
+              month: "long",
+            });
+          }),
+          data: apiData.revenue_trend.map((item) => item.total),
+        },
+
+        popular_packages: {
+          labels: apiData.popular_packages.map(
+            (item) => item.package_name
+          ),
+          data: apiData.popular_packages.map(
+            (item) => item.tickets_sold
+          ),
+        },
+
+        session_occupancy: {
+          labels: apiData.session_occupancy.map((item) =>
+            item.shift.charAt(0).toUpperCase() + item.shift.slice(1)
+          ),
+          data: apiData.session_occupancy.map(
+            (item) => item.average_occupancy
+          ),
+        },
+
+        summary: {
+          total_revenue:
+            apiData.revenue_trend.reduce(
+              (sum, item) => sum + item.total,
+              0
+            ),
+
+          total_tickets:
+            apiData.popular_packages.reduce(
+              (sum, item) => sum + item.tickets_sold,
+              0
+            ),
+
+          peak_session:
+            apiData.session_occupancy.length > 0
+              ? (() => {
+                  const max = apiData.session_occupancy.reduce((a, b) =>
+                    a.average_occupancy > b.average_occupancy ? a : b
+                  );
+
+                  return `${
+                    max.shift.charAt(0).toUpperCase() +
+                    max.shift.slice(1)
+                  } (${max.average_occupancy}%)`;
+                })()
+              : "-",
+        },
+      };
+
+      setStats(transformedData);
+    })
+    .catch((err) => {
+      console.error(err);
+
+      const mock = getMockData(range);
+
+      setStats(mock);
+
+      toast.success(
+        "Dasbor analitik dimuat dalam mode demo (fallback)."
+      );
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, [range]);
 
   // Line Chart Config (Monthly Revenue Trend)
   const lineChartData = {

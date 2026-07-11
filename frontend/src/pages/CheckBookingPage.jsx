@@ -31,9 +31,8 @@ export default function CheckBookingPage() {
 
     client.get(`/api/bookings/lookup?booking_ref=${bookingRef.trim()}&phone=${phone.trim()}`)
       .then(res => {
-        setBooking(res.data);
-        toast.success("Data pemesanan ditemukan!");
-      })
+    setBooking(res.data.data);
+})
       .catch(err => {
         
         const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
@@ -196,29 +195,25 @@ export default function CheckBookingPage() {
                   )}
                 </div>
 
-                {/* QR Code Block for Success Payments */}
                 {booking.payment_status === 'success' && (
-                  <div className="w-full md:w-52 shrink-0 flex flex-col items-center justify-center p-4 border-2 border-dashed border-outline-variant bg-surface rounded-xl">
-                    <div className="w-36 h-36 bg-white border border-surface-variant flex items-center justify-center relative p-2 shadow-sm rounded-lg">
-                      {/* Styled Simulated QR Code */}
-                      <div className="w-full h-full flex flex-col justify-between border-2 border-primary/20 p-1">
-                        <div className="flex justify-between">
-                          <div className="w-6 h-6 border-4 border-primary"></div>
-                          <div className="w-6 h-6 border-4 border-primary"></div>
-                        </div>
-                        <div className="flex justify-center text-[8px] font-mono tracking-widest text-primary font-bold">
-                          WESTTAMP
-                        </div>
-                        <div className="flex justify-between items-end">
-                          <div className="w-6 h-6 border-4 border-primary"></div>
-                          <div className="w-6 h-6 border-[3px] border-primary border-dashed"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <span className="font-mono text-xs font-bold text-primary mt-3 tracking-wider">{booking.qr_code || `WT-QR-${booking.booking_ref}`}</span>
-                    <p className="text-[10px] text-on-surface-variant text-center mt-1">Tunjukkan QR Code ini ke petugas saat tiba di lokasi untuk diverifikasi.</p>
-                  </div>
-                )}
+  <div className="w-full md:w-52 shrink-0 flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl">
+
+    <img
+      src={booking.qr_code_url}
+      alt="QR Code"
+      className="w-40 h-40 object-contain bg-white rounded-lg border p-2"
+    />
+
+    <span className="font-mono text-xs font-bold mt-3">
+      {booking.qr_code}
+    </span>
+
+    <p className="text-[10px] text-center mt-1">
+      Tunjukkan QR Code ini kepada petugas.
+    </p>
+
+  </div>
+)}
               </div>
             ) : (
               <div className="bg-surface-container/30 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-12 text-center h-full min-h-[300px]">

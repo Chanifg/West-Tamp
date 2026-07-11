@@ -1,110 +1,132 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
   const location = useLocation();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [exploreOpen, setExploreOpen] =
-    useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
+
+  // Tutup menu saat pindah halaman
+  useEffect(() => {
+    setIsOpen(false);
+    setExploreOpen(false);
+  }, [location.pathname]);
+
+  // Disable scroll ketika sidebar terbuka
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  // Klik luar dropdown
+  useEffect(() => {
+    function handleClick(e) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
+        setExploreOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClick
+      );
+  }, []);
 
   const getLinkClass = (path) => {
-    const isActive =
-      location.pathname === path;
+    const active = location.pathname === path;
 
-    return `
-      transition-all duration-200
-      ${
-        isActive
-          ? 'text-primary-container font-semibold'
-          : 'text-on-surface-variant hover:text-primary-container'
-      }
-    `;
+    return `transition-colors duration-200 ${active
+        ? "text-primary-container font-semibold"
+        : "text-gray-700 hover:text-primary-container"
+      }`;
   };
 
-  const getMobileLinkClass = (
-    path,
-  ) => {
-    const isActive =
-      location.pathname === path;
+  const getMobileLinkClass = (path) => {
+    const active = location.pathname === path;
 
-    return `
-      block px-4 py-3 rounded-xl transition-all
-      ${
-        isActive
-          ? 'bg-primary-container/10 text-primary-container font-semibold'
-          : 'text-on-surface-variant hover:bg-surface-container'
-      }
-    `;
+    return `block rounded-xl px-4 py-3 transition ${active
+        ? "bg-primary-container/10 text-primary-container font-semibold"
+        : "hover:bg-slate-100 text-gray-700"
+      }`;
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="h-20 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-3"
-          >
-           
-   
+    <>
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10">
+          <div className="h-16 md:h-20 flex justify-between items-center">
+            {/* Logo */}
 
-            <h1 className="font-black text-xl tracking-tight text-primary-container">
+            <Link
+              to="/"
+              className="flex items-center gap-3"
+            >
+              <h1 className="font-black text-xl md:text-2xl text-primary-container">
                 Westtamp
               </h1>
-          </Link>
-
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-10">
-            
-
-            <Link
-              className={getLinkClass(
-                '/packages',
-              )}
-              to="/packages"
-            >
-              Packages
             </Link>
 
-            <Link
-              className={getLinkClass(
-                '/blog',
-              )}
-              to="/blog"
-            >
-              Blog
-            </Link>
+            {/* Desktop Menu */}
 
-            <Link
-              className={getLinkClass(
-                '/about',
-              )}
-              to="/about"
-            >
-              About Us
-            </Link>
-
-            {/* Explore Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() =>
-                  setExploreOpen(
-                    !exploreOpen,
-                  )
-                }
-                className="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors"
+            <div className="hidden lg:flex items-center gap-8">
+              <Link
+                to="/packages"
+                className={getLinkClass("/packages")}
               >
-                Explore
+                Packages
+              </Link>
 
-                <span className="material-symbols-outlined text-[18px]">
-                  expand_more
-                </span>
-              </button>
+              <Link
+                to="/blog"
+                className={getLinkClass("/blog")}
+              >
+                Blog
+              </Link>
 
-              {exploreOpen && (
-                <div className="absolute top-12 left-0 bg-white rounded-2xl shadow-xl border border-slate-100 w-56 overflow-hidden">
+              <Link
+                to="/about"
+                className={getLinkClass("/about")}
+              >
+                About Us
+              </Link>
+
+              {/* Dropdown */}
+
+              <div
+                className="relative"
+                ref={dropdownRef}
+              >
+                <button
+                  onClick={() =>
+                    setExploreOpen(!exploreOpen)
+                  }
+                  className="flex items-center gap-1 hover:text-primary-container transition"
+                >
+                  Explore
+
+                  <span className="material-symbols-outlined text-lg">
+                    expand_more
+                  </span>
+                </button>
+
+                <div
+                  className={`absolute left-0 top-12 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-200 ${exploreOpen
+                      ? "opacity-100 visible translate-y-0"
+                      : "opacity-0 invisible -translate-y-2"
+                    }`}
+                >
                   <Link
                     to="/"
                     className="block px-5 py-3 hover:bg-slate-50"
@@ -126,158 +148,153 @@ export default function Navbar() {
                     Facilities
                   </Link>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
 
-          {/* CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            
+            {/* Desktop Button */}
 
-            <Link to="/booking">
-              <button className="bg-primary-container text-white px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-all shadow-md cursor-pointer">
-                Book your escape
+            <div className="hidden lg:block">
+              <Link to="/check-booking">
+              <button className="px-5 py-3 mr-2 rounded-full border border-primary-container text-primary-container font-semibold hover:bg-primary-container hover:text-white transition">
+                Check Booking
               </button>
             </Link>
-          </div>
+              <Link to="/booking">
+                <button className="bg-primary-container text-white px-6 py-3 rounded-full font-semibold hover:scale-105 transition cursor-pointer">
+                  Book your escape
+                </button>
+              </Link>
+            </div>
 
-          {/* Mobile Button */}
-          <button
-            onClick={() =>
-              setIsOpen(!isOpen)
-            }
-            className="lg:hidden p-2"
-          >
-            <span className="material-symbols-outlined">
-              {isOpen
-                ? 'close'
-                : 'menu'}
-            </span>
-          </button>
+            {/* Burger */}
+
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden rounded-lg p-2 hover:bg-slate-100"
+            >
+              <span className="material-symbols-outlined text-3xl">
+                {isOpen ? "close" : "menu"}
+              </span>
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
 
       {/* Overlay */}
-      {isOpen && (
-        <div
-          onClick={() =>
-            setIsOpen(false)
-          }
-          className="fixed inset-0 bg-black/40 lg:hidden"
-        />
-      )}
 
-      {/* Mobile Drawer */}
       <div
-        className={`fixed top-0 right-0 h-screen w-80 bg-white z-50 shadow-2xl transition-transform duration-300 lg:hidden ${
-          isOpen
-            ? 'translate-x-0'
-            : 'translate-x-full'
-        }`}
-      >
-        <div className="p-6">
-          <div className="mb-8">
-            <h2 className="font-black text-xl text-primary-container">
-              Westtamp
-            </h2>
+        onClick={() => setIsOpen(false)}
+        className={`fixed inset-0 bg-black/40 z-[60] transition-opacity duration-300 lg:hidden ${isOpen
+            ? "opacity-100 visible"
+            : "opacity-0 invisible"
+          }`}
+      />
 
-            <p className="text-sm text-on-surface-variant">
-              Wellness Village
-            </p>
+      {/* Sidebar */}
+
+      <aside
+        className={`fixed top-0 right-0 h-screen w-[85%] max-w-sm bg-white z-[70] shadow-2xl transition-transform duration-300 lg:hidden ${isOpen
+            ? "translate-x-0"
+            : "translate-x-full"
+          }`}
+      >
+        <div className="flex flex-col h-full p-6">
+          {/* Header */}
+
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="font-black text-2xl text-primary-container">
+                Westtamp
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Wellness Village
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="material-symbols-outlined text-3xl">
+                close
+              </span>
+            </button>
           </div>
 
-          <div className="space-y-2">
+          {/* Menu */}
+
+          <div className="mt-10 flex flex-col gap-2">
             <Link
-              className={getMobileLinkClass(
-                '/',
-              )}
               to="/"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass("/")}
             >
               Destinations
             </Link>
 
             <Link
-              className={getMobileLinkClass(
-                '/packages',
-              )}
               to="/packages"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass(
+                "/packages"
+              )}
             >
               Packages
             </Link>
 
             <Link
-              className={getMobileLinkClass(
-                '/gallery',
-              )}
               to="/gallery"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass(
+                "/gallery"
+              )}
             >
               Gallery
             </Link>
 
             <Link
-              className={getMobileLinkClass(
-                '/facilities',
-              )}
               to="/facilities"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass(
+                "/facilities"
+              )}
             >
               Facilities
             </Link>
 
             <Link
-              className={getMobileLinkClass(
-                '/blog',
-              )}
               to="/blog"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass("/blog")}
             >
               Blog
             </Link>
 
             <Link
-              className={getMobileLinkClass(
-                '/about',
-              )}
               to="/about"
-              onClick={() =>
-                setIsOpen(false)
-              }
+              className={getMobileLinkClass(
+                "/about"
+              )}
             >
               About Us
             </Link>
           </div>
 
-          <div className="mt-10 space-y-3">
-            <Link
-              to="/booking"
-              onClick={() =>
-                setIsOpen(false)
-              }
-            >
-              <button className="w-full bg-primary-container text-white py-3 rounded-xl font-semibold">
+          {/* Bottom */}
+
+          <div className="mt-auto flex gap-4 flex-col">
+            <Link to="/check-booking">
+              <button className="px-5 py-3 rounded-full border border-primary-container text-primary-container font-semibold hover:bg-primary-container hover:text-white transition">
+                Check Booking
+              </button>
+            </Link>
+            <Link to="/booking">
+              <button className="w-full bg-primary-container text-white py-3 rounded-xl font-semibold hover:opacity-90 transition">
                 Book your escape
               </button>
             </Link>
-          </div>
 
-          <div className="mt-8 text-center text-xs text-on-surface-variant">
-            Desa Wisata Tampirkulon
+            <p className="text-center text-xs text-gray-500 mt-6">
+              Desa Wisata Tampirkulon
+            </p>
           </div>
         </div>
-      </div>
-    </nav>
+      </aside>
+    </>
   );
 }

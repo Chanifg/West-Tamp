@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import BookingDetailPage from './pages/BookingDetailPage';
 
 // Dynamic Page Imports (Code Splitting - L-07)
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
@@ -21,6 +22,7 @@ const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsConditionsPage = React.lazy(() => import('./pages/TermsConditionsPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+const BookingSuccessPage = React.lazy(() => import('./pages/BookingSuccessPage'));
 
 // Dynamic Loading Fallback Spinner
 const LoadingSpinner = () => (
@@ -65,6 +67,7 @@ function App() {
               <Route path="/reschedule" element={<ReschedulePage />} />
               <Route path="/cek-tiket" element={<CheckBookingPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/check-booking" element={<CheckBookingPage />} />
               <Route
                 path="/admin"
                 element={
@@ -77,7 +80,17 @@ function App() {
                 path="/rating/:bookingRef"
                 element={<RatingPage />}
               />
-            
+              
+              <Route
+                path="/booking-success"
+                element={<BookingSuccessPage />}
+              />
+
+              <Route
+                path="/booking-detail/:booking_ref"
+                element={<BookingDetailPage />}
+              />
+
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </React.Suspense>

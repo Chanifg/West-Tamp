@@ -7,102 +7,180 @@ import { useToast } from '../context/ToastContext';
 
 export default function ReschedulePage() {
   const [bookingRef, setBookingRef] = useState(() => {
-    return new URLSearchParams(window.location.search).get('booking_ref') || '';
-  });
-  const [booking, setBooking] = useState(null);
-  const [searchRef, setSearchRef] = useState(bookingRef);
-  const [date, setDate] = useState('');
-  const [session, setSession] = useState('');
-  const [availability, setAvailability] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [fetchingBooking, setFetchingBooking] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [rescheduleError, setRescheduleError] = useState(null);
+  return (
+    new URLSearchParams(window.location.search).get("booking_ref") || ""
+  );
+});
 
-  const toast = useToast();
+const [booking, setBooking] = useState(null);
+const [searchRef, setSearchRef] = useState(bookingRef);
+const [date, setDate] = useState("");
+const [session, setSession] = useState("");
+const [availability, setAvailability] = useState(null);
+const [loading, setLoading] = useState(false);
+const [fetchingBooking, setFetchingBooking] = useState(false);
+const [message, setMessage] = useState(null);
+const [rescheduleError, setRescheduleError] = useState(null);
 
-  useEffect(() => {
-    document.title = "Atur Ulang Jadwal (Reschedule) | Westtamp Wellness";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) {
-      meta.setAttribute("content", "Layanan darurat cuaca untuk mengatur ulang tanggal dan sesi kegiatan river tubing Anda di Sungai Elo secara mandiri.");
-    }
-  }, []);
+const toast = useToast();
 
-  const fetchBookingDetails = useCallback(() => {
-    setTimeout(() => {
-      setFetchingBooking(true);
-      setMessage(null);
-      setBooking(null);
-      setRescheduleError(null);
-    }, 0);
-    
-    client.get(`/api/bookings/verify-reschedule?booking_ref=${bookingRef}`)
-      .then(res => {
-        setBooking(res.data);
-        toast.success("Kode booking terverifikasi untuk reschedule!");
-      })
-      .catch(err => {
-        const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
-        setMessage({ type: 'error', text: errMsg });
-        toast.error(errMsg);
-      })
-      .finally(() => setFetchingBooking(false));
-  }, [bookingRef, toast]);
+useEffect(() => {
+  document.title = "Atur Ulang Jadwal (Reschedule) | Westtamp Wellness";
 
-  useEffect(() => {
-    if (bookingRef) {
-      fetchBookingDetails();
-    }
-  }, [bookingRef, fetchBookingDetails]);
+  const meta = document.querySelector('meta[name="description"]');
 
-  useEffect(() => {
-    if (date) {
-      client.post('/api/sessions/availability', { date })
-        .then(res => setAvailability(res.data))
-        .catch(err => {
-          console.error("Gagal mengambil ketersediaan sesi", err);
-        });
-    }
-  }, [date]);
+  if (meta) {
+    meta.setAttribute(
+      "content",
+      "Layanan darurat cuaca untuk mengatur ulang tanggal dan sesi kegiatan river tubing Anda di Sungai Elo secara mandiri."
+    );
+  }
+}, []);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchRef.trim()) {
-      setBookingRef(searchRef.trim());
-    }
-  };
+/*
+|--------------------------------------------------------------------------
+| Ambil data booking
+|--------------------------------------------------------------------------
+*/
 
-  const handleReschedule = () => {
-    if (!booking || !date || !session || !availability) {
-      toast.error("Silakan pilih tanggal dan sesi tujuan.");
-      return;
-    }
+useEffect(() => {
+  if (!bookingRef) return;
 
-    setLoading(true);
-    setRescheduleError(null);
-    client.post('/api/bookings/reschedule', {
-      booking_ref: booking.booking_ref,
-      session_id: availability[session].id
+  setFetchingBooking(true);
+  setMessage(null);
+  setBooking(null);
+  setRescheduleError(null);
+
+  client
+    .get("/api/bookings/verify-reschedule", {
+      params: {
+        booking_ref: bookingRef,
+      },
     })
-    .then(() => {
-      setMessage({ type: 'success', text: 'Reschedule berhasil dilakukan! Jadwal petualangan Anda telah diperbarui.' });
-      toast.success("Jadwal Anda berhasil diatur ulang!");
-      // Clear scheduling state
+    .then((res) => {
+      setBooking(res.data.booking);
+
+      toast.success("Kode booking berhasil diverifikasi.");
+    })
+    .catch((err) => {
+      const errMsg =
+        err.response?.data?.message ||
+        "Kode booking tidak ditemukan.";
+
+      setMessage({
+        type: "error",
+        text: errMsg,
+      });
+
+      toast.error(errMsg);
+    })
+    .finally(() => {
+      setFetchingBooking(false);
+    });
+}, [bookingRef]);
+
+/*
+|--------------------------------------------------------------------------
+| Ambil ketersediaan sesi
+|--------------------------------------------------------------------------
+*/
+
+useEffect(() => {
+  if (!date) {
+    setAvailability(null);
+    return;
+  }
+
+  client
+    .post("/api/sessions/availability", {
+      date,
+    })
+    .then((res) => {
+      setAvailability(res.data);
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("Gagal mengambil data sesi.");
+    });
+}, [date]);
+
+/*
+|--------------------------------------------------------------------------
+| Cari Booking
+|--------------------------------------------------------------------------
+*/
+
+const handleSearchSubmit = (e) => {
+  e.preventDefault();
+
+  if (!searchRef.trim()) return;
+
+  setBookingRef(searchRef.trim().toUpperCase());
+};
+
+/*
+|--------------------------------------------------------------------------
+| Proses Reschedule
+|--------------------------------------------------------------------------
+*/
+
+const handleReschedule = () => {
+  if (!booking) {
+    toast.error("Booking tidak ditemukan.");
+    return;
+  }
+
+  if (!date) {
+    toast.error("Silakan pilih tanggal.");
+    return;
+  }
+
+  if (!session) {
+    toast.error("Silakan pilih sesi.");
+    return;
+  }
+
+  if (!availability || !availability[session]) {
+    toast.error("Sesi tidak tersedia.");
+    return;
+  }
+
+  setLoading(true);
+  setRescheduleError(null);
+
+  client
+    .post("/api/bookings/reschedule", {
+      booking_ref: booking.booking_ref,
+      session_id: availability[session].id,
+    })
+    .then((res) => {
+      toast.success(res.data.message);
+
+      setMessage({
+        type: "success",
+        text: res.data.message,
+      });
+
+      // Reset form
       setBooking(null);
-      setDate('');
-      setSession('');
+      setBookingRef("");
+      setSearchRef("");
+      setDate("");
+      setSession("");
       setAvailability(null);
     })
-    .catch(err => {
-      const errMsg = err.response?.data?.message || err.message || "Gagal melakukan reschedule.";
+    .catch((err) => {
+      const errMsg =
+        err.response?.data?.message ||
+        "Gagal melakukan reschedule.";
+
       setRescheduleError(errMsg);
-      toast.error("Gagal melakukan reschedule: " + errMsg);
+      toast.error(errMsg);
     })
     .finally(() => {
       setLoading(false);
     });
-  };
+};
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col">

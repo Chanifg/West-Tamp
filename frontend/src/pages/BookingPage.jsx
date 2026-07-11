@@ -12,7 +12,7 @@ export default function BookingPage() {
   const [session, setSession] = useState('');
   const [availability, setAvailability] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -50,10 +50,10 @@ export default function BookingPage() {
     client.get('/api/packages')
       .then(res => {
         setPackages(res.data);
-        if(res.data.length > 0) setSelectedPackage(res.data[0]);
+        if (res.data.length > 0) setSelectedPackage(res.data[0]);
       })
       .catch(err => {
-        
+
         toast.error("Gagal memuat paket wisata.");
       });
   }, []);
@@ -63,7 +63,7 @@ export default function BookingPage() {
       client.post('/api/sessions/availability', { date })
         .then(res => setAvailability(res.data))
         .catch(err => {
-          
+
           toast.error("Gagal memuat ketersediaan sesi.");
         });
     }
@@ -90,33 +90,20 @@ export default function BookingPage() {
       customer_email: customerEmail,
       ticket_qty: guests
     })
-    .then(res => {
-      if (res.data.snap_token) {
-        window.snap.pay(res.data.snap_token, {
-          onSuccess: function (result) {
-            toast.success("Pembayaran berhasil!");
-            navigate(`/check-booking?booking_ref=${res.data.order_id}`);
-          },
-          onPending: function (result) {
-            toast.warning("Pembayaran sedang diproses!");
-            navigate(`/check-booking?booking_ref=${res.data.order_id}`);
-          },
-          onError: function (result) {
-            toast.error("Pembayaran gagal!");
-          },
-          onClose: function () {
-            toast.info("Anda menutup jendela pembayaran.");
-          }
-        });
-      }
-    })
-    .catch(err => {
-      
-      toast.error(err.response?.data?.message || "Terjadi kesalahan saat checkout.");
-    })
-    .finally(() => {
-      setLoading(false);
-    });
+      .then(res => {
+    const booking_ref = res.data.data.booking_ref;
+
+    toast.success("Pemesanan berhasil dibuat.");
+
+    navigate(`/booking-detail/${booking_ref}`);
+})
+      .catch(err => {
+
+        toast.error(err.response?.data?.message || "Terjadi kesalahan saat checkout.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const totalPrice = selectedPackage ? selectedPackage.price * guests : 0;
@@ -137,7 +124,7 @@ export default function BookingPage() {
               <h2 className="font-headline-md text-2xl text-primary mb-6">Select Wellness Package</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {packages.map(pkg => (
-                  <div key={pkg.id} 
+                  <div key={pkg.id}
                     onClick={() => setSelectedPackage(pkg)}
                     className={`border rounded-xl p-6 cursor-pointer transition-all flex flex-col justify-between ${selectedPackage?.id === pkg.id ? 'border-primary-container bg-primary-container/5 ring-1 ring-primary-container' : 'border-outline-variant hover:border-primary-container'}`}>
                     <div>
@@ -147,7 +134,7 @@ export default function BookingPage() {
                       </div>
                       <p className="text-sm text-on-surface-variant mb-6">{pkg.description}</p>
                     </div>
-                    
+
                     <div>
                       <p className="text-xl font-bold text-primary mb-4">Rp{parseInt(pkg.price).toLocaleString('id-ID')} <span className="text-xs font-normal text-on-surface-variant">/ pax</span></p>
                       <div className="border-t border-outline-variant pt-4 flex flex-col gap-2">
@@ -170,7 +157,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="adventure_date" className="font-label-md text-on-surface block mb-2">Adventure Date</label>
-                  <input id="adventure_date" type="date" className="w-full border border-outline-variant rounded-lg p-4 bg-surface" 
+                  <input id="adventure_date" type="date" className="w-full border border-outline-variant rounded-lg p-4 bg-surface"
                     value={date} onChange={e => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
                 </div>
 
@@ -194,7 +181,7 @@ export default function BookingPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-6 pt-6 border-t border-outline-variant">
                 <h3 className="font-label-md mb-2">Customer Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -210,13 +197,13 @@ export default function BookingPage() {
           <div className="lg:col-span-4">
             <div className="bg-white rounded-xl p-6 shadow-md border border-surface-variant sticky top-24">
               <h2 className="font-headline-md text-2xl text-primary mb-6 border-b border-outline-variant pb-4">Booking Summary</h2>
-              
+
               <div className="flex flex-col gap-4 mb-6">
                 <div>
                   <p className="font-label-sm text-on-surface-variant uppercase tracking-wider">Package</p>
                   <p className="font-body-lg font-medium">{selectedPackage ? selectedPackage.name : 'None selected'}</p>
                 </div>
-                
+
                 <div>
                   <p className="font-label-sm text-on-surface-variant uppercase tracking-wider">Date & Time</p>
                   <p className="font-body-md">{date || '-'}</p>
@@ -228,7 +215,7 @@ export default function BookingPage() {
                   <div className="flex items-center border border-outline-variant rounded-lg overflow-hidden">
                     <button onClick={() => setGuests(Math.max(1, guests - 1))} className="px-4 py-2 bg-surface hover:bg-surface-variant">-</button>
                     <span className="px-4 font-body-md">{guests}</span>
-                    <button 
+                    <button
                       onClick={() => {
                         const maxGuests = getMaxGuests();
                         if (guests >= maxGuests) {
@@ -236,7 +223,7 @@ export default function BookingPage() {
                         } else {
                           setGuests(guests + 1);
                         }
-                      }} 
+                      }}
                       className="px-4 py-2 bg-surface hover:bg-surface-variant"
                     >+</button>
                   </div>
@@ -250,8 +237,8 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              <button 
-                onClick={handleCheckout} 
+              <button
+                onClick={handleCheckout}
                 disabled={loading}
                 className="w-full bg-primary-container text-white py-4 rounded-lg font-bold shadow-md hover:opacity-90 transition-colors disabled:opacity-50">
                 {loading ? 'Processing...' : 'Continue to Payment'}
@@ -263,3 +250,5 @@ export default function BookingPage() {
     </div>
   );
 }
+
+
