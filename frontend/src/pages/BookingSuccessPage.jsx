@@ -1,120 +1,268 @@
-import React, { useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import client from "../api/client";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { useToast } from "../context/ToastContext";
 
 export default function BookingSuccessPage() {
-  const [searchParams] = useSearchParams();
-  const bookingRef = searchParams.get("booking_ref");
+  const { booking_ref } = useParams();
+
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const toast = useToast();
 
   useEffect(() => {
-    document.title = "Booking Berhasil | Westtamp Wellness";
+    document.title = "Booking Success | Westtamp Tubing";
 
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) {
-      meta.setAttribute(
-        "content",
-        "Pembayaran berhasil. Terima kasih telah melakukan booking di Westtamp Wellness."
-      );
-    }
-  }, []);
+    client
+      .get(`/api/bookings/${booking_ref}`)
+      .then((res) => {
+        setBooking(res.data);
+      })
+      .catch(() => {
+        toast.error("Gagal memuat detail booking.");
+      })
+      .finally(() => setLoading(false));
+  }, [booking_ref]);
 
-  return (
-    <div className="bg-background text-on-background min-h-screen flex flex-col">
-      <Navbar />
+  if (loading) {
+    return (
+      <>
+        <Navbar />
 
-      <main className="flex-grow w-full max-w-[1280px] mx-auto px-6 md:px-12 py-24 flex items-center justify-center">
-        <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-surface-variant p-10 text-center">
-
-          {/* Success Icon */}
-          <div className="relative mb-8">
-            <div className="w-32 h-32 rounded-full bg-green-100 mx-auto flex items-center justify-center">
-              <span className="material-symbols-outlined text-7xl text-green-600">
-                check_circle
-              </span>
-            </div>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-4xl font-bold text-primary mb-4">
-            Pembayaran Berhasil 🎉
-          </h1>
-
-          <p className="text-on-surface-variant leading-relaxed text-lg mb-8">
-            Terima kasih telah melakukan pemesanan di
-            <span className="font-semibold text-primary">
-              {" "}Westtamp Wellness.
-            </span>
-            <br />
-            Booking Anda telah berhasil dibuat dan sedang diproses.
-          </p>
-
-          {/* Booking Reference */}
-          <div className="bg-surface rounded-2xl border border-outline-variant p-6 mb-10">
-            <p className="text-sm uppercase tracking-widest text-on-surface-variant mb-2">
-              Booking Reference
-            </p>
-
-            <p className="text-2xl md:text-3xl font-black tracking-wider text-primary break-all">
-              {bookingRef || "-"}
-            </p>
-
-            <p className="text-sm text-on-surface-variant mt-4">
-              Simpan kode booking ini untuk melakukan pengecekan status booking
-              atau saat menghubungi customer service.
+        <div className="min-h-screen flex justify-center items-center">
+          <div className="text-center">
+            <span className="loading loading-spinner loading-lg"></span>
+            <p className="mt-4 text-slate-500">
+              Memuat detail booking...
             </p>
           </div>
+        </div>
+      </>
+    );
+  }
 
-          {/* Information */}
-          <div className="bg-primary-container/10 border border-primary-container/20 rounded-2xl p-5 mb-10 text-left">
-            <div className="flex items-start gap-3">
-              <span className="material-symbols-outlined text-primary mt-1">
-                info
-              </span>
+  if (!booking) {
+    return (
+      <>
+        <Navbar />
 
-              <div className="space-y-2 text-sm text-on-surface">
-                <p>
-                  ✅ Invoice dan konfirmasi booking akan dikirim ke email Anda.
-                </p>
-
-                <p>
-                  ✅ Status booking dapat dilihat kapan saja menggunakan kode booking di atas.
-                </p>
-
-                <p>
-                  ✅ Silakan datang sesuai jadwal yang telah dipilih.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-
-            <Link
-              to={`/check-booking?booking_ref=${bookingRef}`}
-              className="flex-1"
-            >
-              <button className="w-full bg-primary-container text-white py-4 rounded-xl font-bold hover:opacity-90 transition active:scale-95 shadow-md">
-                Cek Status Booking
-              </button>
-            </Link>
+        <div className="min-h-screen flex justify-center items-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">
+              Booking tidak ditemukan
+            </h1>
 
             <Link
               to="/"
-              className="flex-1"
+              className="mt-6 inline-block bg-primary-container text-white px-6 py-3 rounded-lg"
             >
-              <button className="w-full border-2 border-primary text-primary py-4 rounded-xl font-bold hover:bg-primary hover:text-white transition active:scale-95">
-                Kembali ke Beranda
-              </button>
+              Kembali ke Home
+            </Link>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const whatsappNumber = "6285727163035"; // Ganti nomor admin
+
+  const message = `Halo Admin Westtamp Tubing.
+
+Saya telah berhasil melakukan pembayaran.
+
+========================
+
+Kode Booking : ${booking.booking_ref}
+
+Nama : ${booking.customer_name}
+
+Paket : ${booking.package?.name}
+
+Tanggal : ${booking.session.session_date}
+
+Sesi : ${booking.session?.shift}
+
+Jumlah Peserta : ${booking.ticket_qty} Orang
+
+Total Pembayaran :
+Rp${Number(booking.total_price).toLocaleString("id-ID")}
+
+========================
+
+Mohon dilakukan konfirmasi booking saya.
+
+Terima kasih.`;
+
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    message
+  )}`;
+
+  return (
+    <>
+      <Navbar />
+
+      <main className="bg-slate-50 min-h-screen py-16 px-6">
+        <div className="max-w-2xl mx-auto">
+
+          <div className="bg-white rounded-3xl shadow-lg p-10">
+
+            <div className="flex justify-center">
+
+              <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
+
+                <span className="material-symbols-outlined text-green-600 text-6xl">
+                  check_circle
+                </span>
+
+              </div>
+
+            </div>
+
+            <h1 className="text-4xl font-bold text-center mt-6 text-primary">
+              Pembuatan Booking Berhasil
+            </h1>
+
+            <p className="text-center text-slate-500 mt-3">
+              Terima kasih telah melakukan pemesanan.
+              Booking Anda telah berhasil dibuat.
+            </p>
+
+            <div className="mt-10 border rounded-xl overflow-hidden">
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Kode Booking
+                </span>
+
+                <span className="font-semibold text-right">
+                  {booking.booking_ref}
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Nama
+                </span>
+
+                <span className="text-right">
+                  {booking.customer_name}
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Paket
+                </span>
+
+                <span className="text-right">
+                  {booking.package?.name}
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Tanggal
+                </span>
+
+                <span className="text-right">
+                  {booking.session.session_date}
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Sesi
+                </span>
+
+                <span className="text-right">
+                  {booking.session?.shift}
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 border-b p-4">
+
+                <span className="text-slate-500">
+                  Jumlah Peserta
+                </span>
+
+                <span className="text-right">
+                  {booking.ticket_qty} Orang
+                </span>
+
+              </div>
+
+              <div className="grid grid-cols-2 p-4">
+
+                <span className="text-slate-500">
+                  Total Pembayaran
+                </span>
+
+                <span className="text-right font-bold text-xl text-primary">
+                  Rp
+                  {Number(booking.total_price).toLocaleString(
+                    "id-ID"
+                  )}
+                </span>
+
+              </div>
+
+            </div>
+
+            <div className="mt-10 rounded-xl bg-blue-50 border border-blue-200 p-5">
+
+              <div className="flex gap-3">
+
+                <span className="material-symbols-outlined text-blue-600">
+                  info
+                </span>
+
+                <p className="text-sm leading-7 text-slate-700">
+                  Silakan klik tombol di bawah untuk mengirim
+                  konfirmasi dan pembayaran kepada Admin melalui WhatsApp.
+                </p>
+
+              </div>
+
+            </div>
+
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 w-full bg-green-600 hover:bg-green-700 transition text-white py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-semibold"
+            >
+
+              <span className="material-symbols-outlined">
+                chat
+              </span>
+
+              Konfirmasi via WhatsApp
+
+            </a>
+
+            <Link
+              to="/"
+              className="mt-4 block w-full border border-slate-300 py-4 rounded-xl text-center hover:bg-slate-100 transition"
+            >
+              Kembali ke Beranda
             </Link>
 
           </div>
 
         </div>
       </main>
-
-      <Footer />
-    </div>
+    </>
   );
 }

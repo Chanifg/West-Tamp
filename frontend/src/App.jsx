@@ -82,7 +82,7 @@ function App() {
               />
               
               <Route
-                path="/booking-success"
+                path="/booking-success/:booking_ref"
                 element={<BookingSuccessPage />}
               />
 

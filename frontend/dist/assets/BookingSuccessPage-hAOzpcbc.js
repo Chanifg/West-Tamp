@@ -1,0 +1,26 @@
+import{a as e,n as t,t as n}from"./jsx-runtime-m7G7yzlP.js";import{c as r,n as i}from"./chunk-EVOBXE3Y-CS76YYTA.js";import{t as a}from"./client-DGeXSQIo.js";import{n as o,r as s}from"./index-DtIpmgIR.js";var c=e(t(),1),l=n();function u(){let{booking_ref:e}=r(),[t,n]=(0,c.useState)(null),[u,d]=(0,c.useState)(!0),f=s();if((0,c.useEffect)(()=>{document.title=`Booking Success | Westtamp Tubing`,a.get(`/api/bookings/${e}`).then(e=>{n(e.data)}).catch(()=>{f.error(`Gagal memuat detail booking.`)}).finally(()=>d(!1))},[e]),u)return(0,l.jsxs)(l.Fragment,{children:[(0,l.jsx)(o,{}),(0,l.jsx)(`div`,{className:`min-h-screen flex justify-center items-center`,children:(0,l.jsxs)(`div`,{className:`text-center`,children:[(0,l.jsx)(`span`,{className:`loading loading-spinner loading-lg`}),(0,l.jsx)(`p`,{className:`mt-4 text-slate-500`,children:`Memuat detail booking...`})]})})]});if(!t)return(0,l.jsxs)(l.Fragment,{children:[(0,l.jsx)(o,{}),(0,l.jsx)(`div`,{className:`min-h-screen flex justify-center items-center`,children:(0,l.jsxs)(`div`,{className:`text-center`,children:[(0,l.jsx)(`h1`,{className:`text-3xl font-bold`,children:`Booking tidak ditemukan`}),(0,l.jsx)(i,{to:`/`,className:`mt-6 inline-block bg-primary-container text-white px-6 py-3 rounded-lg`,children:`Kembali ke Home`})]})})]});let p=`Halo Admin Westtamp Tubing.
+
+Saya telah berhasil melakukan pembayaran.
+
+========================
+
+Kode Booking : ${t.booking_ref}
+
+Nama : ${t.customer_name}
+
+Paket : ${t.package?.name}
+
+Tanggal : ${t.session.session_date}
+
+Sesi : ${t.session?.shift}
+
+Jumlah Peserta : ${t.ticket_qty} Orang
+
+Total Pembayaran :
+Rp${Number(t.total_price).toLocaleString(`id-ID`)}
+
+========================
+
+Mohon dilakukan konfirmasi booking saya.
+
+Terima kasih.`,m=`https://wa.me/6285727163035?text=${encodeURIComponent(p)}`;return(0,l.jsxs)(l.Fragment,{children:[(0,l.jsx)(o,{}),(0,l.jsx)(`main`,{className:`bg-slate-50 min-h-screen py-16 px-6`,children:(0,l.jsx)(`div`,{className:`max-w-2xl mx-auto`,children:(0,l.jsxs)(`div`,{className:`bg-white rounded-3xl shadow-lg p-10`,children:[(0,l.jsx)(`div`,{className:`flex justify-center`,children:(0,l.jsx)(`div`,{className:`w-24 h-24 rounded-full bg-green-100 flex items-center justify-center`,children:(0,l.jsx)(`span`,{className:`material-symbols-outlined text-green-600 text-6xl`,children:`check_circle`})})}),(0,l.jsx)(`h1`,{className:`text-4xl font-bold text-center mt-6 text-primary`,children:`Pembuatan Booking Berhasil`}),(0,l.jsx)(`p`,{className:`text-center text-slate-500 mt-3`,children:`Terima kasih telah melakukan pemesanan. Booking Anda telah berhasil dibuat.`}),(0,l.jsxs)(`div`,{className:`mt-10 border rounded-xl overflow-hidden`,children:[(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Kode Booking`}),(0,l.jsx)(`span`,{className:`font-semibold text-right`,children:t.booking_ref})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Nama`}),(0,l.jsx)(`span`,{className:`text-right`,children:t.customer_name})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Paket`}),(0,l.jsx)(`span`,{className:`text-right`,children:t.package?.name})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Tanggal`}),(0,l.jsx)(`span`,{className:`text-right`,children:t.session.session_date})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Sesi`}),(0,l.jsx)(`span`,{className:`text-right`,children:t.session?.shift})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 border-b p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Jumlah Peserta`}),(0,l.jsxs)(`span`,{className:`text-right`,children:[t.ticket_qty,` Orang`]})]}),(0,l.jsxs)(`div`,{className:`grid grid-cols-2 p-4`,children:[(0,l.jsx)(`span`,{className:`text-slate-500`,children:`Total Pembayaran`}),(0,l.jsxs)(`span`,{className:`text-right font-bold text-xl text-primary`,children:[`Rp`,Number(t.total_price).toLocaleString(`id-ID`)]})]})]}),(0,l.jsx)(`div`,{className:`mt-10 rounded-xl bg-blue-50 border border-blue-200 p-5`,children:(0,l.jsxs)(`div`,{className:`flex gap-3`,children:[(0,l.jsx)(`span`,{className:`material-symbols-outlined text-blue-600`,children:`info`}),(0,l.jsx)(`p`,{className:`text-sm leading-7 text-slate-700`,children:`Silakan klik tombol di bawah untuk mengirim konfirmasi dan pembayaran kepada Admin melalui WhatsApp.`})]})}),(0,l.jsxs)(`a`,{href:m,target:`_blank`,rel:`noreferrer`,className:`mt-8 w-full bg-green-600 hover:bg-green-700 transition text-white py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-semibold`,children:[(0,l.jsx)(`span`,{className:`material-symbols-outlined`,children:`chat`}),`Konfirmasi via WhatsApp`]}),(0,l.jsx)(i,{to:`/`,className:`mt-4 block w-full border border-slate-300 py-4 rounded-xl text-center hover:bg-slate-100 transition`,children:`Kembali ke Beranda`})]})})})]})}export{u as default};

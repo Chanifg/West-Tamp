@@ -31,10 +31,10 @@ export default function CheckBookingPage() {
 
     client.get(`/api/bookings/lookup?booking_ref=${bookingRef.trim()}&phone=${phone.trim()}`)
       .then(res => {
-    setBooking(res.data.data);
-})
+        setBooking(res.data.data);
+      })
       .catch(err => {
-        
+
         const errMsg = err.response?.data?.message || 'Kode booking tidak ditemukan.';
         setError(errMsg);
         toast.error(errMsg);
@@ -89,11 +89,11 @@ export default function CheckBookingPage() {
               <form onSubmit={handleLookup} className="space-y-4">
                 <div>
                   <label htmlFor="search_booking_ref" className="block text-sm font-bold text-on-surface mb-2">Kode Booking *</label>
-                  <input 
+                  <input
                     id="search_booking_ref"
                     aria-label="Kode Booking"
-                    type="text" 
-                    placeholder="Contoh: WT-XXXXXX atau XXXXXX" 
+                    type="text"
+                    placeholder="Contoh: WT-XXXXXX atau XXXXXX"
                     value={bookingRef}
                     onChange={e => setBookingRef(e.target.value)}
                     className="w-full border border-surface-variant p-4 rounded-lg bg-surface uppercase font-mono tracking-wider focus:outline-none focus:border-primary"
@@ -103,11 +103,11 @@ export default function CheckBookingPage() {
 
                 <div>
                   <label htmlFor="search_phone" className="block text-sm font-bold text-on-surface mb-2">Nomor WhatsApp (Opsional)</label>
-                  <input 
+                  <input
                     id="search_phone"
                     aria-label="Nomor WhatsApp"
-                    type="tel" 
-                    placeholder="Contoh: 081234567890" 
+                    type="tel"
+                    placeholder="Contoh: 081234567890"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     className="w-full border border-surface-variant p-4 rounded-lg bg-surface focus:outline-none focus:border-primary"
@@ -115,8 +115,8 @@ export default function CheckBookingPage() {
                   <p className="text-[10px] text-on-surface-variant mt-1">Verifikasi tambahan menggunakan nomor HP saat checkout.</p>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className="w-full bg-primary-container text-white py-4 rounded-xl font-bold shadow-md hover:opacity-90 transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
                 >
@@ -138,14 +138,7 @@ export default function CheckBookingPage() {
           <div className="lg:col-span-7">
             {booking ? (
               <div className="bg-white rounded-xl p-8 shadow-md border border-surface-variant flex flex-col md:flex-row gap-8 relative overflow-hidden">
-                {/* Visual Status Indicator */}
-                <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden pointer-events-none">
-                  <div className={`absolute top-4 right-[-36px] w-36 py-1 text-center text-[10px] font-black uppercase tracking-widest text-white rotate-45 
-                    ${booking.payment_status === 'success' ? 'bg-emerald-600' : (booking.payment_status === 'pending' ? 'bg-amber-500' : 'bg-red-600')}
-                  `}>
-                    {booking.payment_status}
-                  </div>
-                </div>
+              
 
                 {/* Details */}
                 <div className="flex-1 space-y-6">
@@ -176,44 +169,28 @@ export default function CheckBookingPage() {
                     </div>
                   </div>
 
-                  {booking.payment_status === 'pending' && (
-                    <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-lg space-y-3">
-                      <p className="text-sm font-medium">Pembayaran Anda masih berstatus <strong>Pending (Belum Dibayar)</strong>.</p>
-                      <button 
-                        onClick={() => handleRetryPayment(booking.midtrans_snap_token)}
-                        className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-lg text-sm shadow transition-all active:scale-[0.98]"
-                      >
-                        Bayar Sekarang
-                      </button>
-                    </div>
-                  )}
-
-                  {booking.payment_status === 'expired' && (
-                    <div className="p-4 bg-red-50 border border-red-200 text-red-900 rounded-lg">
-                      <p className="text-sm font-medium">Sesi pembayaran ini telah <strong>Kedaluwarsa (Expired)</strong> karena tidak dibayar melebihi 30 menit. Silakan lakukan pemesanan ulang.</p>
-                    </div>
-                  )}
+                  
                 </div>
 
-                {booking.payment_status === 'success' && (
-  <div className="w-full md:w-52 shrink-0 flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl">
 
-    <img
-      src={booking.qr_code_url}
-      alt="QR Code"
-      className="w-40 h-40 object-contain bg-white rounded-lg border p-2"
-    />
+                <div className="w-full md:w-52 shrink-0 flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl">
 
-    <span className="font-mono text-xs font-bold mt-3">
-      {booking.qr_code}
-    </span>
+                  <img
+                    src={booking.qr_code_url}
+                    alt="QR Code"
+                    className="w-40 h-40 object-contain bg-white rounded-lg border p-2"
+                  />
 
-    <p className="text-[10px] text-center mt-1">
-      Tunjukkan QR Code ini kepada petugas.
-    </p>
+                  <span className="font-mono text-xs font-bold mt-3">
+                    {booking.qr_code}
+                  </span>
 
-  </div>
-)}
+                  <p className="text-[10px] text-center mt-1">
+                    Tunjukkan QR Code ini kepada petugas.
+                  </p>
+
+                </div>
+
               </div>
             ) : (
               <div className="bg-surface-container/30 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-12 text-center h-full min-h-[300px]">

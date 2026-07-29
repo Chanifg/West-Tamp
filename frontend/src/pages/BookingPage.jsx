@@ -91,12 +91,12 @@ export default function BookingPage() {
       ticket_qty: guests
     })
       .then(res => {
-    const booking_ref = res.data.data.booking_ref;
+        const booking_ref = res.data.data.booking_ref;
 
-    toast.success("Pemesanan berhasil dibuat.");
+        toast.success("Pemesanan berhasil dibuat.");
 
-    navigate(`/booking-detail/${booking_ref}`);
-})
+        navigate(`/booking-success/${booking_ref}`);
+      })
       .catch(err => {
 
         toast.error(err.response?.data?.message || "Terjadi kesalahan saat checkout.");
@@ -138,10 +138,16 @@ export default function BookingPage() {
                     <div>
                       <p className="text-xl font-bold text-primary mb-4">Rp{parseInt(pkg.price).toLocaleString('id-ID')} <span className="text-xs font-normal text-on-surface-variant">/ pax</span></p>
                       <div className="border-t border-outline-variant pt-4 flex flex-col gap-2">
-                        {(pkg.features || '').split(',').map((line, i) => (
-                          <div key={i} className="flex items-start gap-2 text-sm text-on-surface-variant">
-                            <span className="material-symbols-outlined notranslate text-[16px] mt-1 shrink-0 text-primary">check_circle</span>
-                            <p>{line.trim()}</p>
+                        {(pkg.features ?? []).map((item, index) => (
+                          <div
+                            key={item.id ?? index}
+                            className="flex items-start gap-2 text-sm text-on-surface-variant"
+                          >
+                            <span className="material-symbols-outlined notranslate text-[16px] mt-1 shrink-0 text-primary">
+                              check_circle
+                            </span>
+
+                            <p>{item.feature}</p>
                           </div>
                         ))}
                       </div>

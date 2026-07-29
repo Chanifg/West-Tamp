@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -26,30 +25,30 @@
         }
 
         .button-container {
-    margin-top: 30px;
-    text-align: center;
-}
+            margin-top: 30px;
+            text-align: center;
+        }
 
-.btn-payment {
-    display: inline-block;
-    background: #0d9488;
-    color: #ffffff !important;
-    text-decoration: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 15px;
-}
+        .btn-payment {
+            display: inline-block;
+            background: #0d9488;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
+        }
 
-.btn-payment:hover {
-    background: #0f766e;
-}
+        .btn-payment:hover {
+            background: #0f766e;
+        }
 
-.small-text {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #64748b;
-}
+        .small-text {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #64748b;
+        }
 
         .header {
             background: #0d9488;
@@ -135,100 +134,118 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="header">
-        <h2>KONFIRMASI BOOKING</h2>
-    </div>
-
-    <div class="content">
-
-        <p>Halo <strong>{{ $booking->customer_name }}</strong>,</p>
-
-        <p>
-            Terima kasih telah melakukan pemesanan di <strong>Westtamp Wellness</strong>.
-            Booking Anda telah berhasil dibuat dan saat ini sedang menunggu pembayaran.
-        </p>
-
-        <div class="alert">
-            <strong>Booking berhasil dibuat.</strong><br>
-            Silakan selesaikan pembayaran maksimal sebelum
-            <strong>{{ \Carbon\Carbon::parse($booking->expired_at)->format('d F Y H:i') }}</strong>.
-            Apabila melewati batas waktu tersebut, booking akan otomatis dibatalkan.
+        <div class="header">
+            <h2>KONFIRMASI BOOKING</h2>
         </div>
 
-        <div class="booking-info">
+        <div class="content">
 
-            <table>
+            <p>Halo <strong>{{ $booking->customer_name }}</strong>,</p>
 
-                <tr>
-                    <td class="label">Kode Booking</td>
-                    <td><strong>{{ $booking->booking_ref }}</strong></td>
-                </tr>
+            <p>
+                Terima kasih telah melakukan pemesanan di <strong>Westtamp Wellness</strong>.
+                Booking Anda telah berhasil dibuat dan saat ini sedang menunggu pembayaran.
+            </p>
 
-                <tr>
-                    <td class="label">Paket Tubing</td>
-                    <td>{{ $booking->package->name }}</td>
-                </tr>
+            <div class="booking-info">
 
-                <tr>
-                    <td class="label">Tanggal Sesi</td>
-                    <td>{{ \Carbon\Carbon::parse($booking->session->session_date)->format('d F Y') }}</td>
-                </tr>
+                <table>
 
-                <tr>
-                    <td class="label">Shift</td>
-                    <td>Sesi {{ ucfirst($booking->session->shift) }}</td>
-                </tr>
+                    <tr>
+                        <td class="label">Kode Booking</td>
+                        <td><strong>{{ $booking->booking_ref }}</strong></td>
+                    </tr>
 
-                <tr>
-                    <td class="label">Jumlah Tiket</td>
-                    <td>{{ $booking->ticket_qty }} Wisatawan</td>
-                </tr>
+                    <tr>
+                        <td class="label">Paket Tubing</td>
+                        <td>{{ $booking->package->name }}</td>
+                    </tr>
 
-                <tr>
-                    <td class="label">Total Pembayaran</td>
-                    <td>Rp {{ number_format($booking->total_price,0,',','.') }}</td>
-                </tr>
+                    <tr>
+                        <td class="label">Tanggal Sesi</td>
+                        <td>{{ \Carbon\Carbon::parse($booking->session->session_date)->format('d F Y') }}</td>
+                    </tr>
 
-            </table>
+                    <tr>
+                        <td class="label">Shift</td>
+                        <td>Sesi {{ ucfirst($booking->session->shift) }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Jumlah Tiket</td>
+                        <td>{{ $booking->ticket_qty }} Wisatawan</td>
+                    </tr>
+
+                    <tr>
+                        <td class="label">Total Pembayaran</td>
+                        <td>Rp {{ number_format($booking->total_price,0,',','.') }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
 
         </div>
 
-        @php
-    $paymentUrl = config('app.frontend_url') . '/booking-detail/' . $booking->booking_ref;
-@endphp
+        <div class="button-container">
 
-        
+            <a href="{{ $paymentUrl }}" class="btn-payment">
+                Konfirmasi Via Whatsapp
+            </a>
 
-        <p>
-            Terima kasih telah memilih <strong>Westtamp Wellness</strong>.
-            Kami tunggu kedatangan Anda.
-        </p>
+            @php
+            $whatsappNumber = '6285727163035';
+
+            $message = "Halo Admin Westtamp Tubing.\n\n";
+            $message .= "Saya telah berhasil membuat booking\n\n";
+            $message .= "========================\n\n";
+            $message .= "Kode Booking : {$booking->booking_ref}\n";
+            $message .= "Nama : {$booking->customer_name}\n";
+            $message .= "Paket : {$booking->package->name}\n";
+            $message .= "Tanggal : {$booking->session->session_date}\n";
+            $message .= "Sesi : {$booking->session->shift}\n";
+            $message .= "Jumlah Peserta : {$booking->ticket_qty} Orang\n";
+            $message .= "Total Pembayaran : Rp " . number_format($booking->total_price,0,',','.') . "\n\n";
+            $message .= "========================\n\n";
+            $message .= "Mohon dilakukan konfirmasi booking saya.\n\n";
+            $message .= "Terima kasih.";
+
+            $whatsappLink = "https://wa.me/{$whatsappNumber}?text=" . urlencode($message);
+            @endphp
+
+            <div class="button-container">
+
+                <a href="{{ $whatsappLink }}"
+                    style="display:inline-block;
+              background:#25D366;
+              color:#ffffff !important;
+              text-decoration:none;
+              padding:14px 28px;
+              border-radius:8px;
+              font-weight:bold;
+              font-size:15px;">
+
+                    Konfirmasi via WhatsApp
+
+                </a>
+
+                <p class="small-text">
+                    Setelah pembuatan booking berhasil segera melakukan pembayaran dengan cara konfirmasi pemesanan lewat whatsaap, silakan kirim konfirmasi kepada Admin melalui WhatsApp agar booking segera diverifikasi.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="footer">
+            © {{ date('Y') }} Westtamp Wellness. All rights reserved.
+        </div>
 
     </div>
-
-    <div class="button-container">
-
-    <a href="{{ $paymentUrl }}" class="btn-payment">
-        Continue to Payment
-    </a>
-
-    <div class="small-text">
-        Atau salin tautan berikut jika tombol tidak dapat diklik:
-        <br>
-        <a href="{{ $paymentUrl }}">
-            {{ $paymentUrl }}
-        </a>
-    </div>
-
-</div>
-
-    <div class="footer">
-        © {{ date('Y') }} Westtamp Wellness. All rights reserved.
-    </div>
-
-</div>
 
 </body>
 

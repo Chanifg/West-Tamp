@@ -33,7 +33,7 @@ class BookingResource extends JsonResource
             'qr_code' => $this->qr_code,
 
             'qr_code_url' => $this->qr_code
-                ? asset('storage/'.$this->qr_code)
+                ? asset('storage/qrcodes/'.$this->booking_ref.'.svg')
                 : null,
 
             'package' => $this->whenLoaded('package', function () {

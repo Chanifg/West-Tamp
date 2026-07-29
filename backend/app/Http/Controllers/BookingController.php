@@ -7,10 +7,12 @@ use App\Models\TubingPackage;
 use App\Models\TubingSession;
 use App\Models\Booking;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\File;
 use App\Mail\ETicketMail;
 use App\Mail\RescheduleSuccessMail;
 use App\Http\Resources\BookingResource;
@@ -22,7 +24,7 @@ class BookingController extends Controller
     public function getPackages()
 {
     return response()->json(
-        TubingPackage::with('features') // <-- Tambahkan with('features') di sini
+        TubingPackage::with('features')
             ->orderBy('is_popular', 'desc')
             ->orderBy('id', 'desc')
             ->get()
@@ -145,16 +147,15 @@ class BookingController extends Controller
     public function checkout(Request $request)
 {
     $request->validate([
-        'package_id'      => 'required|exists:tubing_packages,id',
-        'session_id'      => 'required|exists:tubing_sessions,id',
-        'customer_name'   => 'required|string|max:255',
-        'customer_phone'  => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
-        'customer_email'  => 'required|email|max:255',
-        'ticket_qty'      => 'required|integer|min:1|max:100',
+        'package_id'     => 'required|exists:tubing_packages,id',
+        'session_id'     => 'required|exists:tubing_sessions,id',
+        'customer_name'  => 'required|string|max:255',
+        'customer_phone' => ['required', 'string', 'regex:/^(?:\+62|62|0)8[1-9][0-9]{7,10}$/'],
+        'customer_email' => 'required|email|max:255',
+        'ticket_qty'     => 'required|integer|min:1|max:100',
     ]);
 
     try {
-
         $booking = DB::transaction(function () use ($request) {
 
             $session = TubingSession::where('id', $request->session_id)
@@ -172,102 +173,110 @@ class BookingController extends Controller
             $package = TubingPackage::findOrFail($request->package_id);
 
             $totalPrice = $package->price * $request->ticket_qty;
+            $orderId    = 'ORDER-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
+            $expiredAt  = now()->addHours(24);
 
-            $orderId = 'ORDER-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
-
-            $expiredAt = now()->addHours(24);
-
-            \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
+            // Midtrans Config
+            \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
             \Midtrans\Config::$isProduction = config('services.midtrans.is_production', false);
-            \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized', true);
-            \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds', true);
+            \Midtrans\Config::$isSanitized  = config('services.midtrans.is_sanitized', true);
+            \Midtrans\Config::$is3ds        = config('services.midtrans.is_3ds', true);
 
             $params = [
                 'transaction_details' => [
-                    'order_id' => $orderId,
+                    'order_id'     => $orderId,
                     'gross_amount' => $totalPrice,
                 ],
-
                 'customer_details' => [
                     'first_name' => $request->customer_name,
-                    'email' => $request->customer_email,
-                    'phone' => $request->customer_phone,
+                    'email'      => $request->customer_email,
+                    'phone'      => $request->customer_phone,
                 ],
-
                 'item_details' => [[
-                    'id' => $package->id,
-                    'price' => $package->price,
+                    'id'       => $package->id,
+                    'price'    => $package->price,
                     'quantity' => $request->ticket_qty,
-                    'name' => $package->name,
+                    'name'     => $package->name,
                 ]],
-
                 'expiry' => [
-                    'unit' => 'hour',
+                    'unit'     => 'hour',
                     'duration' => 24,
                 ],
             ];
 
             $serverKey = config('services.midtrans.server_key');
+            $snapToken = empty($serverKey) 
+                ? 'MOCK_SNAP_TOKEN_' . Str::random(12) 
+                : \Midtrans\Snap::getSnapToken($params);
 
-            if (
-                empty($serverKey)
-            ) {
-                $snapToken = 'MOCK_SNAP_TOKEN_' . Str::random(12);
-            } else {
-                $snapToken = \Midtrans\Snap::getSnapToken($params);
+            // 1. Generate Kode Booking Unik
+            $bookingRef = strtoupper(Str::random(8));
+
+            // 2. Buat Direktori Penyimpanan QR jika Belum Ada
+            $folder = storage_path('app/public/qrcodes');
+            if (! File::exists($folder)) {
+                File::makeDirectory($folder, 0755, true);
             }
 
+            // 3. Generate File QR Code dengan Simple QrCode (SVG Format)
+            $filename = $bookingRef . '.svg';
+            $path     = $folder . '/' . $filename;
+
+            QrCode::size(300)->generate(
+                json_encode([
+                    'booking_ref' => $bookingRef,
+                    'customer'    => $request->customer_name,
+                ]),
+                $path
+            );
+
+            // 4. Simpan Record Booking
             return Booking::create([
-                'booking_ref' => strtoupper(Str::random(8)),
-                'tubing_package_id' => $package->id,
-                'tubing_session_id' => $session->id,
-                'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
-                'customer_email' => $request->customer_email,
-                'ticket_qty' => $request->ticket_qty,
-                'total_price' => $totalPrice,
-                'payment_status' => 'pending',
-                'arrival_status' => 'expected',
-                'midtrans_order_id' => $orderId,
+                'booking_ref'         => $bookingRef,
+                'tubing_package_id'   => $package->id,
+                'tubing_session_id'   => $session->id,
+                'customer_name'       => $request->customer_name,
+                'customer_phone'      => $request->customer_phone,
+                'customer_email'      => $request->customer_email,
+                'ticket_qty'          => $request->ticket_qty,
+                'total_price'         => $totalPrice,
+                'payment_status'      => 'pending',
+                'arrival_status'      => 'expected',
+                'midtrans_order_id'   => $orderId,
                 'midtrans_snap_token' => $snapToken,
-                'expired_at' => $expiredAt,
-                'qr_code' => null,
+                'expired_at'          => $expiredAt,
+                'qr_code'             => 'WT-QR-' . $bookingRef,
             ]);
         });
 
-        try {
+        // Load relasi agar data package & session muncul sempurna di BookingResource
+        $booking->load(['package', 'session']);
 
+        // Kirim Email Konfirmasi
+        try {
             Mail::to($booking->customer_email)
                 ->send(new BookingConfirmationMail($booking));
-
         } catch (\Exception $e) {
-
             Log::error('Failed Send Booking Email', [
                 'booking_id' => $booking->id,
-                'email' => $booking->customer_email,
-                'message' => $e->getMessage(),
+                'email'      => $booking->customer_email,
+                'message'    => $e->getMessage(),
             ]);
         }
 
+        // Return Menggunakan BookingResource
         return response()->json([
             'message' => 'Booking created successfully.',
-            'data' => [
-                'booking_ref' => $booking->booking_ref,
-                'snap_token' => $booking->midtrans_snap_token,
-                'payment_status' => $booking->payment_status,
-                'expired_at' => $booking->expired_at,
-            ]
+            'data'    => new BookingResource($booking),
         ], 201);
 
     } catch (\Exception $e) {
-
         Log::error('Checkout Error', [
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
+            'trace'   => $e->getTraceAsString(),
         ]);
 
         $status = 500;
-
         if (
             $e->getMessage() === 'Session is cancelled due to weather emergency.' ||
             $e->getMessage() === 'Not enough slots available for this session.'
@@ -277,7 +286,7 @@ class BookingController extends Controller
 
         return response()->json([
             'message' => $e->getMessage(),
-            'error' => config('app.debug') ? $e->getMessage() : null,
+            'error'   => config('app.debug') ? $e->getMessage() : null,
         ], $status);
     }
 }
